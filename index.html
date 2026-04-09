@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NS EXECUTIVE | Taxi & Turismo</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/HscJ49bT/LOGO-SOPHIE-STORE.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#070707;
+  --panel:#101010;
+  --panel-2:#151515;
+  --panel-3:#1b1b1b;
+  --text:#f5f5f5;
+  --muted:#b7b7b7;
+  --line:#262626;
+  --accent:#18c964;
+  --accent-2:#0ea34f;
+  --danger:#d32f2f;
+  --shadow:0 12px 30px rgba(0,0,0,.28);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(180deg,#090909 0%, #0c0c0c 40%, #101010 100%);
+  color:var(--text);
+}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+button,input,select,textarea{font:inherit}
+
+#btnInstalar{
+  display:none;
+  text-align:center;
+  padding:10px 14px;
+  background:#000;
+  color:#fff;
+  font-size:14px;
+  border-bottom:1px solid #151515;
+}
+#btnInstalar button{
+  margin-left:10px;
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  backdrop-filter:blur(10px);
+  background:rgba(5,5,5,.9);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.topbar{
+  max-width:1280px;
+  margin:auto;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.brand img{
+  width:54px;
+  height:54px;
+  object-fit:cover;
+  border-radius:14px;
+  background:#111;
+  box-shadow:var(--shadow);
+}
+.brand h1{
+  margin:0;
+  font-family:'Fredoka',sans-serif;
+  font-size:28px;
+  line-height:1;
+  letter-spacing:.2px;
+}
+.brand p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.nav a{
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  color:#e8e8e8;
+  background:rgba(255,255,255,.02);
+}
+.nav a.cta{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+  font-weight:700;
+}
+
+.hero{
+  max-width:1280px;
+  margin:auto;
+  padding:28px 18px 18px;
+}
+.hero-box{
+  border-radius:28px;
+  overflow:hidden;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),
+    linear-gradient(120deg,#0a0a0a,#121212 55%, #0d0d0d);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:var(--shadow);
+  display:grid;
+  grid-template-columns:1.25fr .95fr;
+  min-height:460px;
+}
+.hero-left{
+  padding:42px 34px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(24,201,100,.12);
+  color:#8bf0b5;
+  border:1px solid rgba(24,201,100,.25);
+  font-size:13px;
+  margin-bottom:16px;
+}
+.hero-title{
+  font-family:'Fredoka',sans-serif;
+  font-size:54px;
+  line-height:1.02;
+  margin:0 0 16px;
+}
+.hero-title span{color:var(--accent)}
+.hero-text{
+  max-width:620px;
+  color:#d0d0d0;
+  font-size:16px;
+  line-height:1.7;
+  margin-bottom:26px;
+}
+.hero-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.btn-main,.btn-alt{
+  padding:14px 18px;
+  border-radius:14px;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  display:inline-block;
+}
+.btn-main{
+  background:var(--accent);
+  color:#fff;
+}
+.btn-alt{
+  background:#151515;
+  color:#fff;
+  border:1px solid var(--line);
+}
+.hero-points{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:26px;
+}
+.point{
+  background:#111;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 14px;
+  min-width:150px;
+}
+.point b{display:block;font-size:15px;margin-bottom:4px}
+.point span{font-size:12px;color:var(--muted)}
+
+.hero-right{
+  position:relative;
+  background:
+    radial-gradient(circle at top right, rgba(24,201,100,.12), transparent 38%),
+    radial-gradient(circle at bottom left, rgba(255,255,255,.06), transparent 28%),
+    #0c0c0c;
+  border-left:1px solid rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+.mock-card{
+  width:100%;
+  max-width:430px;
+  border-radius:24px;
+  padding:22px;
+  background:linear-gradient(180deg,#141414,#0e0e0e);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:var(--shadow);
+}
+.mock-card h3{
+  margin:0 0 14px;
+  font-size:20px;
+}
+.mock-line{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  color:#ddd;
+}
+.mock-line span:last-child{
+  color:#fff;
+  font-weight:600;
+}
+.mock-btn{
+  margin-top:18px;
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:14px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:700;
+}
+
+.section{
+  max-width:1280px;
+  margin:auto;
+  padding:18px;
+}
+.section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+.section-head h2{
+  margin:0;
+  font-family:'Fredoka',sans-serif;
+  font-size:34px;
+}
+.section-head p{
+  margin:6px 0 0;
+  color:var(--muted);
+  max-width:720px;
+  line-height:1.6;
+}
+
+.services-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+}
+.service-card{
+  background:linear-gradient(180deg,#121212,#0f0f0f);
+  border:1px solid var(--line);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+}
+.service-cover{
+  height:170px;
+  background:
+    linear-gradient(140deg, rgba(24,201,100,.10), rgba(255,255,255,.02)),
+    radial-gradient(circle at top right, rgba(255,255,255,.12), transparent 34%),
+    #151515;
+  display:flex;
+  align-items:flex-end;
+  padding:16px;
+  font-family:'Fredoka',sans-serif;
+  font-size:26px;
+}
+.service-body{padding:16px}
+.service-body h3{margin:0 0 8px;font-size:18px}
+.service-body p{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+  min-height:66px;
+}
+.service-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.meta-pill{
+  padding:7px 10px;
+  border-radius:999px;
+  background:#171717;
+  border:1px solid var(--line);
+  font-size:12px;
+  color:#ddd;
+}
+.service-actions{
+  margin-top:auto;
+  padding:0 16px 16px;
+}
+.service-actions button{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:12px;
+  background:#171717;
+  border:1px solid var(--line);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.service-card.selected{
+  border-color:rgba(24,201,100,.6);
+  box-shadow:0 0 0 1px rgba(24,201,100,.25), var(--shadow);
+}
+.service-card.selected .service-actions button{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+
+.vehicles-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+.vehicle-card{
+  background:linear-gradient(180deg,#121212,#0f0f0f);
+  border:1px solid var(--line);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.vehicle-top{
+  padding:18px;
+  background:
+    radial-gradient(circle at top right, rgba(24,201,100,.16), transparent 38%),
+    #141414;
+}
+.vehicle-type{
+  font-family:'Fredoka',sans-serif;
+  font-size:28px;
+  margin:0 0 10px;
+}
+.vehicle-desc{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+  min-height:68px;
+}
+.vehicle-body{
+  padding:18px;
+}
+.vehicle-list{
+  display:grid;
+  gap:10px;
+  margin-bottom:16px;
+}
+.vehicle-item{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:10px;
+  color:#ddd;
+  font-size:14px;
+}
+.vehicle-item b{color:#fff}
+.vehicle-card button{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:12px;
+  background:#171717;
+  border:1px solid var(--line);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.vehicle-card.selected{
+  border-color:rgba(24,201,100,.6);
+  box-shadow:0 0 0 1px rgba(24,201,100,.25), var(--shadow);
+}
+.vehicle-card.selected button{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+
+.main-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:18px;
+  align-items:start;
+}
+.form-card,.summary-card{
+  background:linear-gradient(180deg,#111,#0e0e0e);
+  border:1px solid var(--line);
+  border-radius:24px;
+  box-shadow:var(--shadow);
+}
+.form-card{padding:20px}
+.summary-card{
+  position:sticky;
+  top:92px;
+  padding:20px;
+}
+.form-card h3,.summary-card h3{
+  margin:0 0 16px;
+  font-size:22px;
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.field label{
+  font-size:13px;
+  color:#ddd;
+  font-weight:600;
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  background:#141414;
+  border:1px solid var(--line);
+  color:#fff;
+  border-radius:14px;
+  padding:14px 14px;
+  outline:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:rgba(24,201,100,.6);
+  box-shadow:0 0 0 3px rgba(24,201,100,.12);
+}
+.field.full{grid-column:1/-1}
+.field textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.radio-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.radio-card{
+  background:#141414;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  cursor:pointer;
+  user-select:none;
+}
+.radio-card.active{
+  border-color:rgba(24,201,100,.6);
+  box-shadow:0 0 0 1px rgba(24,201,100,.25);
+  background:rgba(24,201,100,.08);
+}
+.radio-card b{
+  display:block;
+  margin-bottom:6px;
+}
+.radio-card span{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.summary-box{
+  display:grid;
+  gap:12px;
+}
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  font-size:14px;
+}
+.summary-row span:first-child{color:var(--muted)}
+.summary-row span:last-child{
+  color:#fff;
+  text-align:right;
+  font-weight:600;
+}
+.summary-note{
+  margin-top:10px;
+  color:#bdbdbd;
+  line-height:1.6;
+  font-size:13px;
+  background:#131313;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+}
+.summary-actions{
+  display:grid;
+  gap:10px;
+  margin-top:16px;
+}
+.summary-actions button{
+  width:100%;
+  border:none;
+  border-radius:14px;
+  padding:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.btn-wa{
+  background:var(--accent);
+  color:#fff;
+}
+.btn-clear{
+  background:#171717;
+  color:#fff;
+  border:1px solid var(--line);
+}
+
+.features{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+}
+.feature{
+  background:linear-gradient(180deg,#111,#0e0e0e);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.feature h4{
+  margin:0 0 10px;
+  font-size:17px;
+}
+.feature p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:14px;
+}
+
+footer{
+  margin-top:30px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:#090909;
+}
+.footer-wrap{
+  max-width:1280px;
+  margin:auto;
+  padding:26px 18px 34px;
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+}
+.footer-card{
+  background:#101010;
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:18px;
+}
+.footer-card h4{
+  margin:0 0 10px;
+}
+.footer-card p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+.copy{
+  text-align:center;
+  padding:0 18px 24px;
+  color:#8f8f8f;
+  font-size:13px;
+}
+
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:22px;
+  transform:translateX(-50%) translateY(20px);
+  background:#101010;
+  color:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px 18px;
+  box-shadow:var(--shadow);
+  opacity:0;
+  pointer-events:none;
+  transition:.28s ease;
+  z-index:9999;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+@media (max-width:1100px){
+  .hero-box,
+  .main-grid,
+  .footer-wrap{
+    grid-template-columns:1fr;
+  }
+  .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .features{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .summary-card{position:static}
+}
+@media (max-width:760px){
+  .hero-title{font-size:38px}
+  .topbar{padding:12px 14px}
+  .brand h1{font-size:23px}
+  .nav{display:none}
+  .services-grid,
+  .vehicles-grid,
+  .features,
+  .radio-grid,
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+  .hero-left,.hero-right{padding:22px}
+  .section{padding:14px}
+  .section-head{display:block}
+}
+</style>
+</head>
+<body>
+
+<div id="btnInstalar">
+📲 Instala nuestra app
+<button type="button" onclick="instalarApp()">Instalar</button>
+</div>
+
+<header>
+  <div class="topbar">
+    <div class="brand">
+      <img src="https://i.postimg.cc/HscJ49bT/LOGO-SOPHIE-STORE.jpg" alt="Logo">
+      <div>
+        <h1>NS EXECUTIVE</h1>
+        <p>Taxi ejecutivo · traslados · turismo privado</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#servicios">Servicios</a>
+      <a href="#vehiculos">Vehículos</a>
+      <a href="#reserva">Reservar</a>
+      <a href="#reserva" class="cta">Solicitar ahora</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-box">
+    <div class="hero-left">
+      <div class="badge">Disponibilidad previa coordinación · Atención personalizada</div>
+      <h2 class="hero-title">Taxi ejecutivo y <span>servicio turístico</span> con atención profesional</h2>
+      <div class="hero-text">
+        Reserva traslados privados, aeropuerto, movilidad corporativa, city tour y servicios por horas.
+        Elige el tipo de vehículo que necesitas y envía tu solicitud directamente por WhatsApp con todos los datos completos.
+      </div>
+
+      <div class="hero-actions">
+        <a href="#reserva" class="btn-main">Reservar ahora</a>
+        <a href="#vehiculos" class="btn-alt">Ver vehículos</a>
+      </div>
+
+      <div class="hero-points">
+        <div class="point">
+          <b>Atención ejecutiva</b>
+          <span>Imagen seria y servicio puntual</span>
+        </div>
+        <div class="point">
+          <b>Viajes privados</b>
+          <span>Ciudad, aeropuerto y turismo</span>
+        </div>
+        <div class="point">
+          <b>Reserva rápida</b>
+          <span>Solicitud directa por WhatsApp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="mock-card">
+        <h3>Resumen de solicitud</h3>
+        <div class="mock-line"><span>Servicio</span><span id="mockServicio">Aeropuerto</span></div>
+        <div class="mock-line"><span>Vehículo</span><span id="mockVehiculo">Camioneta SUV</span></div>
+        <div class="mock-line"><span>Atención</span><span id="mockAtencion">Ejecutivo</span></div>
+        <div class="mock-line"><span>Pasajeros</span><span id="mockPasajeros">3 personas</span></div>
+        <div class="mock-line"><span>Equipaje</span><span id="mockEquipaje">2 maletas</span></div>
+        <button class="mock-btn" onclick="document.getElementById('reserva').scrollIntoView({behavior:'smooth'})">Solicitar servicio</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="servicios">
+  <div class="section-head">
+    <div>
+      <h2>Servicios disponibles</h2>
+      <p>Selecciona el tipo de servicio que deseas. Luego podrás elegir el vehículo, completar tus datos y enviarnos la solicitud.</p>
+    </div>
+  </div>
+
+  <div class="services-grid" id="servicesGrid"></div>
+</section>
+
+<section class="section" id="vehiculos">
+  <div class="section-head">
+    <div>
+      <h2>Elige tu vehículo</h2>
+      <p>Para que tu solicitud llegue clara y profesional, el cliente puede elegir el tipo de unidad según cantidad de pasajeros, comodidad y equipaje.</p>
+    </div>
+  </div>
+
+  <div class="vehicles-grid" id="vehiclesGrid"></div>
+</section>
+
+<section class="section" id="reserva">
+  <div class="section-head">
+    <div>
+      <h2>Formulario de reserva</h2>
+      <p>Completa tu solicitud. El mensaje llegará armado por WhatsApp con formato ejecutivo y todos los datos importantes.</p>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="form-card">
+      <h3>Datos del servicio</h3>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Nombre del cliente *</label>
+          <input type="text" id="clienteNombre" placeholder="Tu nombre completo">
+        </div>
+
+        <div class="field">
+          <label>Celular *</label>
+          <input type="tel" id="clienteTelefono" placeholder="Tu número de contacto">
+        </div>
+
+        <div class="field full">
+          <label>Tipo de atención *</label>
+          <div class="radio-grid" id="tipoAtencionGrid">
+            <div class="radio-card active" data-atencion="Ejecutivo" onclick="seleccionarAtencion('Ejecutivo', this)">
+              <b>Ejecutivo</b>
+              <span>Imagen corporativa, puntualidad y atención formal.</span>
+            </div>
+            <div class="radio-card" data-atencion="Turístico" onclick="seleccionarAtencion('Turístico', this)">
+              <b>Turístico</b>
+              <span>Traslados, rutas, city tour y servicio para visitantes.</span>
+            </div>
+            <div class="radio-card" data-atencion="Corporativo" onclick="seleccionarAtencion('Corporativo', this)">
+              <b>Corporativo</b>
+              <span>Empresas, reuniones, recojo de personal o clientes.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Origen / recojo *</label>
+          <input type="text" id="origen" placeholder="Ej. Los Olivos, hotel, domicilio, aeropuerto">
+        </div>
+
+        <div class="field">
+          <label>Destino *</label>
+          <input type="text" id="destino" placeholder="Ej. Aeropuerto, oficina, distrito, tour">
+        </div>
+
+        <div class="field">
+          <label>Fecha *</label>
+          <input type="date" id="fechaServicio">
+        </div>
+
+        <div class="field">
+          <label>Hora *</label>
+          <input type="time" id="horaServicio">
+        </div>
+
+        <div class="field">
+          <label>Cantidad de pasajeros *</label>
+          <select id="pasajeros">
+            <option value="">Seleccionar</option>
+            <option>1 pasajero</option>
+            <option>2 pasajeros</option>
+            <option>3 pasajeros</option>
+            <option>4 pasajeros</option>
+            <option>5 pasajeros</option>
+            <option>6 pasajeros</option>
+            <option>7 pasajeros</option>
+            <option>8 pasajeros</option>
+            <option>9 pasajeros</option>
+            <option>10 pasajeros</option>
+            <option>11 pasajeros</option>
+            <option>12 pasajeros</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Equipaje / carga</label>
+          <select id="equipaje">
+            <option value="">Seleccionar</option>
+            <option>Sin equipaje</option>
+            <option>Equipaje ligero</option>
+            <option>1 maleta</option>
+            <option>2 maletas</option>
+            <option>3 maletas</option>
+            <option>Equipaje grande</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Tipo de viaje</label>
+          <select id="tipoViaje">
+            <option value="">Seleccionar</option>
+            <option>Solo ida</option>
+            <option>Ida y vuelta</option>
+            <option>Servicio por horas</option>
+            <option>Full day</option>
+            <option>Traslado aeropuerto</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Número de vuelo / referencia</label>
+          <input type="text" id="vuelo" placeholder="Opcional">
+        </div>
+
+        <div class="field full">
+          <label>Observaciones</label>
+          <textarea id="observaciones" placeholder="Ej. 2 maletas grandes, recoger en puerta principal, silla de bebé, ruta turística, facturación, etc."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h3>Resumen</h3>
+
+      <div class="summary-box">
+        <div class="summary-row"><span>Servicio</span><span id="resServicio">No seleccionado</span></div>
+        <div class="summary-row"><span>Vehículo</span><span id="resVehiculo">No seleccionado</span></div>
+        <div class="summary-row"><span>Atención</span><span id="resAtencion">Ejecutivo</span></div>
+        <div class="summary-row"><span>Cliente</span><span id="resCliente">-</span></div>
+        <div class="summary-row"><span>Teléfono</span><span id="resTelefono">-</span></div>
+        <div class="summary-row"><span>Origen</span><span id="resOrigen">-</span></div>
+        <div class="summary-row"><span>Destino</span><span id="resDestino">-</span></div>
+        <div class="summary-row"><span>Fecha / hora</span><span id="resFechaHora">-</span></div>
+        <div class="summary-row"><span>Pasajeros</span><span id="resPasajeros">-</span></div>
+        <div class="summary-row"><span>Equipaje</span><span id="resEquipaje">-</span></div>
+        <div class="summary-row"><span>Viaje</span><span id="resTipoViaje">-</span></div>
+      </div>
+
+      <div class="summary-note">
+        La solicitud se enviará por WhatsApp con formato profesional para agilizar la atención. Puedes usar esta web como catálogo de servicios y reservas desde celular.
+      </div>
+
+      <div class="summary-actions">
+        <button class="btn-wa" id="btnEnviar" onclick="enviarWhatsApp()">Solicitar servicio por WhatsApp</button>
+        <button class="btn-clear" onclick="limpiarFormulario()">Limpiar formulario</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <div>
+      <h2>Ventajas del servicio</h2>
+      <p>Diseñado para verse serio, premium y fácil de usar tanto en celular como en escritorio.</p>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <h4>Imagen ejecutiva</h4>
+      <p>Diseño limpio y profesional para clientes particulares, corporativos y turísticos.</p>
+    </div>
+    <div class="feature">
+      <h4>Solicitud clara</h4>
+      <p>El cliente define servicio, vehículo, horario, pasajeros y observaciones antes de escribir.</p>
+    </div>
+    <div class="feature">
+      <h4>Más rápido por WhatsApp</h4>
+      <p>El mensaje llega ordenado, sin tener que preguntar todo desde cero.</p>
+    </div>
+    <div class="feature">
+      <h4>Instalable como app</h4>
+      <p>Puede agregarse a la pantalla de inicio del celular para un acceso más directo.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-wrap">
+    <div class="footer-card">
+      <h4>NS EXECUTIVE</h4>
+      <p>Servicio privado de taxi ejecutivo, traslados al aeropuerto, city tour, movilidad turística y atención corporativa previa coordinación.</p>
+    </div>
+    <div class="footer-card">
+      <h4>Reservas</h4>
+      <p>Solicitudes por WhatsApp, atención personalizada y coordinación según horario, ruta, tipo de unidad y cantidad de pasajeros.</p>
+    </div>
+  </div>
+  <div class="copy">© NS EXECUTIVE · Taxi y Turismo Ejecutivo</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const WHATSAPP_NUMBER = "51992044102";
+
+const servicios = [
+  {
+    id:"taxi-ejecutivo",
+    nombre:"Taxi Ejecutivo",
+    descripcion:"Traslados privados dentro de la ciudad con atención puntual y presentación profesional.",
+    tiempo:"Ciudad",
+    ideal:"Reuniones · oficina · domicilio"
+  },
+  {
+    id:"aeropuerto",
+    nombre:"Aeropuerto",
+    descripcion:"Recojo y traslado al aeropuerto con coordinación previa, puntualidad y manejo de equipaje.",
+    tiempo:"24/7 previa coordinación",
+    ideal:"Llegadas · salidas · vuelos"
+  },
+  {
+    id:"turistico",
+    nombre:"Servicio Turístico",
+    descripcion:"Rutas privadas, visitas, city tour y traslados turísticos con atención personalizada.",
+    tiempo:"Turismo",
+    ideal:"Parejas · familias · visitantes"
+  },
+  {
+    id:"horas",
+    nombre:"Servicio por Horas",
+    descripcion:"Movilidad disponible por bloques de tiempo para diligencias, negocios o recorridos programados.",
+    tiempo:"Flexible",
+    ideal:"Empresas · trámites · recorridos"
+  }
+];
+
+const vehiculos = [
+  {
+    id:"auto",
+    nombre:"Auto Ejecutivo",
+    pasajeros:"1 a 3 pasajeros",
+    equipaje:"Equipaje ligero",
+    ideal:"Ciudad y traslados rápidos",
+    descripcion:"Unidad ideal para traslados ejecutivos, reuniones, aeropuerto ligero y servicios personales."
+  },
+  {
+    id:"camioneta",
+    nombre:"Camioneta SUV",
+    pasajeros:"1 a 5 pasajeros",
+    equipaje:"Más espacio y confort",
+    ideal:"Ejecutivo y familiar",
+    descripcion:"Mayor comodidad, mejor imagen y espacio para pasajeros y equipaje mediano."
+  },
+  {
+    id:"van",
+    nombre:"Van",
+    pasajeros:"6 a 12 pasajeros",
+    equipaje:"Grupos y turismo",
+    ideal:"Tours, empresas y grupos",
+    descripcion:"Perfecta para grupos, city tours, traslados corporativos y familias con más equipaje."
+  }
+];
+
+let servicioSeleccionado = servicios[1];
+let vehiculoSeleccionado = vehiculos[1];
+let tipoAtencionSeleccionado = "Ejecutivo";
+let deferredPrompt = null;
+
+const servicesGrid = document.getElementById("servicesGrid");
+const vehiclesGrid = document.getElementById("vehiclesGrid");
+
+renderServicios();
+renderVehiculos();
+actualizarResumen();
+setMinFechaHoy();
+asignarEventosResumen();
+
+function renderServicios(){
+  servicesGrid.innerHTML = "";
+  servicios.forEach(s=>{
+    const selected = servicioSeleccionado && servicioSeleccionado.id === s.id;
+    servicesGrid.innerHTML += `
+      <div class="service-card ${selected ? "selected" : ""}" data-id="${s.id}">
+        <div class="service-cover">${s.nombre}</div>
+        <div class="service-body">
+          <h3>${s.nombre}</h3>
+          <p>${s.descripcion}</p>
+          <div class="service-meta">
+            <span class="meta-pill">${s.tiempo}</span>
+            <span class="meta-pill">${s.ideal}</span>
+          </div>
+        </div>
+        <div class="service-actions">
+          <button type="button" onclick="seleccionarServicio('${s.id}')">${selected ? "Seleccionado" : "Elegir servicio"}</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function renderVehiculos(){
+  vehiclesGrid.innerHTML = "";
+  vehiculos.forEach(v=>{
+    const selected = vehiculoSeleccionado && vehiculoSeleccionado.id === v.id;
+    vehiclesGrid.innerHTML += `
+      <div class="vehicle-card ${selected ? "selected" : ""}" data-id="${v.id}">
+        <div class="vehicle-top">
+          <div class="vehicle-type">${v.nombre}</div>
+          <div class="vehicle-desc">${v.descripcion}</div>
+        </div>
+        <div class="vehicle-body">
+          <div class="vehicle-list">
+            <div class="vehicle-item"><span>Capacidad</span><b>${v.pasajeros}</b></div>
+            <div class="vehicle-item"><span>Equipaje</span><b>${v.equipaje}</b></div>
+            <div class="vehicle-item"><span>Ideal para</span><b>${v.ideal}</b></div>
+          </div>
+          <button type="button" onclick="seleccionarVehiculo('${v.id}')">${selected ? "Seleccionado" : "Elegir vehículo"}</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+function seleccionarServicio(id){
+  servicioSeleccionado = servicios.find(x=>x.id===id) || null;
+  renderServicios();
+  actualizarResumen();
+  mostrarToast("Servicio seleccionado");
+  document.getElementById("reserva").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function seleccionarVehiculo(id){
+  vehiculoSeleccionado = vehiculos.find(x=>x.id===id) || null;
+  renderVehiculos();
+  actualizarResumen();
+  mostrarToast("Vehículo seleccionado");
+}
+
+function seleccionarAtencion(tipo, el){
+  tipoAtencionSeleccionado = tipo;
+  document.querySelectorAll("#tipoAtencionGrid .radio-card").forEach(x=>x.classList.remove("active"));
+  if(el) el.classList.add("active");
+  actualizarResumen();
+}
+
+function setMinFechaHoy(){
+  const hoy = new Date();
+  const yyyy = hoy.getFullYear();
+  const mm = String(hoy.getMonth()+1).padStart(2,"0");
+  const dd = String(hoy.getDate()).padStart(2,"0");
+  document.getElementById("fechaServicio").min = `${yyyy}-${mm}-${dd}`;
+}
+
+function asignarEventosResumen(){
+  [
+    "clienteNombre","clienteTelefono","origen","destino",
+    "fechaServicio","horaServicio","pasajeros","equipaje",
+    "tipoViaje","vuelo","observaciones"
+  ].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener("input", actualizarResumen);
+      el.addEventListener("change", actualizarResumen);
+    }
+  });
+}
+
+function valor(id){
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : "";
+}
+
+function actualizarResumen(){
+  document.getElementById("resServicio").textContent = servicioSeleccionado ? servicioSeleccionado.nombre : "No seleccionado";
+  document.getElementById("resVehiculo").textContent = vehiculoSeleccionado ? vehiculoSeleccionado.nombre : "No seleccionado";
+  document.getElementById("resAtencion").textContent = tipoAtencionSeleccionado || "-";
+  document.getElementById("resCliente").textContent = valor("clienteNombre") || "-";
+  document.getElementById("resTelefono").textContent = valor("clienteTelefono") || "-";
+  document.getElementById("resOrigen").textContent = valor("origen") || "-";
+  document.getElementById("resDestino").textContent = valor("destino") || "-";
+  document.getElementById("resFechaHora").textContent = construirFechaHora();
+  document.getElementById("resPasajeros").textContent = valor("pasajeros") || "-";
+  document.getElementById("resEquipaje").textContent = valor("equipaje") || "-";
+  document.getElementById("resTipoViaje").textContent = valor("tipoViaje") || "-";
+
+  document.getElementById("mockServicio").textContent = servicioSeleccionado ? servicioSeleccionado.nombre : "Servicio";
+  document.getElementById("mockVehiculo").textContent = vehiculoSeleccionado ? vehiculoSeleccionado.nombre : "Vehículo";
+  document.getElementById("mockAtencion").textContent = tipoAtencionSeleccionado || "-";
+  document.getElementById("mockPasajeros").textContent = valor("pasajeros") || "1 a 3 personas";
+  document.getElementById("mockEquipaje").textContent = valor("equipaje") || "Equipaje ligero";
+}
+
+function construirFechaHora(){
+  const f = valor("fechaServicio");
+  const h = valor("horaServicio");
+  if(!f && !h) return "-";
+  if(f && h) return `${f} · ${h}`;
+  return f || h || "-";
+}
+
+function enviarWhatsApp(){
+  const nombre = valor("clienteNombre");
+  const telefono = valor("clienteTelefono");
+  const origen = valor("origen");
+  const destino = valor("destino");
+  const fecha = valor("fechaServicio");
+  const hora = valor("horaServicio");
+  const pasajeros = valor("pasajeros");
+
+  if(!servicioSeleccionado){
+    mostrarToast("Selecciona un servicio", "error");
+    return;
+  }
+  if(!vehiculoSeleccionado){
+    mostrarToast("Selecciona un vehículo", "error");
+    return;
+  }
+  if(!nombre){
+    mostrarToast("Completa el nombre del cliente", "error");
+    document.getElementById("clienteNombre").focus();
+    return;
+  }
+  if(!telefono){
+    mostrarToast("Completa el celular", "error");
+    document.getElementById("clienteTelefono").focus();
+    return;
+  }
+  if(!origen){
+    mostrarToast("Completa el origen", "error");
+    document.getElementById("origen").focus();
+    return;
+  }
+  if(!destino){
+    mostrarToast("Completa el destino", "error");
+    document.getElementById("destino").focus();
+    return;
+  }
+  if(!fecha){
+    mostrarToast("Selecciona la fecha", "error");
+    document.getElementById("fechaServicio").focus();
+    return;
+  }
+  if(!hora){
+    mostrarToast("Selecciona la hora", "error");
+    document.getElementById("horaServicio").focus();
+    return;
+  }
+  if(!pasajeros){
+    mostrarToast("Selecciona la cantidad de pasajeros", "error");
+    document.getElementById("pasajeros").focus();
+    return;
+  }
+
+  let mensaje = "🚖 *SOLICITUD DE SERVICIO - NS EXECUTIVE*\n\n";
+  mensaje += `👤 *Cliente:* ${nombre}\n`;
+  mensaje += `📞 *Celular:* ${telefono}\n\n`;
+
+  mensaje += "📋 *DETALLE DEL SERVICIO*\n";
+  mensaje += `• Servicio: ${servicioSeleccionado.nombre}\n`;
+  mensaje += `• Vehículo: ${vehiculoSeleccionado.nombre}\n`;
+  mensaje += `• Atención: ${tipoAtencionSeleccionado}\n`;
+  mensaje += `• Tipo de viaje: ${valor("tipoViaje") || "No especificado"}\n\n`;
+
+  mensaje += "📍 *RUTA*\n";
+  mensaje += `• Origen: ${origen}\n`;
+  mensaje += `• Destino: ${destino}\n\n`;
+
+  mensaje += "🗓️ *PROGRAMACIÓN*\n";
+  mensaje += `• Fecha: ${fecha}\n`;
+  mensaje += `• Hora: ${hora}\n`;
+  mensaje += `• Pasajeros: ${pasajeros}\n`;
+  mensaje += `• Equipaje: ${valor("equipaje") || "No especificado"}\n`;
+  mensaje += `• Vuelo / referencia: ${valor("vuelo") || "No especificado"}\n\n`;
+
+  mensaje += `📝 *Observaciones:* ${valor("observaciones") || "Ninguna"}\n\n`;
+  mensaje += "Gracias. Quedo atento(a) a su confirmación y cotización.";
+
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, "_blank");
+}
+
+function limpiarFormulario(){
+  document.getElementById("clienteNombre").value = "";
+  document.getElementById("clienteTelefono").value = "";
+  document.getElementById("origen").value = "";
+  document.getElementById("destino").value = "";
+  document.getElementById("fechaServicio").value = "";
+  document.getElementById("horaServicio").value = "";
+  document.getElementById("pasajeros").value = "";
+  document.getElementById("equipaje").value = "";
+  document.getElementById("tipoViaje").value = "";
+  document.getElementById("vuelo").value = "";
+  document.getElementById("observaciones").value = "";
+
+  servicioSeleccionado = servicios[1];
+  vehiculoSeleccionado = vehiculos[1];
+  tipoAtencionSeleccionado = "Ejecutivo";
+
+  document.querySelectorAll("#tipoAtencionGrid .radio-card").forEach(x=>x.classList.remove("active"));
+  const primera = document.querySelector('#tipoAtencionGrid .radio-card[data-atencion="Ejecutivo"]');
+  if(primera) primera.classList.add("active");
+
+  renderServicios();
+  renderVehiculos();
+  actualizarResumen();
+  mostrarToast("Formulario limpio");
+}
+
+function mostrarToast(mensaje, tipo="ok"){
+  const toast = document.getElementById("toast");
+  toast.textContent = mensaje;
+  toast.style.borderColor = tipo === "error" ? "rgba(211,47,47,.45)" : "rgba(24,201,100,.35)";
+  toast.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(()=>{
+    toast.classList.remove("show");
+  }, 2600);
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById("btnInstalar");
+  if(btn) btn.style.display = "block";
+});
+
+function instalarApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    const btn = document.getElementById("btnInstalar");
+    if(btn) btn.style.display = "none";
+  });
+}
+</script>
+
+</body>
+</html>
