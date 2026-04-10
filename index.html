@@ -1,1120 +1,202 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b0f17" />
-  <title>NS STELLAR EXPERIENCE | Traslados</title>
-  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia y tarifa estimada." />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NS STELLAR EXPERIENCE</title>
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="logo-192.png" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-
-  <style>
-    :root{
-      --bg:#070b12;
-      --bg2:#0d1420;
-      --card:#0f1724;
-      --line:rgba(255,255,255,.08);
-      --text:#f5f7fb;
-      --muted:#9caec4;
-      --gold:#d9b36a;
-      --gold2:#f3d8a3;
-      --ok:#27c786;
-      --warn:#ff8d8d;
-      --shadow:0 20px 60px rgba(0,0,0,.36);
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top right, rgba(217,179,106,.16), transparent 22%),
-        radial-gradient(circle at left center, rgba(74,109,168,.14), transparent 20%),
-        linear-gradient(180deg, #08101a 0%, #05080e 100%);
-      min-height:100vh;
-    }
-
-    a{text-decoration:none;color:inherit}
-    img{display:block;max-width:100%}
-    .container{width:min(1240px, calc(100% - 28px));margin:auto}
-
-    .topbar{
-      position:sticky;top:0;z-index:80;
-      backdrop-filter:blur(16px);
-      background:rgba(7,11,18,.78);
-      border-bottom:1px solid rgba(255,255,255,.05);
-    }
-    .nav{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:16px;padding:14px 0;
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:0}
-    .brand-logo{
-      width:52px;height:52px;border-radius:15px;overflow:hidden;
-      background:#0c1220;border:1px solid rgba(255,255,255,.08);flex:none;
-      box-shadow:var(--shadow)
-    }
-    .brand-text strong{display:block;font-size:1rem}
-    .brand-text span{display:block;color:var(--muted);font-size:.84rem}
-
-    .nav-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      border:none;cursor:pointer;font:inherit;font-weight:700;
-      padding:13px 18px;border-radius:16px;transition:.22s ease;
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn-outline{
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      color:var(--text)
-    }
-    .btn-gold{
-      background:linear-gradient(135deg,var(--gold),var(--gold2));
-      color:#121212;
-      box-shadow:0 12px 28px rgba(217,179,106,.24)
-    }
-    .btn-red{
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.08);
-      color:#fff;
-    }
-    .btn-block{width:100%}
-
-    .hero{padding:40px 0 18px}
-    .hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:24px;align-items:stretch}
-    .panel{
-      border:1px solid var(--line);
-      border-radius:30px;
-      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
-      box-shadow:var(--shadow);
-    }
-    .hero-copy{padding:36px}
-    .eyebrow{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 14px;border-radius:999px;
-      color:var(--gold2);font-size:.84rem;font-weight:700;
-      background:rgba(217,179,106,.08);
-      border:1px solid rgba(217,179,106,.16)
-    }
-    h1{
-      margin:18px 0 12px;
-      font-size:clamp(2.15rem,5vw,4.2rem);
-      line-height:1.02;letter-spacing:-.045em;
-    }
-    .lead{
-      font-size:1.04rem;line-height:1.72;color:var(--muted);
-      max-width:62ch;margin-bottom:24px;
-    }
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-
-    .hero-side{padding:24px}
-    .hero-card-top{
-      padding:20px;border-radius:22px;background:linear-gradient(180deg,#101827,#0d1522);
-      border:1px solid var(--line)
-    }
-    .hero-card-top strong{display:block;font-size:1.08rem}
-    .hero-card-top p{margin:10px 0 0;color:var(--muted);line-height:1.66}
-    .hero-points{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
-    .point{padding:16px;border-radius:18px;background:var(--bg2);border:1px solid var(--line)}
-    .point strong{display:block;margin-bottom:6px}
-    .point span{color:var(--muted);font-size:.92rem;line-height:1.6}
-
-    .section{padding:26px 0}
-    .section-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:18px}
-    .section-head h2{margin:0;font-size:1.75rem}
-    .section-head p{margin:8px 0 0;color:var(--muted)}
-
-    .booking-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:24px}
-    .form-panel,.summary-panel{padding:24px}
-
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    .field{display:flex;flex-direction:column;gap:8px;position:relative}
-    .field.full{grid-column:1/-1}
-    label{font-size:.93rem;font-weight:700}
-    input,select,textarea{
-      width:100%;padding:14px 15px;border-radius:16px;
-      background:#0b1320;color:var(--text);
-      border:1px solid rgba(255,255,255,.08);outline:none;font:inherit;
-      transition:.18s ease;
-    }
-    input:focus,select:focus,textarea:focus{
-      border-color:rgba(217,179,106,.42);
-      box-shadow:0 0 0 4px rgba(217,179,106,.08)
-    }
-    textarea{min-height:100px;resize:vertical}
-
-    .input-with-btn{
-      display:grid;
-      grid-template-columns:1fr auto auto;
-      gap:10px;
-      align-items:center;
-    }
-
-    .small-note{
-      font-size:.82rem;
-      color:var(--muted);
-      line-height:1.5;
-      margin-top:4px;
-    }
-
-    .suggestions{
-      position:absolute;
-      top:100%;
-      left:0;
-      right:0;
-      z-index:90;
-      margin-top:6px;
-      background:#101827;
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:18px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      display:none;
-      max-height:260px;
-      overflow-y:auto;
-    }
-    .suggestions.show{display:block}
-    .suggestion{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-      cursor:pointer;
-      transition:.15s ease;
-    }
-    .suggestion:last-child{border-bottom:none}
-    .suggestion:hover{background:rgba(255,255,255,.05)}
-    .suggestion-title{font-weight:700;font-size:.94rem}
-    .suggestion-sub{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:4px}
-
-    .switches,.vehicle-grid{display:grid;gap:12px}
-    .switches{grid-template-columns:repeat(2,1fr)}
-    .vehicle-grid{grid-template-columns:repeat(2,1fr)}
-
-    .choice,.vehicle{
-      padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);
-      cursor:pointer;transition:.22s ease;
-    }
-    .choice:hover,.vehicle:hover{transform:translateY(-2px);border-color:rgba(217,179,106,.38)}
-    .choice.active,.vehicle.active{
-      border-color:rgba(217,179,106,.75);
-      background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
-      box-shadow:0 10px 26px rgba(0,0,0,.18)
-    }
-    .choice strong,.vehicle strong{display:block;margin-bottom:6px}
-    .choice small,.vehicle small{display:block;color:var(--muted);line-height:1.55}
-    .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
-
-    #map{
-      width:100%;height:350px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
-    }
-
-    .summary-main{
-      margin-top:16px;padding:20px;border-radius:24px;
-      background:linear-gradient(180deg,#0f1929,#0b1320);
-      border:1px solid var(--line)
-    }
-    .row{
-      display:flex;justify-content:space-between;gap:12px;padding:12px 0;
-      border-bottom:1px dashed rgba(255,255,255,.08)
-    }
-    .row:last-child{border-bottom:none}
-    .row span:first-child{color:var(--muted)}
-    .fare{
-      margin-top:10px;font-size:2.15rem;font-weight:800;letter-spacing:-.04em
-    }
-    .fare-sub{margin-top:8px;color:var(--muted);font-size:.92rem;line-height:1.62}
-
-    .alert{
-      margin-top:14px;padding:14px 15px;border-radius:16px;border:1px solid rgba(255,255,255,.08);
-      display:none;line-height:1.58
-    }
-    .alert.show{display:block}
-    .alert.warn{background:rgba(255,118,118,.08);border-color:rgba(255,118,118,.2);color:#ffd2d2}
-    .alert.ok{background:rgba(39,199,134,.08);border-color:rgba(39,199,134,.2);color:#ccffe9}
-
-    .cta-box{margin-top:16px;display:grid;gap:10px}
-
-    .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .trust-card{padding:18px;border-radius:20px;background:var(--bg2);border:1px solid var(--line)}
-    .trust-card strong{display:block;margin-bottom:8px}
-    .trust-card span{color:var(--muted);font-size:.94rem;line-height:1.6}
-
-    .footer{padding:28px 0 42px;color:var(--muted)}
-    .footer-box{
-      display:flex;justify-content:space-between;gap:16px;align-items:center;
-      padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.02);border:1px solid var(--line)
-    }
-
-    .floating-wa{
-      position:fixed;right:16px;bottom:16px;z-index:70;
-      display:inline-flex;align-items:center;justify-content:center;
-      width:60px;height:60px;border-radius:50%;
-      background:linear-gradient(135deg,#25d366,#1faa55);color:#fff;
-      font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,.35)
-    }
-
-    @media (max-width:980px){
-      .hero-grid,.booking-grid{grid-template-columns:1fr}
-      .trust{grid-template-columns:repeat(2,1fr)}
-    }
-    @media (max-width:760px){
-      .nav{flex-direction:column;align-items:stretch}
-      .nav-actions{justify-content:stretch}
-      .nav-actions .btn{flex:1}
-      .hero-copy,.hero-side,.form-panel,.summary-panel{padding:18px}
-      .grid,.switches,.vehicle-grid,.hero-points,.trust{grid-template-columns:1fr}
-      .footer-box{flex-direction:column;align-items:flex-start}
-      #map{height:300px}
-      .input-with-btn{grid-template-columns:1fr}
-    }
-  </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<style>
+body{margin:0;font-family:Arial;background:#0b0f14;color:#fff}
+.container{display:flex;flex-wrap:wrap}
+.panel{width:420px;max-width:100%;padding:20px}
+.map{flex:1;min-height:100vh}
+input,select,button{
+  width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;
+}
+button{background:#d4af37;color:#000;font-weight:bold;cursor:pointer}
+.sugerencias{
+  background:#111;border-radius:6px;max-height:150px;overflow:auto;
+}
+.sugerencias div{padding:8px;border-bottom:1px solid #222;cursor:pointer}
+.sugerencias div:hover{background:#222}
+.card{background:#111;padding:10px;border-radius:10px;margin-top:10px}
+</style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="container nav">
-      <div class="brand">
-        <div class="brand-logo"><img src="logo-192.png" alt="NS Stellar Experience"></div>
-        <div class="brand-text">
-          <strong>NS STELLAR EXPERIENCE</strong>
-          <span>RUC: 10603104260</span>
-        </div>
-      </div>
-      <div class="nav-actions">
-        <a class="btn btn-outline" href="#tarifador">Solicitar inmediato</a>
-        <a class="btn btn-gold" href="#tarifador">Reservar traslado</a>
-      </div>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="panel hero-copy">
-          <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
-          <h1>Solicita o reserva tu traslado con una experiencia premium.</h1>
-          <p class="lead">
-            Una web elegante, moderna y pensada para celular y PC. El cliente cotiza por distancia, elige su unidad y confirma por WhatsApp con toda la información ya ordenada.
-          </p>
-          <div class="hero-actions">
-            <a class="btn btn-gold" href="#tarifador">Cotizar traslado</a>
-            <a class="btn btn-outline" href="#beneficios">Ver beneficios</a>
-          </div>
-        </div>
-
-        <div class="panel hero-side">
-          <div class="hero-card-top">
-            <strong>Imagen ejecutiva desde el primer vistazo</strong>
-            <p>
-              Esta versión está pensada para que tu cliente sienta un servicio más serio, claro y confiable antes de escribirte.
-            </p>
-          </div>
-          <div class="hero-points">
-            <div class="point"><strong>Autocompletado</strong><span>El cliente puede elegir direcciones sugeridas.</span></div>
-            <div class="point"><strong>Ubicación actual</strong><span>Un botón llena el origen automáticamente.</span></div>
-            <div class="point"><strong>Tarifa estimada</strong><span>Según distancia y unidad.</span></div>
-            <div class="point"><strong>WhatsApp directo</strong><span>Con mensaje completo y ordenado.</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="tarifador">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Tarifador profesional</h2>
-            <p>Calcula distancia, tiempo estimado y tarifa referencial según la unidad seleccionada.</p>
-          </div>
-        </div>
-
-        <div class="booking-grid">
-          <div class="panel form-panel">
-            <div class="field full">
-              <label>Tipo de servicio</label>
-              <div class="switches" id="serviceSwitches">
-                <div class="choice active" data-service="Solicitar ahora">
-                  <strong>Solicitar ahora</strong>
-                  <small>Servicio inmediato según disponibilidad.</small>
-                </div>
-                <div class="choice" data-service="Reserva programada">
-                  <strong>Reserva programada</strong>
-                  <small>Para fecha y hora definidas.</small>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid" style="margin-top:14px">
-              <div class="field full" id="originField">
-                <label for="origen">Origen</label>
-                <div class="input-with-btn">
-                  <input id="origen" type="text" placeholder="Escribe origen" autocomplete="off" />
-                  <button type="button" class="btn btn-outline" id="btnUbicacion">Usar mi ubicación</button>
-                  <button type="button" class="btn btn-red" id="btnLimpiarOrigen">Limpiar</button>
-                </div>
-                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
-                <div class="suggestions" id="origenSuggestions"></div>
-              </div>
-
-              <div class="field full" id="destinationField">
-                <label for="destino">Destino</label>
-                <div class="input-with-btn">
-                  <input id="destino" type="text" placeholder="Escribe destino" autocomplete="off" />
-                  <button type="button" class="btn btn-red" id="btnLimpiarDestino">Limpiar</button>
-                </div>
-                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
-                <div class="suggestions" id="destinoSuggestions"></div>
-              </div>
-
-              <div class="field reserva-only" style="display:none">
-                <label for="fecha">Fecha</label>
-                <input id="fecha" type="date" />
-              </div>
-
-              <div class="field reserva-only" style="display:none">
-                <label for="hora">Hora</label>
-                <input id="hora" type="time" />
-              </div>
-
-              <div class="field">
-                <label for="pasajeros">Pasajeros</label>
-                <input id="pasajeros" type="number" min="1" max="10" value="1" />
-              </div>
-
-              <div class="field">
-                <label for="equipaje">Equipaje</label>
-                <select id="equipaje">
-                  <option value="Sin equipaje">Sin equipaje</option>
-                  <option value="Ligero">Ligero</option>
-                  <option value="1 a 2 maletas medianas">1 a 2 maletas medianas</option>
-                  <option value="3 a 4 maletas medianas">3 a 4 maletas medianas</option>
-                  <option value="Maletas grandes">Maletas grandes</option>
-                </select>
-              </div>
-
-              <div class="field full">
-                <label>Tipo de vehículo</label>
-                <div class="vehicle-grid" id="vehicleGrid">
-                  <div class="vehicle active" data-key="auto">
-                    <strong>Auto</strong>
-                    <small>Traslado urbano</small>
-                    <ul>
-                      <li>1 a 3 pasajeros</li>
-                      <li>Hasta 2 maletas medianas</li>
-                      <li>Ideal para viajes ágiles</li>
-                    </ul>
-                  </div>
-
-                  <div class="vehicle" data-key="camioneta">
-                    <strong>Camioneta</strong>
-                    <small>Mayor comodidad</small>
-                    <ul>
-                      <li>1 a 5 pasajeros</li>
-                      <li>Hasta 4 maletas medianas</li>
-                      <li>Ideal para aeropuerto</li>
-                    </ul>
-                  </div>
-
-                  <div class="vehicle" data-key="van">
-                    <strong>Van</strong>
-                    <small>Para grupos</small>
-                    <ul>
-                      <li>6 a 10 pasajeros</li>
-                      <li>Equipaje amplio</li>
-                      <li>Ideal para traslados grupales</li>
-                    </ul>
-                  </div>
-
-                  <div class="vehicle" data-key="ejecutivo">
-                    <strong>Ejecutivo</strong>
-                    <small>Imagen corporativa</small>
-                    <ul>
-                      <li>1 a 3 pasajeros</li>
-                      <li>Servicio premium</li>
-                      <li>Ideal para clientes VIP</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="nombre">Nombre</label>
-                <input id="nombre" type="text" placeholder="Tu nombre" />
-              </div>
-
-              <div class="field">
-                <label for="telefono">Teléfono</label>
-                <input id="telefono" type="tel" placeholder="987654321" />
-              </div>
-
-              <div class="field full">
-                <label for="observaciones">Observaciones</label>
-                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto u otro detalle"></textarea>
-              </div>
-
-              <div class="field full">
-                <button class="btn btn-gold btn-block" id="btnCalcular">Calcular tarifa</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="panel summary-panel">
-            <div id="map"></div>
-
-            <div class="summary-main">
-              <div class="row"><span>Servicio</span><strong id="sumServicio">Solicitar ahora</strong></div>
-              <div class="row"><span>Vehículo</span><strong id="sumVehiculo">Auto</strong></div>
-              <div class="row"><span>Distancia</span><strong id="sumDistancia">—</strong></div>
-              <div class="row"><span>Tiempo estimado</span><strong id="sumTiempo">—</strong></div>
-              <div class="row"><span>Tarifa estimada</span><strong id="sumTarifa">—</strong></div>
-              <div class="fare" id="fareBig">S/ 0.00</div>
-              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario y disponibilidad.</div>
-            </div>
-
-            <div class="alert warn" id="warnBox"></div>
-            <div class="alert ok" id="okBox"></div>
-
-            <div class="cta-box">
-              <button class="btn btn-gold btn-block" id="btnWhatsApp">Confirmar por WhatsApp</button>
-              <button class="btn btn-outline btn-block" id="btnInstalar" style="display:none">Instalar app</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="beneficios">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Una experiencia más profesional</h2>
-            <p>Diseñada para inspirar confianza y verse bien en móvil y escritorio.</p>
-          </div>
-        </div>
-        <div class="trust">
-          <div class="trust-card"><strong>Autocompletado visual</strong><span>El cliente puede elegir direcciones sugeridas sin escribir todo completo.</span></div>
-          <div class="trust-card"><strong>Ubicación actual</strong><span>Un botón llena el origen con la ubicación del usuario.</span></div>
-          <div class="trust-card"><strong>Sugerencia inteligente</strong><span>La web recomienda una mejor unidad si la capacidad no coincide.</span></div>
-          <div class="trust-card"><strong>Lista para instalar</strong><span>Puede verse como app desde celular y PC.</span></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <div class="container footer-box">
-      <div>
-        <strong>NS STELLAR EXPERIENCE</strong><br>
-        <span>RUC: 20603104260 • Servicio de traslados</span>
-      </div>
-      <div><span>Web tipo app lista para GitHub Pages</span></div>
-    </div>
-  </footer>
-
-  <a class="floating-wa" id="floatingWa" href="#" aria-label="WhatsApp">WA</a>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossorigin=""></script>
-
-  <script>
-    const WHATSAPP_NUMBER = '51992044102';
-    const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA3MDI2NmM4YTZjZjRhZDE5ZTQwM2FmOGNmOTAzYmZmIiwiaCI6Im11cm11cjY0In0=';
-
-    const VEHICLES = {
-      auto: { name:'Auto', base:8, perKm:2.6, maxPassengers:3, maxLuggageLevel:2 },
-      camioneta: { name:'Camioneta', base:12, perKm:3.3, maxPassengers:5, maxLuggageLevel:3 },
-      van: { name:'Van', base:18, perKm:4.3, maxPassengers:10, maxLuggageLevel:4 },
-      ejecutivo: { name:'Ejecutivo', base:15, perKm:3.9, maxPassengers:3, maxLuggageLevel:2 }
-    };
-
-    const luggageLevels = {
-      'Sin equipaje': 1,
-      'Ligero': 1,
-      '1 a 2 maletas medianas': 2,
-      '3 a 4 maletas medianas': 3,
-      'Maletas grandes': 4
-    };
-
-    let currentService = 'Solicitar ahora';
-    let currentVehicle = 'auto';
-    let routeData = null;
-    let installPromptEvent = null;
-
-    let originSelection = null;
-    let destinationSelection = null;
-
-    const $ = id => document.getElementById(id);
-
-    const map = L.map('map').setView([-12.0464, -77.0428], 11);
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let routeLayer = null;
-    let markerOrigen = null;
-    let markerDestino = null;
-
-    const serviceChoices = [...document.querySelectorAll('#serviceSwitches .choice')];
-    const vehicleChoices = [...document.querySelectorAll('#vehicleGrid .vehicle')];
-    const reservaFields = [...document.querySelectorAll('.reserva-only')];
-
-    serviceChoices.forEach(el => {
-      el.addEventListener('click', () => {
-        serviceChoices.forEach(x => x.classList.remove('active'));
-        el.classList.add('active');
-        currentService = el.dataset.service;
-        const isReserva = currentService === 'Reserva programada';
-        reservaFields.forEach(x => x.style.display = isReserva ? 'flex' : 'none');
-        $('sumServicio').textContent = currentService;
-      });
-    });
-
-    vehicleChoices.forEach(el => {
-      el.addEventListener('click', () => {
-        vehicleChoices.forEach(x => x.classList.remove('active'));
-        el.classList.add('active');
-        currentVehicle = el.dataset.key;
-        $('sumVehiculo').textContent = VEHICLES[currentVehicle].name;
-        validateVehicleSuggestion();
-      });
-    });
-
-    $('pasajeros').addEventListener('input', validateVehicleSuggestion);
-    $('equipaje').addEventListener('change', validateVehicleSuggestion);
-
-    function showWarn(msg=''){
-      const box = $('warnBox');
-      box.textContent = msg;
-      box.classList.toggle('show', !!msg);
-    }
-
-    function showOk(msg=''){
-      const box = $('okBox');
-      box.textContent = msg;
-      box.classList.toggle('show', !!msg);
-    }
-
-    function formatMoney(n){
-      return `S/ ${Number(n || 0).toFixed(2)}`;
-    }
-
-    function validateVehicleSuggestion(){
-      const passengers = Math.max(1, Number($('pasajeros').value || 1));
-      const luggage = luggageLevels[$('equipaje').value] || 1;
-      const vehicle = VEHICLES[currentVehicle];
-
-      const needPassengers = passengers > vehicle.maxPassengers;
-      const needLuggage = luggage > vehicle.maxLuggageLevel;
-
-      if (!needPassengers && !needLuggage) {
-        showWarn('');
-        showOk(`La unidad seleccionada es adecuada para ${passengers} pasajero(s).`);
-        return;
-      }
-
-      showOk('');
-      const suggestion = passengers > 5 || luggage > 3 ? 'Van' : 'Camioneta';
-
-      let msg = 'La unidad seleccionada podría no ser adecuada.';
-      if (needPassengers) msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
-      if (needLuggage) msg += ' El equipaje indicado también requiere una unidad con mayor espacio.';
-      msg += ` Te recomendamos elegir ${suggestion}.`;
-
-      showWarn(msg);
-    }
-
-    function debounce(fn, wait = 350) {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), wait);
-      };
-    }
-
-    function escapeHtml(text=''){
-      return String(text)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
-    }
-
-    function parseORSFeature(feature){
-      const coords = feature.geometry?.coordinates || [];
-      const props = feature.properties || {};
-      const label = props.label || props.name || 'Ubicación seleccionada';
-
-      return {
-        lat: Number(coords[1]),
-        lon: Number(coords[0]),
-        label,
-        raw: feature
-      };
-    }
-
-    async function orsAutocomplete(text){
-      const url = `https://api.openrouteservice.org/geocode/autocomplete?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=6&boundary.country=PE`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudieron obtener sugerencias.');
-      const data = await res.json();
-      return Array.isArray(data.features) ? data.features : [];
-    }
-
-    async function orsSearch(text){
-      const url = `https://api.openrouteservice.org/geocode/search?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=1&boundary.country=PE`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudo ubicar la dirección ingresada.');
-      const data = await res.json();
-      if (!Array.isArray(data.features) || !data.features.length) {
-        throw new Error(`No se encontró ubicación para: ${text}`);
-      }
-      return parseORSFeature(data.features[0]);
-    }
-
-    async function orsReverse(lat, lon){
-      const url = `https://api.openrouteservice.org/geocode/reverse?api_key=${encodeURIComponent(ORS_API_KEY)}&point.lon=${encodeURIComponent(lon)}&point.lat=${encodeURIComponent(lat)}&size=1`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudo obtener la dirección de tu ubicación.');
-      const data = await res.json();
-      if (!Array.isArray(data.features) || !data.features.length) {
-        return {
-          lat,
-          lon,
-          label: `${lat.toFixed(5)}, ${lon.toFixed(5)}`
-        };
-      }
-      return parseORSFeature(data.features[0]);
-    }
-
-    function renderSuggestions(containerId, features, onSelect){
-      const container = $(containerId);
-      if (!features.length) {
-        container.innerHTML = '';
-        container.classList.remove('show');
-        return;
-      }
-
-      container.innerHTML = features.map((feature, index) => {
-        const props = feature.properties || {};
-        const title = props.name || props.locality || props.label || `Resultado ${index + 1}`;
-        const sub = props.label || '';
-        return `
-          <div class="suggestion" data-index="${index}">
-            <div class="suggestion-title">${escapeHtml(title)}</div>
-            <div class="suggestion-sub">${escapeHtml(sub)}</div>
-          </div>
-        `;
-      }).join('');
-
-      container.classList.add('show');
-
-      [...container.querySelectorAll('.suggestion')].forEach(item => {
-        item.addEventListener('click', () => {
-          const index = Number(item.dataset.index);
-          onSelect(features[index]);
-          container.classList.remove('show');
-        });
-      });
-    }
-
-    function hideSuggestions(){
-      $('origenSuggestions').classList.remove('show');
-      $('destinoSuggestions').classList.remove('show');
-    }
-
-    const handleOriginAutocomplete = debounce(async () => {
-      const text = $('origen').value.trim();
-      originSelection = null;
-      if (text.length < 3) {
-        $('origenSuggestions').classList.remove('show');
-        $('origenSuggestions').innerHTML = '';
-        return;
-      }
-
-      try {
-        const features = await orsAutocomplete(text);
-        renderSuggestions('origenSuggestions', features, (feature) => {
-          const selected = parseORSFeature(feature);
-          originSelection = selected;
-          $('origen').value = selected.label;
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }, 350);
-
-    const handleDestinationAutocomplete = debounce(async () => {
-      const text = $('destino').value.trim();
-      destinationSelection = null;
-      if (text.length < 3) {
-        $('destinoSuggestions').classList.remove('show');
-        $('destinoSuggestions').innerHTML = '';
-        return;
-      }
-
-      try {
-        const features = await orsAutocomplete(text);
-        renderSuggestions('destinoSuggestions', features, (feature) => {
-          const selected = parseORSFeature(feature);
-          destinationSelection = selected;
-          $('destino').value = selected.label;
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }, 350);
-
-    $('origen').addEventListener('input', handleOriginAutocomplete);
-    $('destino').addEventListener('input', handleDestinationAutocomplete);
-
-    document.addEventListener('click', (e) => {
-      const insideOrigin = $('originField').contains(e.target);
-      const insideDest = $('destinationField').contains(e.target);
-
-      if (!insideOrigin) $('origenSuggestions').classList.remove('show');
-      if (!insideDest) $('destinoSuggestions').classList.remove('show');
-    });
-
-    async function useCurrentLocation(){
-      showWarn('');
-      showOk('');
-
-      if (!navigator.geolocation) {
-        showWarn('Tu navegador no permite usar ubicación actual.');
-        return;
-      }
-
-      $('btnUbicacion').disabled = true;
-      $('btnUbicacion').textContent = 'Ubicando...';
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            const place = await orsReverse(lat, lon);
-
-            originSelection = {
-              lat,
-              lon,
-              label: place.label
-            };
-
-            $('origen').value = place.label;
-            showOk('Tu ubicación actual se cargó correctamente en el origen.');
-          } catch (err) {
-            showWarn(err.message || 'No se pudo convertir tu ubicación en una dirección.');
-          } finally {
-            $('btnUbicacion').disabled = false;
-            $('btnUbicacion').textContent = 'Usar mi ubicación';
-          }
-        },
-        (error) => {
-          let msg = 'No se pudo obtener tu ubicación.';
-          if (error.code === 1) msg = 'Debes permitir el acceso a tu ubicación para usar esta función.';
-          if (error.code === 2) msg = 'No se pudo determinar tu ubicación actual.';
-          if (error.code === 3) msg = 'Se agotó el tiempo para obtener tu ubicación.';
-          showWarn(msg);
-          $('btnUbicacion').disabled = false;
-          $('btnUbicacion').textContent = 'Usar mi ubicación';
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
-    }
-
-    function clearOrigin(){
-      originSelection = null;
-      $('origen').value = '';
-      $('origenSuggestions').classList.remove('show');
-      $('origenSuggestions').innerHTML = '';
-    }
-
-    function clearDestination(){
-      destinationSelection = null;
-      $('destino').value = '';
-      $('destinoSuggestions').classList.remove('show');
-      $('destinoSuggestions').innerHTML = '';
-    }
-
-    $('btnUbicacion').addEventListener('click', useCurrentLocation);
-    $('btnLimpiarOrigen').addEventListener('click', clearOrigin);
-    $('btnLimpiarDestino').addEventListener('click', clearDestination);
-
-    async function getResolvedPlace(type){
-      if (type === 'origin') {
-        if (originSelection) return originSelection;
-        return await orsSearch($('origen').value.trim());
-      }
-      if (destinationSelection) return destinationSelection;
-      return await orsSearch($('destino').value.trim());
-    }
-
-    async function calculateRoute(from, to){
-      const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
-        method:'POST',
-        headers:{
-          'Authorization': ORS_API_KEY,
-          'Content-Type':'application/json'
-        },
-        body: JSON.stringify({
-          coordinates: [
-            [from.lon, from.lat],
-            [to.lon, to.lat]
-          ]
-        })
-      });
-
-      if (!res.ok) {
-        throw new Error('No se pudo calcular la ruta. Revisa tu API Key de OpenRouteService.');
-      }
-
-      return await res.json();
-    }
-
-    function drawRoute(from, to, geojson){
-      if (routeLayer) map.removeLayer(routeLayer);
-      if (markerOrigen) map.removeLayer(markerOrigen);
-      if (markerDestino) map.removeLayer(markerDestino);
-
-      routeLayer = L.geoJSON(geojson, {
-        style:{
-          color:'#d9b36a',
-          weight:5,
-          opacity:.9
-        }
-      }).addTo(map);
-
-      markerOrigen = L.marker([from.lat, from.lon]).addTo(map).bindPopup('Origen');
-      markerDestino = L.marker([to.lat, to.lon]).addTo(map).bindPopup('Destino');
-
-      map.fitBounds(routeLayer.getBounds(), { padding:[30,30] });
-    }
-
-    function calculateFare(distanceKm, vehicleKey){
-      const v = VEHICLES[vehicleKey];
-      let fare = v.base + (distanceKm * v.perKm);
-
-      const hour = $('hora').value;
-      if (hour) {
-        const h = Number(hour.split(':')[0]);
-        if (h >= 22 || h < 6) fare += 8;
-      }
-
-      return fare;
-    }
-
-    async function runCalculation(){
-      showWarn('');
-      showOk('');
-
-      const origen = $('origen').value.trim();
-      const destino = $('destino').value.trim();
-
-      if (!ORS_API_KEY || ORS_API_KEY === 'PON_AQUI_TU_API_KEY_DE_OPENROUTESERVICE') {
-        showWarn('Primero debes reemplazar tu API Key de OpenRouteService en el archivo index.html.');
-        return;
-      }
-
-      if (!origen || !destino) {
-        showWarn('Ingresa origen y destino para calcular la tarifa.');
-        return;
-      }
-
-      if (currentService === 'Reserva programada' && (!$('fecha').value || !$('hora').value)) {
-        showWarn('Para una reserva programada debes indicar fecha y hora.');
-        return;
-      }
-
-      try {
-        $('btnCalcular').disabled = true;
-        $('btnCalcular').textContent = 'Calculando...';
-
-        const from = await getResolvedPlace('origin');
-        const to = await getResolvedPlace('destination');
-
-        originSelection = from;
-        destinationSelection = to;
-
-        const route = await calculateRoute(from, to);
-        const feature = route.features?.[0];
-
-        if (!feature) {
-          throw new Error('No se encontró una ruta válida.');
-        }
-
-        const meters = feature.properties.summary.distance;
-        const seconds = feature.properties.summary.duration;
-        const km = meters / 1000;
-        const min = Math.ceil(seconds / 60);
-        const fare = calculateFare(km, currentVehicle);
-
-        routeData = {
-          origen: from.label,
-          destino: to.label,
-          km: km.toFixed(1),
-          minutos: min,
-          tarifa: fare.toFixed(2)
-        };
-
-        $('origen').value = from.label;
-        $('destino').value = to.label;
-
-        drawRoute(from, to, feature);
-
-        $('sumServicio').textContent = currentService;
-        $('sumVehiculo').textContent = VEHICLES[currentVehicle].name;
-        $('sumDistancia').textContent = `${routeData.km} km`;
-        $('sumTiempo').textContent = `${routeData.minutos} min`;
-        $('sumTarifa').textContent = formatMoney(routeData.tarifa);
-        $('fareBig').textContent = formatMoney(routeData.tarifa);
-
-        validateVehicleSuggestion();
-
-        if (!$('warnBox').classList.contains('show')) {
-          showOk('Tarifa estimada calculada correctamente. Ya puedes enviarla por WhatsApp.');
-        }
-      } catch(err) {
-        showWarn(err.message || 'Ocurrió un problema al calcular la tarifa.');
-      } finally {
-        $('btnCalcular').disabled = false;
-        $('btnCalcular').textContent = 'Calcular tarifa';
-      }
-    }
-
-    function buildWhatsAppMessage(){
-      const nombre = $('nombre').value.trim();
-      const telefono = $('telefono').value.trim();
-      const pasajeros = $('pasajeros').value.trim();
-      const equipaje = $('equipaje').value;
-      const obs = $('observaciones').value.trim();
-      const fecha = $('fecha').value || 'No aplica';
-      const hora = $('hora').value || 'No aplica';
-      const warnText = $('warnBox').classList.contains('show')
-        ? `\nSugerencia de unidad: ${$('warnBox').textContent}`
-        : '';
-
-      return [
-  '🚗 *NS STELLAR EXPERIENCE*',
-  'Servicio de Transporte Ejecutivo',
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '👤 *DATOS DEL CLIENTE*',
-  `▪ Nombre: ${nombre || '-'}`,
-  `▪ Celular: ${telefono || '-'}`,
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '📋 *DETALLE DEL SERVICIO*',
-  `▪ Tipo de servicio: ${currentService}`,
-  `▪ Vehículo: ${VEHICLES[currentVehicle].name}`,
-  '▪ Categoría: Ejecutivo',
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '📍 *RUTA DEL SERVICIO*',
-  `▪ Origen: ${routeData?.origen || $('origen').value.trim() || '-'}`,
-  `▪ Destino: ${routeData?.destino || $('destino').value.trim() || '-'}`,
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '📅 *PROGRAMACIÓN*',
-  `▪ Fecha: ${fecha}`,
-  `▪ Hora: ${hora}`,
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '👥 *PASAJEROS Y EQUIPAJE*',
-  `▪ Pasajeros: ${pasajeros || '-'}`,
-  `▪ Equipaje: ${equipaje}`,
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '📊 *RESUMEN DEL SERVICIO*',
-  `▪ Distancia: ${routeData?.km ? `${routeData.km} km` : '-'}`,
-  `▪ Tiempo: ${routeData?.minutos ? `${routeData.minutos} min` : '-'}`,
-  `▪ Tarifa estimada: ${routeData ? formatMoney(routeData.tarifa) : '-'}`,
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '📝 *OBSERVACIONES*',
-  `${obs || 'Ninguna'}`,
-  '',
-  warnText ? '⚠️ ' + warnText : '',
-  '',
-  '━━━━━━━━━━━━━━━━━━━',
-  '',
-  '💬 Solicito confirmación de disponibilidad, unidad y tarifa final.',
-  'Gracias. Quedo atento(a).'
-].join('\n');
-
-    function openWhatsApp(){
-      const origen = $('origen').value.trim();
-      const destino = $('destino').value.trim();
-      const nombre = $('nombre').value.trim();
-      const telefono = $('telefono').value.trim();
-
-      if (!origen || !destino) {
-        showWarn('Completa origen y destino antes de enviar al WhatsApp.');
-        return;
-      }
-
-      if (!nombre || !telefono) {
-        showWarn('Completa tu nombre y teléfono antes de enviar al WhatsApp.');
-        return;
-      }
-
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage())}`;
-      window.open(url, '_blank');
-    }
-
-    $('btnCalcular').addEventListener('click', runCalculation);
-    $('btnWhatsApp').addEventListener('click', openWhatsApp);
-    $('floatingWa').addEventListener('click', e => {
-      e.preventDefault();
-      openWhatsApp();
-    });
-
-    validateVehicleSuggestion();
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
-      });
-    }
-
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      installPromptEvent = e;
-      $('btnInstalar').style.display = 'block';
-    });
-
-    $('btnInstalar').addEventListener('click', async () => {
-      if (!installPromptEvent) return;
-      installPromptEvent.prompt();
-      await installPromptEvent.userChoice;
-      installPromptEvent = null;
-      $('btnInstalar').style.display = 'none';
-    });
-  </script>
+
+<div class="container">
+  <div class="panel">
+
+    <h2>🚗 NS STELLAR EXPERIENCE</h2>
+
+    <input id="nombre" placeholder="Nombre">
+    <input id="telefono" placeholder="Celular">
+
+    <input id="origen" placeholder="Origen">
+    <div id="sugOrigen" class="sugerencias"></div>
+
+    <button onclick="usarUbicacion()">📍 Usar mi ubicación</button>
+
+    <input id="destino" placeholder="Destino">
+    <div id="sugDestino" class="sugerencias"></div>
+
+    <select id="vehiculo">
+      <option value="auto">Auto (1-3)</option>
+      <option value="suv">SUV (1-5)</option>
+      <option value="van">Van (6-12)</option>
+    </select>
+
+    <input id="pasajeros" type="number" placeholder="Pasajeros">
+    <select id="equipaje">
+      <option>Sin equipaje</option>
+      <option>Equipaje mediano</option>
+      <option>Equipaje grande</option>
+    </select>
+
+    <input id="fecha" type="date">
+    <input id="hora" type="time">
+
+    <textarea id="obs" placeholder="Observaciones"></textarea>
+
+    <button onclick="calcular()">Calcular tarifa</button>
+
+    <div class="card" id="resultado"></div>
+
+    <button onclick="enviarWhatsApp()">Enviar por WhatsApp</button>
+
+  </div>
+
+  <div id="map" class="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA3MDI2NmM4YTZjZjRhZDE5ZTQwM2FmOGNmOTAzYmZmIiwiaCI6Im11cm11cjY0In0=';
+
+const map = L.map('map').setView([-12.0464,-77.0428], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let markerOrigen = L.marker([-12.0464,-77.0428],{draggable:true}).addTo(map);
+let markerDestino = L.marker([-12.05,-77.05],{draggable:true}).addTo(map);
+
+async function obtenerDireccion(lat, lon){
+  const res = await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_API_KEY}&point.lon=${lon}&point.lat=${lat}`);
+  const data = await res.json();
+  return data.features?.[0]?.properties?.label || '';
+}
+
+markerOrigen.on('dragend', async ()=>{
+  const p = markerOrigen.getLatLng();
+  document.getElementById('origen').value = await obtenerDireccion(p.lat,p.lng);
+});
+
+markerDestino.on('dragend', async ()=>{
+  const p = markerDestino.getLatLng();
+  document.getElementById('destino').value = await obtenerDireccion(p.lat,p.lng);
+});
+
+async function usarUbicacion(){
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    map.setView([lat,lon],15);
+    markerOrigen.setLatLng([lat,lon]);
+    document.getElementById('origen').value = await obtenerDireccion(lat,lon);
+  });
+}
+
+async function buscar(texto){
+  if(texto.length<3)return [];
+  const res = await fetch(`https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${texto}&boundary.country=PE`);
+  const data = await res.json();
+  return data.features;
+}
+
+function activarAutocomplete(inputId, boxId){
+  const input=document.getElementById(inputId);
+  const box=document.getElementById(boxId);
+
+  input.addEventListener('input', async ()=>{
+    const r = await buscar(input.value);
+    box.innerHTML = r.map(x=>`<div onclick="sel('${inputId}','${x.properties.label}',${x.geometry.coordinates})">${x.properties.label}</div>`).join('');
+  });
+}
+
+function sel(id,val,coords){
+  document.getElementById(id).value = val;
+  if(id==='origen'){
+    markerOrigen.setLatLng([coords[1],coords[0]]);
+  }else{
+    markerDestino.setLatLng([coords[1],coords[0]]);
+  }
+}
+
+activarAutocomplete('origen','sugOrigen');
+activarAutocomplete('destino','sugDestino');
+
+let dataRuta=null;
+
+async function calcular(){
+  const o = markerOrigen.getLatLng();
+  const d = markerDestino.getLatLng();
+
+  const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car',{
+    method:'POST',
+    headers:{
+      'Authorization': ORS_API_KEY,
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({
+      coordinates:[[o.lng,o.lat],[d.lng,d.lat]]
+    })
+  });
+
+  const data = await res.json();
+
+  const km = data.routes[0].summary.distance/1000;
+  const min = data.routes[0].summary.duration/60;
+
+  let tarifa = km * 2.5;
+
+  dataRuta={km:min?km.toFixed(2):0,minutos:min.toFixed(0),tarifa};
+
+  document.getElementById('resultado').innerHTML=
+  `Distancia: ${km.toFixed(2)} km<br>
+   Tiempo: ${min.toFixed(0)} min<br>
+   Tarifa: S/ ${tarifa.toFixed(2)}`;
+}
+
+function enviarWhatsApp(){
+  const txt = `
+🚗 *NS STELLAR EXPERIENCE*
+
+Cliente: ${nombre.value}
+Celular: ${telefono.value}
+
+Origen: ${origen.value}
+Destino: ${destino.value}
+
+Fecha: ${fecha.value}
+Hora: ${hora.value}
+
+Pasajeros: ${pasajeros.value}
+Equipaje: ${equipaje.value}
+
+Distancia: ${dataRuta?.km||'-'} km
+Tiempo: ${dataRuta?.minutos||'-'} min
+Tarifa: S/ ${dataRuta?.tarifa?.toFixed(2)||'-'}
+
+Observaciones: ${obs.value||'Ninguna'}
+
+Solicito confirmación.
+  `;
+
+  window.open(`https://wa.me/51992044102?text=${encodeURIComponent(txt)}`);
+}
+</script>
+
 </body>
 </html>
