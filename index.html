@@ -1,1282 +1,801 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NS STELLAR EXPERIENCE | Taxi & Turismo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f17" />
+  <title>NS STELLAR EXPERIENCE | Traslados</title>
+  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia y tarifa estimada según unidad." />
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b0b0b">
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/kaysita26/NS-STELLAR-EXPERIENCE/main/logo1.png">
-<link rel="icon" href="https://raw.githubusercontent.com/kaysita26/NS-STELLAR-EXPERIENCE/main/logo1.png">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="logo-192.png" />
 
-<style>
-:root{
-  --bg:#070707;
-  --panel:#101010;
-  --panel-2:#151515;
-  --panel-3:#1b1b1b;
-  --text:#f5f5f5;
-  --muted:#b7b7b7;
-  --line:#262626;
-  --accent:#18c964;
-  --accent-2:#0ea34f;
-  --danger:#d32f2f;
-  --shadow:0 12px 30px rgba(0,0,0,.28);
-  --radius:18px;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background:linear-gradient(180deg,#090909 0%, #0c0c0c 40%, #101010 100%);
-  color:var(--text);
-}
-a{text-decoration:none;color:inherit}
-img{max-width:100%;display:block}
-button,input,select,textarea{font:inherit}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-#btnInstalar{
-  display:none;
-  text-align:center;
-  padding:10px 14px;
-  background:#000;
-  color:#fff;
-  font-size:14px;
-  border-bottom:1px solid #151515;
-}
-#btnInstalar button{
-  margin-left:10px;
-  padding:8px 14px;
-  border:none;
-  border-radius:10px;
-  background:var(--accent);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
 
-header{
-  position:sticky;
-  top:0;
-  z-index:100;
-  backdrop-filter:blur(10px);
-  background:rgba(5,5,5,.9);
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.topbar{
-  max-width:1280px;
-  margin:auto;
-  padding:14px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-}
-.brand{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.brand img{
-  width:54px;
-  height:54px;
-  object-fit:cover;
-  border-radius:14px;
-  background:#111;
-  box-shadow:var(--shadow);
-}
-.brand h1{
-  margin:0;
-  font-family:'Fredoka',sans-serif;
-  font-size:28px;
-  line-height:1;
-  letter-spacing:.2px;
-}
-.brand p{
-  margin:4px 0 0;
-  color:var(--muted);
-  font-size:12px;
-}
-.nav{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.nav a{
-  padding:10px 14px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  color:#e8e8e8;
-  background:rgba(255,255,255,.02);
-}
-.nav a.cta{
-  background:var(--accent);
-  border-color:var(--accent);
-  color:#fff;
-  font-weight:700;
-}
+  <style>
+    :root{
+      --bg:#070b12;
+      --bg2:#0d1420;
+      --bg3:#111b2b;
+      --card:#0f1724;
+      --card2:#131f31;
+      --line:rgba(255,255,255,.08);
+      --text:#f5f7fb;
+      --muted:#9caec4;
+      --gold:#d9b36a;
+      --gold2:#f3d8a3;
+      --ok:#27c786;
+      --warn:#ff8d8d;
+      --shadow:0 20px 60px rgba(0,0,0,.36);
+      --radius:24px;
+    }
 
-.hero{
-  max-width:1280px;
-  margin:auto;
-  padding:28px 18px 18px;
-}
-.hero-box{
-  border-radius:28px;
-  overflow:hidden;
-  background:
-    linear-gradient(135deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),
-    linear-gradient(120deg,#0a0a0a,#121212 55%, #0d0d0d);
-  border:1px solid rgba(255,255,255,.06);
-  box-shadow:var(--shadow);
-  display:grid;
-  grid-template-columns:1.25fr .95fr;
-  min-height:460px;
-}
-.hero-left{
-  padding:42px 34px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  width:max-content;
-  padding:10px 14px;
-  border-radius:999px;
-  background:rgba(24,201,100,.12);
-  color:#8bf0b5;
-  border:1px solid rgba(24,201,100,.25);
-  font-size:13px;
-  margin-bottom:16px;
-}
-.hero-title{
-  font-family:'Fredoka',sans-serif;
-  font-size:54px;
-  line-height:1.02;
-  margin:0 0 16px;
-}
-.hero-title span{color:var(--accent)}
-.hero-text{
-  max-width:620px;
-  color:#d0d0d0;
-  font-size:16px;
-  line-height:1.7;
-  margin-bottom:26px;
-}
-.hero-actions{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.btn-main,.btn-alt{
-  padding:14px 18px;
-  border-radius:14px;
-  font-weight:700;
-  border:none;
-  cursor:pointer;
-  display:inline-block;
-}
-.btn-main{
-  background:var(--accent);
-  color:#fff;
-}
-.btn-alt{
-  background:#151515;
-  color:#fff;
-  border:1px solid var(--line);
-}
-.hero-points{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-top:26px;
-}
-.point{
-  background:#111;
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:12px 14px;
-  min-width:150px;
-}
-.point b{display:block;font-size:15px;margin-bottom:4px}
-.point span{font-size:12px;color:var(--muted)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(217,179,106,.16), transparent 22%),
+        radial-gradient(circle at left center, rgba(74,109,168,.14), transparent 20%),
+        linear-gradient(180deg, #08101a 0%, #05080e 100%);
+      min-height:100vh;
+    }
 
-.hero-right{
-  position:relative;
-  background:
-    radial-gradient(circle at top right, rgba(24,201,100,.12), transparent 38%),
-    radial-gradient(circle at bottom left, rgba(255,255,255,.06), transparent 28%),
-    #0c0c0c;
-  border-left:1px solid rgba(255,255,255,.06);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:28px;
-}
-.mock-card{
-  width:100%;
-  max-width:430px;
-  border-radius:24px;
-  padding:22px;
-  background:linear-gradient(180deg,#141414,#0e0e0e);
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow:var(--shadow);
-}
-.mock-card h3{
-  margin:0 0 14px;
-  font-size:20px;
-}
-.mock-line{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid var(--line);
-  color:#ddd;
-}
-.mock-line span:last-child{
-  color:#fff;
-  font-weight:600;
-}
-.mock-btn{
-  margin-top:18px;
-  width:100%;
-  border:none;
-  border-radius:14px;
-  padding:14px;
-  background:var(--accent);
-  color:#fff;
-  font-weight:700;
-}
+    a{text-decoration:none;color:inherit}
+    img{display:block;max-width:100%}
+    .container{width:min(1200px, calc(100% - 28px));margin:auto}
 
-.section{
-  max-width:1280px;
-  margin:auto;
-  padding:18px;
-}
-.section-head{
-  display:flex;
-  align-items:end;
-  justify-content:space-between;
-  gap:16px;
-  margin-bottom:18px;
-}
-.section-head h2{
-  margin:0;
-  font-family:'Fredoka',sans-serif;
-  font-size:34px;
-}
-.section-head p{
-  margin:6px 0 0;
-  color:var(--muted);
-  max-width:720px;
-  line-height:1.6;
-}
+    .topbar{
+      position:sticky;top:0;z-index:60;
+      backdrop-filter:blur(16px);
+      background:rgba(7,11,18,.78);
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .nav{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:16px;padding:14px 0;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-logo{
+      width:50px;height:50px;border-radius:15px;overflow:hidden;
+      background:#0c1220;border:1px solid rgba(255,255,255,.08);flex:none;
+      box-shadow:var(--shadow)
+    }
+    .brand-text{min-width:0}
+    .brand-text strong{display:block;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand-text span{display:block;color:var(--muted);font-size:.84rem}
 
-.services-grid{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:18px;
-}
-.service-card{
-  background:linear-gradient(180deg,#121212,#0f0f0f);
-  border:1px solid var(--line);
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-  display:flex;
-  flex-direction:column;
-}
-.service-cover{
-  height:170px;
-  background:
-    linear-gradient(140deg, rgba(24,201,100,.10), rgba(255,255,255,.02)),
-    radial-gradient(circle at top right, rgba(255,255,255,.12), transparent 34%),
-    #151515;
-  display:flex;
-  align-items:flex-end;
-  padding:16px;
-  font-family:'Fredoka',sans-serif;
-  font-size:26px;
-}
-.service-body{padding:16px}
-.service-body h3{margin:0 0 8px;font-size:18px}
-.service-body p{
-  margin:0 0 14px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-  min-height:66px;
-}
-.service-meta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.meta-pill{
-  padding:7px 10px;
-  border-radius:999px;
-  background:#171717;
-  border:1px solid var(--line);
-  font-size:12px;
-  color:#ddd;
-}
-.service-actions{
-  margin-top:auto;
-  padding:0 16px 16px;
-}
-.service-actions button{
-  width:100%;
-  border:none;
-  border-radius:14px;
-  padding:12px;
-  background:#171717;
-  border:1px solid var(--line);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
-.service-card.selected{
-  border-color:rgba(24,201,100,.6);
-  box-shadow:0 0 0 1px rgba(24,201,100,.25), var(--shadow);
-}
-.service-card.selected .service-actions button{
-  background:var(--accent);
-  border-color:var(--accent);
-}
+    .nav-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{
+      border:none;cursor:pointer;font:inherit;font-weight:700;
+      padding:13px 18px;border-radius:16px;transition:.22s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-outline{
+      background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text)
+    }
+    .btn-gold{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));color:#121212;
+      box-shadow:0 12px 28px rgba(217,179,106,.24)
+    }
+    .btn-block{width:100%}
 
-.vehicles-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:18px;
-}
-.vehicle-card{
-  background:linear-gradient(180deg,#121212,#0f0f0f);
-  border:1px solid var(--line);
-  border-radius:22px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-}
-.vehicle-top{
-  padding:18px;
-  background:
-    radial-gradient(circle at top right, rgba(24,201,100,.16), transparent 38%),
-    #141414;
-}
-.vehicle-type{
-  font-family:'Fredoka',sans-serif;
-  font-size:28px;
-  margin:0 0 10px;
-}
-.vehicle-desc{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.6;
-  min-height:68px;
-}
-.vehicle-body{
-  padding:18px;
-}
-.vehicle-list{
-  display:grid;
-  gap:10px;
-  margin-bottom:16px;
-}
-.vehicle-item{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  border-bottom:1px solid var(--line);
-  padding-bottom:10px;
-  color:#ddd;
-  font-size:14px;
-}
-.vehicle-item b{color:#fff}
-.vehicle-card button{
-  width:100%;
-  border:none;
-  border-radius:14px;
-  padding:12px;
-  background:#171717;
-  border:1px solid var(--line);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
-.vehicle-card.selected{
-  border-color:rgba(24,201,100,.6);
-  box-shadow:0 0 0 1px rgba(24,201,100,.25), var(--shadow);
-}
-.vehicle-card.selected button{
-  background:var(--accent);
-  border-color:var(--accent);
-}
+    .hero{padding:40px 0 18px}
+    .hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:24px;align-items:stretch}
+    .panel{
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
+      box-shadow:var(--shadow);
+    }
+    .hero-copy{padding:36px}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 14px;border-radius:999px;
+      color:var(--gold2);font-size:.84rem;font-weight:700;
+      background:rgba(217,179,106,.08);border:1px solid rgba(217,179,106,.16)
+    }
+    h1{
+      margin:18px 0 12px;
+      font-size:clamp(2.15rem,5vw,4.2rem);
+      line-height:1.02;letter-spacing:-.045em;
+    }
+    .lead{
+      font-size:1.04rem;line-height:1.72;color:var(--muted);
+      max-width:62ch;margin-bottom:24px;
+    }
+    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
-.main-grid{
-  display:grid;
-  grid-template-columns:1.2fr .8fr;
-  gap:18px;
-  align-items:start;
-}
-.form-card,.summary-card{
-  background:linear-gradient(180deg,#111,#0e0e0e);
-  border:1px solid var(--line);
-  border-radius:24px;
-  box-shadow:var(--shadow);
-}
-.form-card{padding:20px}
-.summary-card{
-  position:sticky;
-  top:92px;
-  padding:20px;
-}
-.form-card h3,.summary-card h3{
-  margin:0 0 16px;
-  font-size:22px;
-}
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:14px;
-}
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.field label{
-  font-size:13px;
-  color:#ddd;
-  font-weight:600;
-}
-.field input,.field select,.field textarea{
-  width:100%;
-  background:#141414;
-  border:1px solid var(--line);
-  color:#fff;
-  border-radius:14px;
-  padding:14px 14px;
-  outline:none;
-}
-.field input:focus,.field select:focus,.field textarea:focus{
-  border-color:rgba(24,201,100,.6);
-  box-shadow:0 0 0 3px rgba(24,201,100,.12);
-}
-.field.full{grid-column:1/-1}
-.field textarea{
-  min-height:110px;
-  resize:vertical;
-}
+    .hero-side{padding:24px}
+    .hero-card-top{
+      padding:20px;border-radius:22px;background:linear-gradient(180deg,#101827,#0d1522);
+      border:1px solid var(--line)
+    }
+    .hero-card-top strong{display:block;font-size:1.08rem}
+    .hero-card-top p{margin:10px 0 0;color:var(--muted);line-height:1.66}
+    .hero-points{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+    .point{padding:16px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+    .point strong{display:block;margin-bottom:6px}
+    .point span{color:var(--muted);font-size:.92rem;line-height:1.6}
 
-.radio-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:12px;
-}
-.radio-card{
-  background:#141414;
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  cursor:pointer;
-  user-select:none;
-}
-.radio-card.active{
-  border-color:rgba(24,201,100,.6);
-  box-shadow:0 0 0 1px rgba(24,201,100,.25);
-  background:rgba(24,201,100,.08);
-}
-.radio-card b{
-  display:block;
-  margin-bottom:6px;
-}
-.radio-card span{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.5;
-}
+    .section{padding:26px 0}
+    .section-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:18px}
+    .section-head h2{margin:0;font-size:1.75rem}
+    .section-head p{margin:8px 0 0;color:var(--muted)}
 
-.summary-box{
-  display:grid;
-  gap:12px;
-}
-.summary-row{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid var(--line);
-  font-size:14px;
-}
-.summary-row span:first-child{color:var(--muted)}
-.summary-row span:last-child{
-  color:#fff;
-  text-align:right;
-  font-weight:600;
-}
-.summary-note{
-  margin-top:10px;
-  color:#bdbdbd;
-  line-height:1.6;
-  font-size:13px;
-  background:#131313;
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-}
-.summary-actions{
-  display:grid;
-  gap:10px;
-  margin-top:16px;
-}
-.summary-actions button{
-  width:100%;
-  border:none;
-  border-radius:14px;
-  padding:14px;
-  font-weight:700;
-  cursor:pointer;
-}
-.btn-wa{
-  background:var(--accent);
-  color:#fff;
-}
-.btn-clear{
-  background:#171717;
-  color:#fff;
-  border:1px solid var(--line);
-}
+    .booking-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+    .form-panel,.summary-panel{padding:24px}
 
-.features{
-  display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:18px;
-}
-.feature{
-  background:linear-gradient(180deg,#111,#0e0e0e);
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:18px;
-  box-shadow:var(--shadow);
-}
-.feature h4{
-  margin:0 0 10px;
-  font-size:17px;
-}
-.feature p{
-  margin:0;
-  color:var(--muted);
-  line-height:1.7;
-  font-size:14px;
-}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field.full{grid-column:1/-1}
+    label{font-size:.93rem;font-weight:700}
+    input,select,textarea{
+      width:100%;padding:14px 15px;border-radius:16px;
+      background:#0b1320;color:var(--text);
+      border:1px solid rgba(255,255,255,.08);outline:none;font:inherit;
+      transition:.18s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:rgba(217,179,106,.42);
+      box-shadow:0 0 0 4px rgba(217,179,106,.08)
+    }
+    textarea{min-height:100px;resize:vertical}
 
-footer{
-  margin-top:30px;
-  border-top:1px solid rgba(255,255,255,.06);
-  background:#090909;
-}
-.footer-wrap{
-  max-width:1280px;
-  margin:auto;
-  padding:26px 18px 34px;
-  display:grid;
-  grid-template-columns:1.1fr .9fr;
-  gap:18px;
-}
-.footer-card{
-  background:#101010;
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:18px;
-}
-.footer-card h4{
-  margin:0 0 10px;
-}
-.footer-card p{
-  margin:0;
-  color:var(--muted);
-  line-height:1.7;
-}
-.copy{
-  text-align:center;
-  padding:0 18px 24px;
-  color:#8f8f8f;
-  font-size:13px;
-}
+    .switches,.vehicle-grid{display:grid;gap:12px}
+    .switches{grid-template-columns:repeat(2,1fr)}
+    .vehicle-grid{grid-template-columns:repeat(2,1fr)}
 
-.toast{
-  position:fixed;
-  left:50%;
-  bottom:22px;
-  transform:translateX(-50%) translateY(20px);
-  background:#101010;
-  color:#fff;
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:14px 18px;
-  box-shadow:var(--shadow);
-  opacity:0;
-  pointer-events:none;
-  transition:.28s ease;
-  z-index:9999;
-}
-.toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
+    .choice,.vehicle{
+      padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--line);
+      cursor:pointer;transition:.22s ease;
+    }
+    .choice:hover,.vehicle:hover{transform:translateY(-2px);border-color:rgba(217,179,106,.38)}
+    .choice.active,.vehicle.active{
+      border-color:rgba(217,179,106,.75);
+      background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
+      box-shadow:0 10px 26px rgba(0,0,0,.18)
+    }
+    .choice strong,.vehicle strong{display:block;margin-bottom:6px}
+    .choice small,.vehicle small{display:block;color:var(--muted);line-height:1.55}
+    .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
 
-@media (max-width:1100px){
-  .hero-box,
-  .main-grid,
-  .footer-wrap{
-    grid-template-columns:1fr;
-  }
-  .services-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .features{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .summary-card{position:static}
-}
-@media (max-width:760px){
-  .hero-title{font-size:38px}
-  .topbar{padding:12px 14px}
-  .brand h1{font-size:23px}
-  .nav{display:none}
-  .services-grid,
-  .vehicles-grid,
-  .features,
-  .radio-grid,
-  .form-grid{
-    grid-template-columns:1fr;
-  }
-  .hero-left,.hero-right{padding:22px}
-  .section{padding:14px}
-  .section-head{display:block}
-}
-</style>
+    #map{
+      width:100%;height:330px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
+    }
+
+    .summary-main{
+      margin-top:16px;padding:20px;border-radius:24px;
+      background:linear-gradient(180deg,#0f1929,#0b1320);
+      border:1px solid var(--line)
+    }
+    .row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+    .row:last-child{border-bottom:none}
+    .row span:first-child{color:var(--muted)}
+    .fare{
+      margin-top:10px;font-size:2.15rem;font-weight:800;letter-spacing:-.04em
+    }
+    .fare-sub{margin-top:8px;color:var(--muted);font-size:.92rem;line-height:1.62}
+
+    .alert{
+      margin-top:14px;padding:14px 15px;border-radius:16px;border:1px solid rgba(255,255,255,.08);
+      display:none;line-height:1.58
+    }
+    .alert.show{display:block}
+    .alert.warn{background:rgba(255,118,118,.08);border-color:rgba(255,118,118,.2);color:#ffd2d2}
+    .alert.ok{background:rgba(39,199,134,.08);border-color:rgba(39,199,134,.2);color:#ccffe9}
+
+    .cta-box{margin-top:16px;display:grid;gap:10px}
+
+    .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .trust-card{padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+    .trust-card strong{display:block;margin-bottom:8px}
+    .trust-card span{color:var(--muted);font-size:.94rem;line-height:1.6}
+
+    .footer{padding:28px 0 42px;color:var(--muted)}
+    .footer-box{
+      display:flex;justify-content:space-between;gap:16px;align-items:center;
+      padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.02);border:1px solid var(--line)
+    }
+
+    .floating-wa{
+      position:fixed;right:16px;bottom:16px;z-index:70;
+      display:inline-flex;align-items:center;justify-content:center;
+      width:60px;height:60px;border-radius:50%;
+      background:linear-gradient(135deg,#25d366,#1faa55);color:#fff;
+      font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,.35)
+    }
+
+    @media (max-width:980px){
+      .hero-grid,.booking-grid{grid-template-columns:1fr}
+      .trust{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:680px){
+      .nav{flex-direction:column;align-items:stretch}
+      .nav-actions{justify-content:stretch}
+      .nav-actions .btn{flex:1}
+      .hero-copy,.hero-side,.form-panel,.summary-panel{padding:18px}
+      .grid,.switches,.vehicle-grid,.hero-points,.trust{grid-template-columns:1fr}
+      .footer-box{flex-direction:column;align-items:flex-start}
+      #map{height:280px}
+    }
+  </style>
 </head>
 <body>
+  <header class="topbar">
+    <div class="container nav">
+      <div class="brand">
+        <div class="brand-logo"><img src="logo-192.png" alt="NS Stellar Experience"></div>
+        <div class="brand-text">
+          <strong>NS STELLAR EXPERIENCE</strong>
+          <span>RUC: 20603104260</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <a class="btn btn-outline" href="#tarifador">Solicitar inmediato</a>
+        <a class="btn btn-gold" href="#tarifador">Reservar traslado</a>
+      </div>
+    </div>
+  </header>
 
-<div id="btnInstalar">
-📲 Instala nuestra app
-<button type="button" onclick="instalarApp()">Instalar</button>
-</div>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="panel hero-copy">
+          <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
+          <h1>Solicita o reserva tu traslado con una experiencia premium.</h1>
+          <p class="lead">
+            Una web elegante, moderna y pensada para celular y PC. El cliente cotiza por distancia, elige su unidad y confirma por WhatsApp con toda la información ya ordenada.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-gold" href="#tarifador">Cotizar traslado</a>
+            <a class="btn btn-outline" href="#beneficios">Ver beneficios</a>
+          </div>
+        </div>
 
-<header>
-  <div class="topbar">
-    <div class="brand">
-     <img src="https://raw.githubusercontent.com/kaysita26/NS-STELLAR-EXPERIENCE/main/logo1.png" alt="Logo NS STELLAR EXPERIENCE">
+        <div class="panel hero-side">
+          <div class="hero-card-top">
+            <strong>Imagen ejecutiva desde el primer vistazo</strong>
+            <p>
+              Esta versión está pensada para que tu cliente sienta un servicio más serio, claro y confiable antes de escribirte.
+            </p>
+          </div>
+          <div class="hero-points">
+            <div class="point"><strong>Solicitar ahora</strong><span>Para servicios inmediatos.</span></div>
+            <div class="point"><strong>Reservar</strong><span>Programa fecha y hora.</span></div>
+            <div class="point"><strong>Tarifa estimada</strong><span>Según distancia y unidad.</span></div>
+            <div class="point"><strong>WhatsApp directo</strong><span>Con mensaje completo y ordenado.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tarifador">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Tarifador profesional</h2>
+            <p>Calcula distancia, tiempo estimado y tarifa referencial según la unidad seleccionada.</p>
+          </div>
+        </div>
+
+        <div class="booking-grid">
+          <div class="panel form-panel">
+            <div class="field full">
+              <label>Tipo de servicio</label>
+              <div class="switches" id="serviceSwitches">
+                <div class="choice active" data-service="Solicitar ahora">
+                  <strong>Solicitar ahora</strong>
+                  <small>Servicio inmediato según disponibilidad.</small>
+                </div>
+                <div class="choice" data-service="Reserva programada">
+                  <strong>Reserva programada</strong>
+                  <small>Para fecha y hora definidas.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid" style="margin-top:14px">
+              <div class="field full">
+                <label for="origen">Origen</label>
+                <input id="origen" type="text" placeholder="Ejemplo: Los Olivos, Lima" />
+              </div>
+
+              <div class="field full">
+                <label for="destino">Destino</label>
+                <input id="destino" type="text" placeholder="Ejemplo: Aeropuerto Jorge Chávez" />
+              </div>
+
+              <div class="field reserva-only" style="display:none">
+                <label for="fecha">Fecha</label>
+                <input id="fecha" type="date" />
+              </div>
+
+              <div class="field reserva-only" style="display:none">
+                <label for="hora">Hora</label>
+                <input id="hora" type="time" />
+              </div>
+
+              <div class="field">
+                <label for="pasajeros">Pasajeros</label>
+                <input id="pasajeros" type="number" min="1" max="10" value="1" />
+              </div>
+
+              <div class="field">
+                <label for="equipaje">Equipaje</label>
+                <select id="equipaje">
+                  <option value="Sin equipaje">Sin equipaje</option>
+                  <option value="Ligero">Ligero</option>
+                  <option value="1 a 2 maletas medianas">1 a 2 maletas medianas</option>
+                  <option value="3 a 4 maletas medianas">3 a 4 maletas medianas</option>
+                  <option value="Maletas grandes">Maletas grandes</option>
+                </select>
+              </div>
+
+              <div class="field full">
+                <label>Tipo de vehículo</label>
+                <div class="vehicle-grid" id="vehicleGrid">
+                  <div class="vehicle active" data-key="auto">
+                    <strong>Auto</strong>
+                    <small>Traslado urbano</small>
+                    <ul>
+                      <li>1 a 3 pasajeros</li>
+                      <li>Hasta 2 maletas medianas</li>
+                      <li>Ideal para viajes ágiles</li>
+                    </ul>
+                  </div>
+
+                  <div class="vehicle" data-key="camioneta">
+                    <strong>Camioneta</strong>
+                    <small>Mayor comodidad</small>
+                    <ul>
+                      <li>1 a 5 pasajeros</li>
+                      <li>Hasta 4 maletas medianas</li>
+                      <li>Ideal para aeropuerto</li>
+                    </ul>
+                  </div>
+
+                  <div class="vehicle" data-key="van">
+                    <strong>Van</strong>
+                    <small>Para grupos</small>
+                    <ul>
+                      <li>6 a 10 pasajeros</li>
+                      <li>Equipaje amplio</li>
+                      <li>Ideal para traslados grupales</li>
+                    </ul>
+                  </div>
+
+                  <div class="vehicle" data-key="ejecutivo">
+                    <strong>Ejecutivo</strong>
+                    <small>Imagen corporativa</small>
+                    <ul>
+                      <li>1 a 3 pasajeros</li>
+                      <li>Servicio premium</li>
+                      <li>Ideal para clientes VIP</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" type="text" placeholder="Tu nombre" />
+              </div>
+
+              <div class="field">
+                <label for="telefono">Teléfono</label>
+                <input id="telefono" type="tel" placeholder="987654321" />
+              </div>
+
+              <div class="field full">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto u otro detalle"></textarea>
+              </div>
+
+              <div class="field full">
+                <button class="btn btn-gold btn-block" id="btnCalcular">Calcular tarifa</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel summary-panel">
+            <div id="map"></div>
+
+            <div class="summary-main">
+              <div class="row"><span>Servicio</span><strong id="sumServicio">Solicitar ahora</strong></div>
+              <div class="row"><span>Vehículo</span><strong id="sumVehiculo">Auto</strong></div>
+              <div class="row"><span>Distancia</span><strong id="sumDistancia">—</strong></div>
+              <div class="row"><span>Tiempo estimado</span><strong id="sumTiempo">—</strong></div>
+              <div class="row"><span>Tarifa estimada</span><strong id="sumTarifa">—</strong></div>
+              <div class="fare" id="fareBig">S/ 0.00</div>
+              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario y disponibilidad.</div>
+            </div>
+
+            <div class="alert warn" id="warnBox"></div>
+            <div class="alert ok" id="okBox"></div>
+
+            <div class="cta-box">
+              <button class="btn btn-gold btn-block" id="btnWhatsApp">Confirmar por WhatsApp</button>
+              <button class="btn btn-outline btn-block" id="btnInstalar" style="display:none">Instalar app</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="beneficios">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2>Una experiencia más profesional</h2>
+            <p>Diseñada para inspirar confianza y verse bien en móvil y escritorio.</p>
+          </div>
+        </div>
+        <div class="trust">
+          <div class="trust-card"><strong>Imagen premium</strong><span>Diseño oscuro ejecutivo con mejor jerarquía visual.</span></div>
+          <div class="trust-card"><strong>Tarifador claro</strong><span>El cliente ve distancia, tiempo y tarifa antes de confirmar.</span></div>
+          <div class="trust-card"><strong>Sugerencia inteligente</strong><span>La web recomienda una mejor unidad si la capacidad no coincide.</span></div>
+          <div class="trust-card"><strong>Lista para instalar</strong><span>Puede verse como app desde celular y PC.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-box">
       <div>
-        <h1>NS STELLAR EXPERIENCE</h1>
-        <p>Taxi ejecutivo · Traslados · Turismo Privado</p>
+        <strong>NS STELLAR EXPERIENCE</strong><br>
+        <span>RUC: 20603104260 • Servicio de traslados</span>
       </div>
+      <div><span>Web tipo app lista para GitHub Pages</span></div>
     </div>
+  </footer>
 
-    <nav class="nav">
-      <a href="#servicios">Servicios</a>
-      <a href="#vehiculos">Vehículos</a>
-      <a href="#reserva">Reservar</a>
-      <a href="#reserva" class="cta">Solicitar ahora</a>
-    </nav>
-  </div>
-</header>
+  <a class="floating-wa" id="floatingWa" href="#" aria-label="WhatsApp">WA</a>
 
-<section class="hero">
-  <div class="hero-box">
-    <div class="hero-left">
-      <div class="badge">Disponibilidad previa coordinación · Atención personalizada</div>
-      <h2 class="hero-title">Taxi ejecutivo y <span>servicio turístico</span> con atención profesional</h2>
-      <div class="hero-text">
-        Reserva traslados privados, aeropuerto, movilidad corporativa, city tour y servicios por horas.
-        Elige el tipo de vehículo que necesitas y envía tu solicitud directamente por WhatsApp con todos los datos completos.
-      </div>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 
-      <div class="hero-actions">
-        <a href="#reserva" class="btn-main">Reservar ahora</a>
-        <a href="#vehiculos" class="btn-alt">Ver vehículos</a>
-      </div>
+  <script>
+    const WHATSAPP_NUMBER = '51999999999';
+    const ORS_API_KEY = 'PON_AQUI_TU_API_KEY_DE_OPENROUTESERVICE';
 
-      <div class="hero-points">
-        <div class="point">
-          <b>Atención ejecutiva</b>
-          <span>Imagen seria y servicio puntual</span>
-        </div>
-        <div class="point">
-          <b>Viajes privados</b>
-          <span>Ciudad, aeropuerto y turismo</span>
-        </div>
-        <div class="point">
-          <b>Reserva rápida</b>
-          <span>Solicitud directa por WhatsApp</span>
-        </div>
-      </div>
-    </div>
+    const VEHICLES = {
+      auto: { name:'Auto', base:8, perKm:2.6, maxPassengers:3, maxLuggageLevel:2 },
+      camioneta: { name:'Camioneta', base:12, perKm:3.3, maxPassengers:5, maxLuggageLevel:3 },
+      van: { name:'Van', base:18, perKm:4.3, maxPassengers:10, maxLuggageLevel:4 },
+      ejecutivo: { name:'Ejecutivo', base:15, perKm:3.9, maxPassengers:3, maxLuggageLevel:2 }
+    };
 
-    <div class="hero-right">
-      <div class="mock-card">
-        <h3>Resumen de solicitud</h3>
-        <div class="mock-line"><span>Servicio</span><span id="mockServicio">Aeropuerto</span></div>
-        <div class="mock-line"><span>Vehículo</span><span id="mockVehiculo">Camioneta SUV</span></div>
-        <div class="mock-line"><span>Atención</span><span id="mockAtencion">Ejecutivo</span></div>
-        <div class="mock-line"><span>Pasajeros</span><span id="mockPasajeros">3 personas</span></div>
-        <div class="mock-line"><span>Equipaje</span><span id="mockEquipaje">2 maletas</span></div>
-        <button class="mock-btn" onclick="document.getElementById('reserva').scrollIntoView({behavior:'smooth'})">Solicitar servicio</button>
-      </div>
-    </div>
-  </div>
-</section>
+    const luggageLevels = {
+      'Sin equipaje': 1,
+      'Ligero': 1,
+      '1 a 2 maletas medianas': 2,
+      '3 a 4 maletas medianas': 3,
+      'Maletas grandes': 4
+    };
 
-<section class="section" id="servicios">
-  <div class="section-head">
-    <div>
-      <h2>Servicios disponibles</h2>
-      <p>Selecciona el tipo de servicio que deseas. Luego podrás elegir el vehículo, completar tus datos y enviarnos la solicitud.</p>
-    </div>
-  </div>
+    let currentService = 'Solicitar ahora';
+    let currentVehicle = 'auto';
+    let routeData = null;
+    let installPromptEvent = null;
 
-  <div class="services-grid" id="servicesGrid"></div>
-</section>
+    const $ = id => document.getElementById(id);
 
-<section class="section" id="vehiculos">
-  <div class="section-head">
-    <div>
-      <h2>Elige tu vehículo</h2>
-      <p>Para que tu solicitud llegue clara y profesional, el cliente puede elegir el tipo de unidad según cantidad de pasajeros, comodidad y equipaje.</p>
-    </div>
-  </div>
+    const map = L.map('map').setView([-12.0464, -77.0428], 11);
 
-  <div class="vehicles-grid" id="vehiclesGrid"></div>
-</section>
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-<section class="section" id="reserva">
-  <div class="section-head">
-    <div>
-      <h2>Formulario de reserva</h2>
-      <p>Completa tu solicitud. El mensaje llegará armado por WhatsApp con formato ejecutivo y todos los datos importantes.</p>
-    </div>
-  </div>
+    let routeLayer = null;
+    let markerOrigen = null;
+    let markerDestino = null;
 
-  <div class="main-grid">
-    <div class="form-card">
-      <h3>Datos del servicio</h3>
+    const serviceChoices = [...document.querySelectorAll('#serviceSwitches .choice')];
+    const vehicleChoices = [...document.querySelectorAll('#vehicleGrid .vehicle')];
+    const reservaFields = [...document.querySelectorAll('.reserva-only')];
 
-      <div class="form-grid">
-        <div class="field">
-          <label>Nombre del cliente *</label>
-          <input type="text" id="clienteNombre" placeholder="Tu nombre completo">
-        </div>
+    serviceChoices.forEach(el => {
+      el.addEventListener('click', () => {
+        serviceChoices.forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        currentService = el.dataset.service;
+        const isReserva = currentService === 'Reserva programada';
+        reservaFields.forEach(x => x.style.display = isReserva ? 'flex' : 'none');
+        $('sumServicio').textContent = currentService;
+      });
+    });
 
-        <div class="field">
-          <label>Celular *</label>
-          <input type="tel" id="clienteTelefono" placeholder="Tu número de contacto">
-        </div>
+    vehicleChoices.forEach(el => {
+      el.addEventListener('click', () => {
+        vehicleChoices.forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        currentVehicle = el.dataset.key;
+        $('sumVehiculo').textContent = VEHICLES[currentVehicle].name;
+        validateVehicleSuggestion();
+      });
+    });
 
-        <div class="field full">
-          <label>Tipo de atención *</label>
-          <div class="radio-grid" id="tipoAtencionGrid">
-            <div class="radio-card active" data-atencion="Ejecutivo" onclick="seleccionarAtencion('Ejecutivo', this)">
-              <b>Ejecutivo</b>
-              <span>Imagen corporativa, puntualidad y atención formal.</span>
-            </div>
-            <div class="radio-card" data-atencion="Turístico" onclick="seleccionarAtencion('Turístico', this)">
-              <b>Turístico</b>
-              <span>Traslados, rutas, city tour y servicio para visitantes.</span>
-            </div>
-            <div class="radio-card" data-atencion="Corporativo" onclick="seleccionarAtencion('Corporativo', this)">
-              <b>Corporativo</b>
-              <span>Empresas, reuniones, recojo de personal o clientes.</span>
-            </div>
-          </div>
-        </div>
+    $('pasajeros').addEventListener('input', validateVehicleSuggestion);
+    $('equipaje').addEventListener('change', validateVehicleSuggestion);
 
-        <div class="field">
-          <label>Origen / recojo *</label>
-          <input type="text" id="origen" placeholder="Ej. Los Olivos, hotel, domicilio, aeropuerto">
-        </div>
-
-        <div class="field">
-          <label>Destino *</label>
-          <input type="text" id="destino" placeholder="Ej. Aeropuerto, oficina, distrito, tour">
-        </div>
-
-        <div class="field">
-          <label>Fecha *</label>
-          <input type="date" id="fechaServicio">
-        </div>
-
-        <div class="field">
-          <label>Hora *</label>
-          <input type="time" id="horaServicio">
-        </div>
-
-        <div class="field">
-          <label>Cantidad de pasajeros *</label>
-          <select id="pasajeros">
-            <option value="">Seleccionar</option>
-            <option>1 pasajero</option>
-            <option>2 pasajeros</option>
-            <option>3 pasajeros</option>
-            <option>4 pasajeros</option>
-            <option>5 pasajeros</option>
-            <option>6 pasajeros</option>
-            <option>7 pasajeros</option>
-            <option>8 pasajeros</option>
-            <option>9 pasajeros</option>
-            <option>10 pasajeros</option>
-            <option>11 pasajeros</option>
-            <option>12 pasajeros</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Equipaje / carga</label>
-          <select id="equipaje">
-            <option value="">Seleccionar</option>
-            <option>Sin equipaje</option>
-            <option>Equipaje ligero</option>
-            <option>1 maleta</option>
-            <option>2 maletas</option>
-            <option>3 maletas</option>
-            <option>Equipaje grande</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Tipo de viaje</label>
-          <select id="tipoViaje">
-            <option value="">Seleccionar</option>
-            <option>Solo ida</option>
-            <option>Ida y vuelta</option>
-            <option>Servicio por horas</option>
-            <option>Full day</option>
-            <option>Traslado aeropuerto</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Número de vuelo / referencia</label>
-          <input type="text" id="vuelo" placeholder="Opcional">
-        </div>
-
-        <div class="field full">
-          <label>Observaciones</label>
-          <textarea id="observaciones" placeholder="Ej. 2 maletas grandes, recoger en puerta principal, silla de bebé, ruta turística, facturación, etc."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="summary-card">
-      <h3>Resumen</h3>
-
-      <div class="summary-box">
-        <div class="summary-row"><span>Servicio</span><span id="resServicio">No seleccionado</span></div>
-        <div class="summary-row"><span>Vehículo</span><span id="resVehiculo">No seleccionado</span></div>
-        <div class="summary-row"><span>Atención</span><span id="resAtencion">Ejecutivo</span></div>
-        <div class="summary-row"><span>Cliente</span><span id="resCliente">-</span></div>
-        <div class="summary-row"><span>Teléfono</span><span id="resTelefono">-</span></div>
-        <div class="summary-row"><span>Origen</span><span id="resOrigen">-</span></div>
-        <div class="summary-row"><span>Destino</span><span id="resDestino">-</span></div>
-        <div class="summary-row"><span>Fecha / hora</span><span id="resFechaHora">-</span></div>
-        <div class="summary-row"><span>Pasajeros</span><span id="resPasajeros">-</span></div>
-        <div class="summary-row"><span>Equipaje</span><span id="resEquipaje">-</span></div>
-        <div class="summary-row"><span>Viaje</span><span id="resTipoViaje">-</span></div>
-      </div>
-
-      <div class="summary-note">
-        La solicitud se enviará por WhatsApp con formato profesional para agilizar la atención. Puedes usar esta web como catálogo de servicios y reservas desde celular.
-      </div>
-
-      <div class="summary-actions">
-        <button class="btn-wa" id="btnEnviar" onclick="enviarWhatsApp()">Solicitar servicio por WhatsApp</button>
-        <button class="btn-clear" onclick="limpiarFormulario()">Limpiar formulario</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="section-head">
-    <div>
-      <h2>Ventajas del servicio</h2>
-      <p>Diseñado para verse serio, premium y fácil de usar tanto en celular como en escritorio.</p>
-    </div>
-  </div>
-
-  <div class="features">
-    <div class="feature">
-      <h4>Imagen ejecutiva</h4>
-      <p>Diseño limpio y profesional para clientes particulares, corporativos y turísticos.</p>
-    </div>
-    <div class="feature">
-      <h4>Solicitud clara</h4>
-      <p>El cliente define servicio, vehículo, horario, pasajeros y observaciones antes de escribir.</p>
-    </div>
-    <div class="feature">
-      <h4>Más rápido por WhatsApp</h4>
-      <p>El mensaje llega ordenado, sin tener que preguntar todo desde cero.</p>
-    </div>
-    <div class="feature">
-      <h4>Instalable como app</h4>
-      <p>Puede agregarse a la pantalla de inicio del celular para un acceso más directo.</p>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-wrap">
-    <div class="footer-card">
-      <h4>NS EXECUTIVE</h4>
-      <p>Servicio privado de taxi ejecutivo, traslados al aeropuerto, city tour, movilidad turística y atención corporativa previa coordinación.</p>
-    </div>
-    <div class="footer-card">
-      <h4>Reservas</h4>
-      <p>Solicitudes por WhatsApp, atención personalizada y coordinación según horario, ruta, tipo de unidad y cantidad de pasajeros.</p>
-    </div>
-  </div>
-  <div class="copy">© NS EXECUTIVE · Taxi y Turismo Ejecutivo</div>
-</footer>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const WHATSAPP_NUMBER = "51992044102";
-
-const servicios = [
-  {
-    id:"taxi-ejecutivo",
-    nombre:"Taxi Ejecutivo",
-    descripcion:"Traslados privados dentro de la ciudad con atención puntual y presentación profesional.",
-    tiempo:"Ciudad",
-    ideal:"Reuniones · oficina · domicilio"
-  },
-  {
-    id:"aeropuerto",
-    nombre:"Aeropuerto",
-    descripcion:"Recojo y traslado al aeropuerto con coordinación previa, puntualidad y manejo de equipaje.",
-    tiempo:"24/7 previa coordinación",
-    ideal:"Llegadas · salidas · vuelos"
-  },
-  {
-    id:"turistico",
-    nombre:"Servicio Turístico",
-    descripcion:"Rutas privadas, visitas, city tour y traslados turísticos con atención personalizada.",
-    tiempo:"Turismo",
-    ideal:"Parejas · familias · visitantes"
-  },
-  {
-    id:"horas",
-    nombre:"Servicio por Horas",
-    descripcion:"Movilidad disponible por bloques de tiempo para diligencias, negocios o recorridos programados.",
-    tiempo:"Flexible",
-    ideal:"Empresas · trámites · recorridos"
-  }
-];
-
-const vehiculos = [
-  {
-    id:"auto",
-    nombre:"Auto Ejecutivo",
-    pasajeros:"1 a 3 pasajeros",
-    equipaje:"Equipaje ligero",
-    ideal:"Ciudad y traslados rápidos",
-    descripcion:"Unidad ideal para traslados ejecutivos, reuniones, aeropuerto ligero y servicios personales."
-  },
-  {
-    id:"camioneta",
-    nombre:"Camioneta SUV",
-    pasajeros:"1 a 5 pasajeros",
-    equipaje:"Más espacio y confort",
-    ideal:"Ejecutivo y familiar",
-    descripcion:"Mayor comodidad, mejor imagen y espacio para pasajeros y equipaje mediano."
-  },
-  {
-    id:"van",
-    nombre:"Van",
-    pasajeros:"6 a 12 pasajeros",
-    equipaje:"Grupos y turismo",
-    ideal:"Tours, empresas y grupos",
-    descripcion:"Perfecta para grupos, city tours, traslados corporativos y familias con más equipaje."
-  }
-];
-
-let servicioSeleccionado = servicios[1];
-let vehiculoSeleccionado = vehiculos[1];
-let tipoAtencionSeleccionado = "Ejecutivo";
-let deferredPrompt = null;
-
-const servicesGrid = document.getElementById("servicesGrid");
-const vehiclesGrid = document.getElementById("vehiclesGrid");
-
-renderServicios();
-renderVehiculos();
-actualizarResumen();
-setMinFechaHoy();
-asignarEventosResumen();
-
-function renderServicios(){
-  servicesGrid.innerHTML = "";
-  servicios.forEach(s=>{
-    const selected = servicioSeleccionado && servicioSeleccionado.id === s.id;
-    servicesGrid.innerHTML += `
-      <div class="service-card ${selected ? "selected" : ""}" data-id="${s.id}">
-        <div class="service-cover">${s.nombre}</div>
-        <div class="service-body">
-          <h3>${s.nombre}</h3>
-          <p>${s.descripcion}</p>
-          <div class="service-meta">
-            <span class="meta-pill">${s.tiempo}</span>
-            <span class="meta-pill">${s.ideal}</span>
-          </div>
-        </div>
-        <div class="service-actions">
-          <button type="button" onclick="seleccionarServicio('${s.id}')">${selected ? "Seleccionado" : "Elegir servicio"}</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function renderVehiculos(){
-  vehiclesGrid.innerHTML = "";
-  vehiculos.forEach(v=>{
-    const selected = vehiculoSeleccionado && vehiculoSeleccionado.id === v.id;
-    vehiclesGrid.innerHTML += `
-      <div class="vehicle-card ${selected ? "selected" : ""}" data-id="${v.id}">
-        <div class="vehicle-top">
-          <div class="vehicle-type">${v.nombre}</div>
-          <div class="vehicle-desc">${v.descripcion}</div>
-        </div>
-        <div class="vehicle-body">
-          <div class="vehicle-list">
-            <div class="vehicle-item"><span>Capacidad</span><b>${v.pasajeros}</b></div>
-            <div class="vehicle-item"><span>Equipaje</span><b>${v.equipaje}</b></div>
-            <div class="vehicle-item"><span>Ideal para</span><b>${v.ideal}</b></div>
-          </div>
-          <button type="button" onclick="seleccionarVehiculo('${v.id}')">${selected ? "Seleccionado" : "Elegir vehículo"}</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function seleccionarServicio(id){
-  servicioSeleccionado = servicios.find(x=>x.id===id) || null;
-  renderServicios();
-  actualizarResumen();
-  mostrarToast("Servicio seleccionado");
-  document.getElementById("reserva").scrollIntoView({behavior:"smooth", block:"start"});
-}
-
-function seleccionarVehiculo(id){
-  vehiculoSeleccionado = vehiculos.find(x=>x.id===id) || null;
-  renderVehiculos();
-  actualizarResumen();
-  mostrarToast("Vehículo seleccionado");
-}
-
-function seleccionarAtencion(tipo, el){
-  tipoAtencionSeleccionado = tipo;
-  document.querySelectorAll("#tipoAtencionGrid .radio-card").forEach(x=>x.classList.remove("active"));
-  if(el) el.classList.add("active");
-  actualizarResumen();
-}
-
-function setMinFechaHoy(){
-  const hoy = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm = String(hoy.getMonth()+1).padStart(2,"0");
-  const dd = String(hoy.getDate()).padStart(2,"0");
-  document.getElementById("fechaServicio").min = `${yyyy}-${mm}-${dd}`;
-}
-
-function asignarEventosResumen(){
-  [
-    "clienteNombre","clienteTelefono","origen","destino",
-    "fechaServicio","horaServicio","pasajeros","equipaje",
-    "tipoViaje","vuelo","observaciones"
-  ].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el){
-      el.addEventListener("input", actualizarResumen);
-      el.addEventListener("change", actualizarResumen);
+    function showWarn(msg=''){
+      const box = $('warnBox');
+      box.textContent = msg;
+      box.classList.toggle('show', !!msg);
     }
-  });
-}
 
-function valor(id){
-  const el = document.getElementById(id);
-  return el ? el.value.trim() : "";
-}
+    function showOk(msg=''){
+      const box = $('okBox');
+      box.textContent = msg;
+      box.classList.toggle('show', !!msg);
+    }
 
-function actualizarResumen(){
-  document.getElementById("resServicio").textContent = servicioSeleccionado ? servicioSeleccionado.nombre : "No seleccionado";
-  document.getElementById("resVehiculo").textContent = vehiculoSeleccionado ? vehiculoSeleccionado.nombre : "No seleccionado";
-  document.getElementById("resAtencion").textContent = tipoAtencionSeleccionado || "-";
-  document.getElementById("resCliente").textContent = valor("clienteNombre") || "-";
-  document.getElementById("resTelefono").textContent = valor("clienteTelefono") || "-";
-  document.getElementById("resOrigen").textContent = valor("origen") || "-";
-  document.getElementById("resDestino").textContent = valor("destino") || "-";
-  document.getElementById("resFechaHora").textContent = construirFechaHora();
-  document.getElementById("resPasajeros").textContent = valor("pasajeros") || "-";
-  document.getElementById("resEquipaje").textContent = valor("equipaje") || "-";
-  document.getElementById("resTipoViaje").textContent = valor("tipoViaje") || "-";
+    function formatMoney(n){
+      return `S/ ${Number(n || 0).toFixed(2)}`;
+    }
 
-  document.getElementById("mockServicio").textContent = servicioSeleccionado ? servicioSeleccionado.nombre : "Servicio";
-  document.getElementById("mockVehiculo").textContent = vehiculoSeleccionado ? vehiculoSeleccionado.nombre : "Vehículo";
-  document.getElementById("mockAtencion").textContent = tipoAtencionSeleccionado || "-";
-  document.getElementById("mockPasajeros").textContent = valor("pasajeros") || "1 a 3 personas";
-  document.getElementById("mockEquipaje").textContent = valor("equipaje") || "Equipaje ligero";
-}
+    function validateVehicleSuggestion(){
+      const passengers = Math.max(1, Number($('pasajeros').value || 1));
+      const luggage = luggageLevels[$('equipaje').value] || 1;
+      const vehicle = VEHICLES[currentVehicle];
 
-function construirFechaHora(){
-  const f = valor("fechaServicio");
-  const h = valor("horaServicio");
-  if(!f && !h) return "-";
-  if(f && h) return `${f} · ${h}`;
-  return f || h || "-";
-}
+      const needPassengers = passengers > vehicle.maxPassengers;
+      const needLuggage = luggage > vehicle.maxLuggageLevel;
 
-function enviarWhatsApp(){
-  const nombre = valor("clienteNombre");
-  const telefono = valor("clienteTelefono");
-  const origen = valor("origen");
-  const destino = valor("destino");
-  const fecha = valor("fechaServicio");
-  const hora = valor("horaServicio");
-  const pasajeros = valor("pasajeros");
+      if (!needPassengers && !needLuggage) {
+        showWarn('');
+        showOk(`La unidad seleccionada es adecuada para ${passengers} pasajero(s).`);
+        return;
+      }
 
-  if(!servicioSeleccionado){
-    mostrarToast("Selecciona un servicio", "error");
-    return;
-  }
-  if(!vehiculoSeleccionado){
-    mostrarToast("Selecciona un vehículo", "error");
-    return;
-  }
-  if(!nombre){
-    mostrarToast("Completa el nombre del cliente", "error");
-    document.getElementById("clienteNombre").focus();
-    return;
-  }
-  if(!telefono){
-    mostrarToast("Completa el celular", "error");
-    document.getElementById("clienteTelefono").focus();
-    return;
-  }
-  if(!origen){
-    mostrarToast("Completa el origen", "error");
-    document.getElementById("origen").focus();
-    return;
-  }
-  if(!destino){
-    mostrarToast("Completa el destino", "error");
-    document.getElementById("destino").focus();
-    return;
-  }
-  if(!fecha){
-    mostrarToast("Selecciona la fecha", "error");
-    document.getElementById("fechaServicio").focus();
-    return;
-  }
-  if(!hora){
-    mostrarToast("Selecciona la hora", "error");
-    document.getElementById("horaServicio").focus();
-    return;
-  }
-  if(!pasajeros){
-    mostrarToast("Selecciona la cantidad de pasajeros", "error");
-    document.getElementById("pasajeros").focus();
-    return;
-  }
+      showOk('');
+      const suggestion = passengers > 5 || luggage > 3 ? 'Van' : 'Camioneta';
 
-  let mensaje = "🚖 *SOLICITUD DE SERVICIO - NS STELLAR EXPERIENCE*\n\n";
-  mensaje += `👤 *Cliente:* ${nombre}\n`;
-  mensaje += `📞 *Celular:* ${telefono}\n\n`;
+      let msg = 'La unidad seleccionada podría no ser adecuada.';
+      if (needPassengers) {
+        msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
+      }
+      if (needLuggage) {
+        msg += ' El equipaje indicado también requiere una unidad con mayor espacio.';
+      }
+      msg += ` Te recomendamos elegir ${suggestion}.`;
 
-  mensaje += "📋 *DETALLE DEL SERVICIO*\n";
-  mensaje += `• Servicio: ${servicioSeleccionado.nombre}\n`;
-  mensaje += `• Vehículo: ${vehiculoSeleccionado.nombre}\n`;
-  mensaje += `• Atención: ${tipoAtencionSeleccionado}\n`;
-  mensaje += `• Tipo de viaje: ${valor("tipoViaje") || "No especificado"}\n\n`;
+      showWarn(msg);
+    }
 
-  mensaje += "📍 *RUTA*\n";
-  mensaje += `• Origen: ${origen}\n`;
-  mensaje += `• Destino: ${destino}\n\n`;
+    async function geocodePlace(text){
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url, {
+        headers: {
+          'Accept-Language': 'es'
+        }
+      });
 
-  mensaje += "🗓️ *PROGRAMACIÓN*\n";
-  mensaje += `• Fecha: ${fecha}\n`;
-  mensaje += `• Hora: ${hora}\n`;
-  mensaje += `• Pasajeros: ${pasajeros}\n`;
-  mensaje += `• Equipaje: ${valor("equipaje") || "No especificado"}\n`;
-  mensaje += `• Vuelo / referencia: ${valor("vuelo") || "No especificado"}\n\n`;
+      const data = await res.json();
 
-  mensaje += `📝 *Observaciones:* ${valor("observaciones") || "Ninguna"}\n\n`;
-  mensaje += "Gracias. Quedo atento(a) a su confirmación y cotización.";
+      if (!data.length) {
+        throw new Error(`No se encontró ubicación para: ${text}`);
+      }
 
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, "_blank");
-}
+      return {
+        lat: Number(data[0].lat),
+        lon: Number(data[0].lon),
+        display: data[0].display_name
+      };
+    }
 
-function limpiarFormulario(){
-  document.getElementById("clienteNombre").value = "";
-  document.getElementById("clienteTelefono").value = "";
-  document.getElementById("origen").value = "";
-  document.getElementById("destino").value = "";
-  document.getElementById("fechaServicio").value = "";
-  document.getElementById("horaServicio").value = "";
-  document.getElementById("pasajeros").value = "";
-  document.getElementById("equipaje").value = "";
-  document.getElementById("tipoViaje").value = "";
-  document.getElementById("vuelo").value = "";
-  document.getElementById("observaciones").value = "";
+    async function calculateRoute(from, to){
+      const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+        method:'POST',
+        headers:{
+          'Authorization': ORS_API_KEY,
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+          coordinates: [
+            [from.lon, from.lat],
+            [to.lon, to.lat]
+          ]
+        })
+      });
 
-  servicioSeleccionado = servicios[1];
-  vehiculoSeleccionado = vehiculos[1];
-  tipoAtencionSeleccionado = "Ejecutivo";
+      if (!res.ok) {
+        throw new Error('No se pudo calcular la ruta. Revisa tu API Key de OpenRouteService.');
+      }
 
-  document.querySelectorAll("#tipoAtencionGrid .radio-card").forEach(x=>x.classList.remove("active"));
-  const primera = document.querySelector('#tipoAtencionGrid .radio-card[data-atencion="Ejecutivo"]');
-  if(primera) primera.classList.add("active");
+      return await res.json();
+    }
 
-  renderServicios();
-  renderVehiculos();
-  actualizarResumen();
-  mostrarToast("Formulario limpio");
-}
+    function drawRoute(from, to, geojson){
+      if (routeLayer) map.removeLayer(routeLayer);
+      if (markerOrigen) map.removeLayer(markerOrigen);
+      if (markerDestino) map.removeLayer(markerDestino);
 
-function mostrarToast(mensaje, tipo="ok"){
-  const toast = document.getElementById("toast");
-  toast.textContent = mensaje;
-  toast.style.borderColor = tipo === "error" ? "rgba(211,47,47,.45)" : "rgba(24,201,100,.35)";
-  toast.classList.add("show");
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(()=>{
-    toast.classList.remove("show");
-  }, 2600);
-}
+      routeLayer = L.geoJSON(geojson, {
+        style:{
+          color:'#d9b36a',
+          weight:5,
+          opacity:.9
+        }
+      }).addTo(map);
 
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById("btnInstalar");
-  if(btn) btn.style.display = "block";
-});
+      markerOrigen = L.marker([from.lat, from.lon]).addTo(map).bindPopup('Origen');
+      markerDestino = L.marker([to.lat, to.lon]).addTo(map).bindPopup('Destino');
 
-function instalarApp(){
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
-    deferredPrompt = null;
-    const btn = document.getElementById("btnInstalar");
-    if(btn) btn.style.display = "none";
-  });
-}
-</script>
+      map.fitBounds(routeLayer.getBounds(), { padding:[30,30] });
+    }
 
+    function calculateFare(distanceKm, vehicleKey){
+      const v = VEHICLES[vehicleKey];
+      return v.base + (distanceKm * v.perKm);
+    }
+
+    async function runCalculation(){
+      showWarn('');
+      showOk('');
+
+      const origen = $('origen').value.trim();
+      const destino = $('destino').value.trim();
+
+      if (!origen || !destino) {
+        showWarn('Ingresa origen y destino para calcular la tarifa.');
+        return;
+      }
+
+      if (currentService === 'Reserva programada' && (!$('fecha').value || !$('hora').value)) {
+        showWarn('Para una reserva programada debes indicar fecha y hora.');
+        return;
+      }
+
+      try {
+        $('btnCalcular').disabled = true;
+        $('btnCalcular').textContent = 'Calculando...';
+
+        const from = await geocodePlace(origen);
+        const to = await geocodePlace(destino);
+
+        const route = await calculateRoute(from, to);
+        const feature = route.features?.[0];
+
+        if (!feature) {
+          throw new Error('No se encontró una ruta válida.');
+        }
+
+        const meters = feature.properties.summary.distance;
+        const seconds = feature.properties.summary.duration;
+        const km = meters / 1000;
+        const min = Math.ceil(seconds / 60);
+        const fare = calculateFare(km, currentVehicle);
+
+        routeData = {
+          origen: from.display,
+          destino: to.display,
+          km: km.toFixed(1),
+          minutos: min,
+          tarifa: fare.toFixed(2)
+        };
+
+        drawRoute(from, to, feature);
+
+        $('sumServicio').textContent = currentService;
+        $('sumVehiculo').textContent = VEHICLES[currentVehicle].name;
+        $('sumDistancia').textContent = `${routeData.km} km`;
+        $('sumTiempo').textContent = `${routeData.minutos} min`;
+        $('sumTarifa').textContent = formatMoney(routeData.tarifa);
+        $('fareBig').textContent = formatMoney(routeData.tarifa);
+
+        validateVehicleSuggestion();
+
+        if (!$('warnBox').classList.contains('show')) {
+          showOk('Tarifa estimada calculada correctamente. Ya puedes enviarla por WhatsApp.');
+        }
+      } catch(err) {
+        showWarn(err.message || 'Ocurrió un problema al calcular la tarifa.');
+      } finally {
+        $('btnCalcular').disabled = false;
+        $('btnCalcular').textContent = 'Calcular tarifa';
+      }
+    }
+
+    function buildWhatsAppMessage(){
+      const nombre = $('nombre').value.trim();
+      const telefono = $('telefono').value.trim();
+      const pasajeros = $('pasajeros').value.trim();
+      const equipaje = $('equipaje').value;
+      const obs = $('observaciones').value.trim();
+      const fecha = $('fecha').value || 'No aplica';
+      const hora = $('hora').value || 'No aplica';
+      const warnText = $('warnBox').classList.contains('show')
+        ? `\nSugerencia de unidad: ${$('warnBox').textContent}`
+        : '';
+
+      return [
+        'Hola, deseo solicitar un traslado:',
+        '',
+        'Empresa: NS STELLAR EXPERIENCE',
+        'RUC: 20603104260',
+        `Tipo de servicio: ${currentService}`,
+        `Origen: ${routeData?.origen || $('origen').value.trim() || '-'}`,
+        `Destino: ${routeData?.destino || $('destino').value.trim() || '-'}`,
+        `Fecha: ${fecha}`,
+        `Hora: ${hora}`,
+        `Pasajeros: ${pasajeros || '-'}`,
+        `Equipaje: ${equipaje}`,
+        `Vehículo solicitado: ${VEHICLES[currentVehicle].name}`,
+        `Distancia estimada: ${routeData?.km ? `${routeData.km} km` : '-'}`,
+        `Tiempo estimado: ${routeData?.minutos ? `${routeData.minutos} min` : '-'}`,
+        `Tarifa estimada: ${routeData ? formatMoney(routeData.tarifa) : '-'}`,
+        `Nombre: ${nombre || '-'}`,
+        `Teléfono: ${telefono || '-'}`,
+        `Observaciones: ${obs || 'Ninguna'}`,
+        warnText
+      ].join('\n');
+    }
+
+    function openWhatsApp(){
+      const origen = $('origen').value.trim();
+      const destino = $('destino').value.trim();
+      const nombre = $('nombre').value.trim();
+      const telefono = $('telefono').value.trim();
+
+      if (!origen || !destino) {
+        showWarn('Completa origen y destino antes de enviar al WhatsApp.');
+        return;
+      }
+
+      if (!nombre || !telefono) {
+        showWarn('Completa tu nombre y teléfono antes de enviar al WhatsApp.');
+        return;
+      }
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsAppMessage())}`;
+      window.open(url, '_blank');
+    }
+
+    $('btnCalcular').addEventListener('click', runCalculation);
+    $('btnWhatsApp').addEventListener('click', openWhatsApp);
+    $('floatingWa').addEventListener('click', e => {
+      e.preventDefault();
+      openWhatsApp();
+    });
+
+    validateVehicleSuggestion();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.error);
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      installPromptEvent = e;
+      $('btnInstalar').style.display = 'block';
+    });
+
+    $('btnInstalar').addEventListener('click', async () => {
+      if (!installPromptEvent) return;
+      installPromptEvent.prompt();
+      await installPromptEvent.userChoice;
+      installPromptEvent = null;
+      $('btnInstalar').style.display = 'none';
+    });
+  </script>
 </body>
 </html>
