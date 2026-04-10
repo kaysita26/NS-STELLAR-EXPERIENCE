@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0b0f17" />
   <title>NS STELLAR EXPERIENCE | Traslados</title>
-  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia y tarifa estimada según unidad." />
+  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia y tarifa estimada." />
 
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="logo-192.png" />
@@ -15,18 +15,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  />
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
 
   <style>
     :root{
       --bg:#070b12;
       --bg2:#0d1420;
-      --bg3:#111b2b;
       --card:#0f1724;
-      --card2:#131f31;
       --line:rgba(255,255,255,.08);
       --text:#f5f7fb;
       --muted:#9caec4;
@@ -35,7 +32,6 @@
       --ok:#27c786;
       --warn:#ff8d8d;
       --shadow:0 20px 60px rgba(0,0,0,.36);
-      --radius:24px;
     }
 
     *{box-sizing:border-box}
@@ -53,10 +49,10 @@
 
     a{text-decoration:none;color:inherit}
     img{display:block;max-width:100%}
-    .container{width:min(1200px, calc(100% - 28px));margin:auto}
+    .container{width:min(1240px, calc(100% - 28px));margin:auto}
 
     .topbar{
-      position:sticky;top:0;z-index:60;
+      position:sticky;top:0;z-index:80;
       backdrop-filter:blur(16px);
       background:rgba(7,11,18,.78);
       border-bottom:1px solid rgba(255,255,255,.05);
@@ -67,12 +63,11 @@
     }
     .brand{display:flex;align-items:center;gap:12px;min-width:0}
     .brand-logo{
-      width:50px;height:50px;border-radius:15px;overflow:hidden;
+      width:52px;height:52px;border-radius:15px;overflow:hidden;
       background:#0c1220;border:1px solid rgba(255,255,255,.08);flex:none;
       box-shadow:var(--shadow)
     }
-    .brand-text{min-width:0}
-    .brand-text strong{display:block;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand-text strong{display:block;font-size:1rem}
     .brand-text span{display:block;color:var(--muted);font-size:.84rem}
 
     .nav-actions{display:flex;gap:10px;flex-wrap:wrap}
@@ -82,11 +77,19 @@
     }
     .btn:hover{transform:translateY(-1px)}
     .btn-outline{
-      background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text)
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      color:var(--text)
     }
     .btn-gold{
-      background:linear-gradient(135deg,var(--gold),var(--gold2));color:#121212;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#121212;
       box-shadow:0 12px 28px rgba(217,179,106,.24)
+    }
+    .btn-red{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      color:#fff;
     }
     .btn-block{width:100%}
 
@@ -103,7 +106,8 @@
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 14px;border-radius:999px;
       color:var(--gold2);font-size:.84rem;font-weight:700;
-      background:rgba(217,179,106,.08);border:1px solid rgba(217,179,106,.16)
+      background:rgba(217,179,106,.08);
+      border:1px solid rgba(217,179,106,.16)
     }
     h1{
       margin:18px 0 12px;
@@ -124,7 +128,7 @@
     .hero-card-top strong{display:block;font-size:1.08rem}
     .hero-card-top p{margin:10px 0 0;color:var(--muted);line-height:1.66}
     .hero-points{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
-    .point{padding:16px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+    .point{padding:16px;border-radius:18px;background:var(--bg2);border:1px solid var(--line)}
     .point strong{display:block;margin-bottom:6px}
     .point span{color:var(--muted);font-size:.92rem;line-height:1.6}
 
@@ -133,11 +137,11 @@
     .section-head h2{margin:0;font-size:1.75rem}
     .section-head p{margin:8px 0 0;color:var(--muted)}
 
-    .booking-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+    .booking-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:24px}
     .form-panel,.summary-panel{padding:24px}
 
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-    .field{display:flex;flex-direction:column;gap:8px}
+    .field{display:flex;flex-direction:column;gap:8px;position:relative}
     .field.full{grid-column:1/-1}
     label{font-size:.93rem;font-weight:700}
     input,select,textarea{
@@ -152,12 +156,54 @@
     }
     textarea{min-height:100px;resize:vertical}
 
+    .input-with-btn{
+      display:grid;
+      grid-template-columns:1fr auto auto;
+      gap:10px;
+      align-items:center;
+    }
+
+    .small-note{
+      font-size:.82rem;
+      color:var(--muted);
+      line-height:1.5;
+      margin-top:4px;
+    }
+
+    .suggestions{
+      position:absolute;
+      top:100%;
+      left:0;
+      right:0;
+      z-index:90;
+      margin-top:6px;
+      background:#101827;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      display:none;
+      max-height:260px;
+      overflow-y:auto;
+    }
+    .suggestions.show{display:block}
+    .suggestion{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .suggestion:last-child{border-bottom:none}
+    .suggestion:hover{background:rgba(255,255,255,.05)}
+    .suggestion-title{font-weight:700;font-size:.94rem}
+    .suggestion-sub{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:4px}
+
     .switches,.vehicle-grid{display:grid;gap:12px}
     .switches{grid-template-columns:repeat(2,1fr)}
     .vehicle-grid{grid-template-columns:repeat(2,1fr)}
 
     .choice,.vehicle{
-      padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--line);
+      padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);
       cursor:pointer;transition:.22s ease;
     }
     .choice:hover,.vehicle:hover{transform:translateY(-2px);border-color:rgba(217,179,106,.38)}
@@ -171,7 +217,7 @@
     .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
 
     #map{
-      width:100%;height:330px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
+      width:100%;height:350px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
     }
 
     .summary-main{
@@ -179,7 +225,10 @@
       background:linear-gradient(180deg,#0f1929,#0b1320);
       border:1px solid var(--line)
     }
-    .row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+    .row{
+      display:flex;justify-content:space-between;gap:12px;padding:12px 0;
+      border-bottom:1px dashed rgba(255,255,255,.08)
+    }
     .row:last-child{border-bottom:none}
     .row span:first-child{color:var(--muted)}
     .fare{
@@ -198,7 +247,7 @@
     .cta-box{margin-top:16px;display:grid;gap:10px}
 
     .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .trust-card{padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+    .trust-card{padding:18px;border-radius:20px;background:var(--bg2);border:1px solid var(--line)}
     .trust-card strong{display:block;margin-bottom:8px}
     .trust-card span{color:var(--muted);font-size:.94rem;line-height:1.6}
 
@@ -220,14 +269,15 @@
       .hero-grid,.booking-grid{grid-template-columns:1fr}
       .trust{grid-template-columns:repeat(2,1fr)}
     }
-    @media (max-width:680px){
+    @media (max-width:760px){
       .nav{flex-direction:column;align-items:stretch}
       .nav-actions{justify-content:stretch}
       .nav-actions .btn{flex:1}
       .hero-copy,.hero-side,.form-panel,.summary-panel{padding:18px}
       .grid,.switches,.vehicle-grid,.hero-points,.trust{grid-template-columns:1fr}
       .footer-box{flex-direction:column;align-items:flex-start}
-      #map{height:280px}
+      #map{height:300px}
+      .input-with-btn{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -271,8 +321,8 @@
             </p>
           </div>
           <div class="hero-points">
-            <div class="point"><strong>Solicitar ahora</strong><span>Para servicios inmediatos.</span></div>
-            <div class="point"><strong>Reservar</strong><span>Programa fecha y hora.</span></div>
+            <div class="point"><strong>Autocompletado</strong><span>El cliente puede elegir direcciones sugeridas.</span></div>
+            <div class="point"><strong>Ubicación actual</strong><span>Un botón llena el origen automáticamente.</span></div>
             <div class="point"><strong>Tarifa estimada</strong><span>Según distancia y unidad.</span></div>
             <div class="point"><strong>WhatsApp directo</strong><span>Con mensaje completo y ordenado.</span></div>
           </div>
@@ -306,14 +356,25 @@
             </div>
 
             <div class="grid" style="margin-top:14px">
-              <div class="field full">
+              <div class="field full" id="originField">
                 <label for="origen">Origen</label>
-                <input id="origen" type="text" placeholder="Ejemplo: Los Olivos, Lima" />
+                <div class="input-with-btn">
+                  <input id="origen" type="text" placeholder="Escribe origen" autocomplete="off" />
+                  <button type="button" class="btn btn-outline" id="btnUbicacion">Usar mi ubicación</button>
+                  <button type="button" class="btn btn-red" id="btnLimpiarOrigen">Limpiar</button>
+                </div>
+                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
+                <div class="suggestions" id="origenSuggestions"></div>
               </div>
 
-              <div class="field full">
+              <div class="field full" id="destinationField">
                 <label for="destino">Destino</label>
-                <input id="destino" type="text" placeholder="Ejemplo: Aeropuerto Jorge Chávez" />
+                <div class="input-with-btn">
+                  <input id="destino" type="text" placeholder="Escribe destino" autocomplete="off" />
+                  <button type="button" class="btn btn-red" id="btnLimpiarDestino">Limpiar</button>
+                </div>
+                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
+                <div class="suggestions" id="destinoSuggestions"></div>
               </div>
 
               <div class="field reserva-only" style="display:none">
@@ -442,8 +503,8 @@
           </div>
         </div>
         <div class="trust">
-          <div class="trust-card"><strong>Imagen premium</strong><span>Diseño oscuro ejecutivo con mejor jerarquía visual.</span></div>
-          <div class="trust-card"><strong>Tarifador claro</strong><span>El cliente ve distancia, tiempo y tarifa antes de confirmar.</span></div>
+          <div class="trust-card"><strong>Autocompletado visual</strong><span>El cliente puede elegir direcciones sugeridas sin escribir todo completo.</span></div>
+          <div class="trust-card"><strong>Ubicación actual</strong><span>Un botón llena el origen con la ubicación del usuario.</span></div>
           <div class="trust-card"><strong>Sugerencia inteligente</strong><span>La web recomienda una mejor unidad si la capacidad no coincide.</span></div>
           <div class="trust-card"><strong>Lista para instalar</strong><span>Puede verse como app desde celular y PC.</span></div>
         </div>
@@ -463,11 +524,9 @@
 
   <a class="floating-wa" id="floatingWa" href="#" aria-label="WhatsApp">WA</a>
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
 
   <script>
     const WHATSAPP_NUMBER = '51992044102';
@@ -492,6 +551,9 @@
     let currentVehicle = 'auto';
     let routeData = null;
     let installPromptEvent = null;
+
+    let originSelection = null;
+    let destinationSelection = null;
 
     const $ = id => document.getElementById(id);
 
@@ -568,36 +630,242 @@
       const suggestion = passengers > 5 || luggage > 3 ? 'Van' : 'Camioneta';
 
       let msg = 'La unidad seleccionada podría no ser adecuada.';
-      if (needPassengers) {
-        msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
-      }
-      if (needLuggage) {
-        msg += ' El equipaje indicado también requiere una unidad con mayor espacio.';
-      }
+      if (needPassengers) msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
+      if (needLuggage) msg += ' El equipaje indicado también requiere una unidad con mayor espacio.';
       msg += ` Te recomendamos elegir ${suggestion}.`;
 
       showWarn(msg);
     }
 
-    async function geocodePlace(text){
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(text)}`;
-      const res = await fetch(url, {
-        headers: {
-          'Accept-Language': 'es'
-        }
-      });
+    function debounce(fn, wait = 350) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), wait);
+      };
+    }
 
-      const data = await res.json();
+    function escapeHtml(text=''){
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
 
-      if (!data.length) {
-        throw new Error(`No se encontró ubicación para: ${text}`);
-      }
+    function parseORSFeature(feature){
+      const coords = feature.geometry?.coordinates || [];
+      const props = feature.properties || {};
+      const label = props.label || props.name || 'Ubicación seleccionada';
 
       return {
-        lat: Number(data[0].lat),
-        lon: Number(data[0].lon),
-        display: data[0].display_name
+        lat: Number(coords[1]),
+        lon: Number(coords[0]),
+        label,
+        raw: feature
       };
+    }
+
+    async function orsAutocomplete(text){
+      const url = `https://api.openrouteservice.org/geocode/autocomplete?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=6&boundary.country=PE`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('No se pudieron obtener sugerencias.');
+      const data = await res.json();
+      return Array.isArray(data.features) ? data.features : [];
+    }
+
+    async function orsSearch(text){
+      const url = `https://api.openrouteservice.org/geocode/search?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=1&boundary.country=PE`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('No se pudo ubicar la dirección ingresada.');
+      const data = await res.json();
+      if (!Array.isArray(data.features) || !data.features.length) {
+        throw new Error(`No se encontró ubicación para: ${text}`);
+      }
+      return parseORSFeature(data.features[0]);
+    }
+
+    async function orsReverse(lat, lon){
+      const url = `https://api.openrouteservice.org/geocode/reverse?api_key=${encodeURIComponent(ORS_API_KEY)}&point.lon=${encodeURIComponent(lon)}&point.lat=${encodeURIComponent(lat)}&size=1`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('No se pudo obtener la dirección de tu ubicación.');
+      const data = await res.json();
+      if (!Array.isArray(data.features) || !data.features.length) {
+        return {
+          lat,
+          lon,
+          label: `${lat.toFixed(5)}, ${lon.toFixed(5)}`
+        };
+      }
+      return parseORSFeature(data.features[0]);
+    }
+
+    function renderSuggestions(containerId, features, onSelect){
+      const container = $(containerId);
+      if (!features.length) {
+        container.innerHTML = '';
+        container.classList.remove('show');
+        return;
+      }
+
+      container.innerHTML = features.map((feature, index) => {
+        const props = feature.properties || {};
+        const title = props.name || props.locality || props.label || `Resultado ${index + 1}`;
+        const sub = props.label || '';
+        return `
+          <div class="suggestion" data-index="${index}">
+            <div class="suggestion-title">${escapeHtml(title)}</div>
+            <div class="suggestion-sub">${escapeHtml(sub)}</div>
+          </div>
+        `;
+      }).join('');
+
+      container.classList.add('show');
+
+      [...container.querySelectorAll('.suggestion')].forEach(item => {
+        item.addEventListener('click', () => {
+          const index = Number(item.dataset.index);
+          onSelect(features[index]);
+          container.classList.remove('show');
+        });
+      });
+    }
+
+    function hideSuggestions(){
+      $('origenSuggestions').classList.remove('show');
+      $('destinoSuggestions').classList.remove('show');
+    }
+
+    const handleOriginAutocomplete = debounce(async () => {
+      const text = $('origen').value.trim();
+      originSelection = null;
+      if (text.length < 3) {
+        $('origenSuggestions').classList.remove('show');
+        $('origenSuggestions').innerHTML = '';
+        return;
+      }
+
+      try {
+        const features = await orsAutocomplete(text);
+        renderSuggestions('origenSuggestions', features, (feature) => {
+          const selected = parseORSFeature(feature);
+          originSelection = selected;
+          $('origen').value = selected.label;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }, 350);
+
+    const handleDestinationAutocomplete = debounce(async () => {
+      const text = $('destino').value.trim();
+      destinationSelection = null;
+      if (text.length < 3) {
+        $('destinoSuggestions').classList.remove('show');
+        $('destinoSuggestions').innerHTML = '';
+        return;
+      }
+
+      try {
+        const features = await orsAutocomplete(text);
+        renderSuggestions('destinoSuggestions', features, (feature) => {
+          const selected = parseORSFeature(feature);
+          destinationSelection = selected;
+          $('destino').value = selected.label;
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }, 350);
+
+    $('origen').addEventListener('input', handleOriginAutocomplete);
+    $('destino').addEventListener('input', handleDestinationAutocomplete);
+
+    document.addEventListener('click', (e) => {
+      const insideOrigin = $('originField').contains(e.target);
+      const insideDest = $('destinationField').contains(e.target);
+
+      if (!insideOrigin) $('origenSuggestions').classList.remove('show');
+      if (!insideDest) $('destinoSuggestions').classList.remove('show');
+    });
+
+    async function useCurrentLocation(){
+      showWarn('');
+      showOk('');
+
+      if (!navigator.geolocation) {
+        showWarn('Tu navegador no permite usar ubicación actual.');
+        return;
+      }
+
+      $('btnUbicacion').disabled = true;
+      $('btnUbicacion').textContent = 'Ubicando...';
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const place = await orsReverse(lat, lon);
+
+            originSelection = {
+              lat,
+              lon,
+              label: place.label
+            };
+
+            $('origen').value = place.label;
+            showOk('Tu ubicación actual se cargó correctamente en el origen.');
+          } catch (err) {
+            showWarn(err.message || 'No se pudo convertir tu ubicación en una dirección.');
+          } finally {
+            $('btnUbicacion').disabled = false;
+            $('btnUbicacion').textContent = 'Usar mi ubicación';
+          }
+        },
+        (error) => {
+          let msg = 'No se pudo obtener tu ubicación.';
+          if (error.code === 1) msg = 'Debes permitir el acceso a tu ubicación para usar esta función.';
+          if (error.code === 2) msg = 'No se pudo determinar tu ubicación actual.';
+          if (error.code === 3) msg = 'Se agotó el tiempo para obtener tu ubicación.';
+          showWarn(msg);
+          $('btnUbicacion').disabled = false;
+          $('btnUbicacion').textContent = 'Usar mi ubicación';
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    function clearOrigin(){
+      originSelection = null;
+      $('origen').value = '';
+      $('origenSuggestions').classList.remove('show');
+      $('origenSuggestions').innerHTML = '';
+    }
+
+    function clearDestination(){
+      destinationSelection = null;
+      $('destino').value = '';
+      $('destinoSuggestions').classList.remove('show');
+      $('destinoSuggestions').innerHTML = '';
+    }
+
+    $('btnUbicacion').addEventListener('click', useCurrentLocation);
+    $('btnLimpiarOrigen').addEventListener('click', clearOrigin);
+    $('btnLimpiarDestino').addEventListener('click', clearDestination);
+
+    async function getResolvedPlace(type){
+      if (type === 'origin') {
+        if (originSelection) return originSelection;
+        return await orsSearch($('origen').value.trim());
+      }
+      if (destinationSelection) return destinationSelection;
+      return await orsSearch($('destino').value.trim());
     }
 
     async function calculateRoute(from, to){
@@ -643,7 +911,15 @@
 
     function calculateFare(distanceKm, vehicleKey){
       const v = VEHICLES[vehicleKey];
-      return v.base + (distanceKm * v.perKm);
+      let fare = v.base + (distanceKm * v.perKm);
+
+      const hour = $('hora').value;
+      if (hour) {
+        const h = Number(hour.split(':')[0]);
+        if (h >= 22 || h < 6) fare += 8;
+      }
+
+      return fare;
     }
 
     async function runCalculation(){
@@ -652,6 +928,11 @@
 
       const origen = $('origen').value.trim();
       const destino = $('destino').value.trim();
+
+      if (!ORS_API_KEY || ORS_API_KEY === 'PON_AQUI_TU_API_KEY_DE_OPENROUTESERVICE') {
+        showWarn('Primero debes reemplazar tu API Key de OpenRouteService en el archivo index.html.');
+        return;
+      }
 
       if (!origen || !destino) {
         showWarn('Ingresa origen y destino para calcular la tarifa.');
@@ -667,8 +948,11 @@
         $('btnCalcular').disabled = true;
         $('btnCalcular').textContent = 'Calculando...';
 
-        const from = await geocodePlace(origen);
-        const to = await geocodePlace(destino);
+        const from = await getResolvedPlace('origin');
+        const to = await getResolvedPlace('destination');
+
+        originSelection = from;
+        destinationSelection = to;
 
         const route = await calculateRoute(from, to);
         const feature = route.features?.[0];
@@ -684,12 +968,15 @@
         const fare = calculateFare(km, currentVehicle);
 
         routeData = {
-          origen: from.display,
-          destino: to.display,
+          origen: from.label,
+          destino: to.label,
           km: km.toFixed(1),
           minutos: min,
           tarifa: fare.toFixed(2)
         };
+
+        $('origen').value = from.label;
+        $('destino').value = to.label;
 
         drawRoute(from, to, feature);
 
