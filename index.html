@@ -6,172 +6,243 @@
 <title>NS STELLAR EXPERIENCE</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 <style>
-body{margin:0;font-family:Arial;background:#0b0f14;color:#fff}
+body{margin:0;background:#0b0f14;color:#fff;font-family:Arial}
 .container{display:flex;flex-wrap:wrap}
-.panel{width:420px;max-width:100%;padding:20px}
-.map{flex:1;min-height:100vh}
-input,select,button{
-  width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;
+.panel{width:420px;padding:15px}
+.map{flex:1;height:100vh}
+
+input,select,button,textarea{
+width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;
 }
-button{background:#d4af37;color:#000;font-weight:bold;cursor:pointer}
+
+button{background:#d4af37;color:#000;font-weight:bold}
+
 .sugerencias{
-  background:#111;border-radius:6px;max-height:150px;overflow:auto;
+background:#111;max-height:150px;overflow:auto;border-radius:6px
 }
+
 .sugerencias div{padding:8px;border-bottom:1px solid #222;cursor:pointer}
 .sugerencias div:hover{background:#222}
-.card{background:#111;padding:10px;border-radius:10px;margin-top:10px}
+
+.input-group{display:grid;grid-template-columns:1fr auto auto;gap:5px}
+
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <div class="panel">
 
-    <h2>🚗 NS STELLAR EXPERIENCE</h2>
+<div class="panel">
 
-    <input id="nombre" placeholder="Nombre">
-    <input id="telefono" placeholder="Celular">
+<h2>🚗 NS STELLAR EXPERIENCE</h2>
 
-    <input id="origen" placeholder="Origen">
-    <div id="sugOrigen" class="sugerencias"></div>
+<input id="nombre" placeholder="Nombre">
+<input id="telefono" placeholder="Celular">
 
-    <button onclick="usarUbicacion()">📍 Usar mi ubicación</button>
+<!-- ORIGEN -->
+<div class="input-group">
+<input id="origen" placeholder="Origen">
+<button onclick="usarUbicacion()">📍</button>
+<button onclick="activarPin('origen')">📌</button>
+</div>
+<div id="sugOrigen" class="sugerencias"></div>
 
-    <input id="destino" placeholder="Destino">
-    <div id="sugDestino" class="sugerencias"></div>
+<!-- DESTINO -->
+<div class="input-group">
+<input id="destino" placeholder="Destino">
+<button onclick="activarPin('destino')">📌</button>
+</div>
+<div id="sugDestino" class="sugerencias"></div>
 
-    <select id="vehiculo">
-      <option value="auto">Auto (1-3)</option>
-      <option value="suv">SUV (1-5)</option>
-      <option value="van">Van (6-12)</option>
-    </select>
+<select id="vehiculo">
+<option value="auto">Auto (1-3)</option>
+<option value="suv">SUV (1-5)</option>
+<option value="van">Van (6-12)</option>
+</select>
 
-    <input id="pasajeros" type="number" placeholder="Pasajeros">
-    <select id="equipaje">
-      <option>Sin equipaje</option>
-      <option>Equipaje mediano</option>
-      <option>Equipaje grande</option>
-    </select>
+<input id="pasajeros" type="number" placeholder="Pasajeros">
 
-    <input id="fecha" type="date">
-    <input id="hora" type="time">
+<select id="equipaje">
+<option>Sin equipaje</option>
+<option>Equipaje mediano</option>
+<option>Equipaje grande</option>
+</select>
 
-    <textarea id="obs" placeholder="Observaciones"></textarea>
+<input id="fecha" type="date">
+<input id="hora" type="time">
 
-    <button onclick="calcular()">Calcular tarifa</button>
+<textarea id="obs" placeholder="Observaciones"></textarea>
 
-    <div class="card" id="resultado"></div>
+<button onclick="calcular()">Calcular tarifa</button>
 
-    <button onclick="enviarWhatsApp()">Enviar por WhatsApp</button>
+<div id="resultado"></div>
 
-  </div>
+<button onclick="enviar()">Enviar WhatsApp</button>
 
-  <div id="map" class="map"></div>
+</div>
+
+<div id="map" class="map"></div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjA3MDI2NmM4YTZjZjRhZDE5ZTQwM2FmOGNmOTAzYmZmIiwiaCI6Im11cm11cjY0In0=';
+
+const ORS_API_KEY = 'PON_AQUI_TU_API_KEY_DE_OPENROUTESERVICE';
 
 const map = L.map('map').setView([-12.0464,-77.0428], 13);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-let markerOrigen = L.marker([-12.0464,-77.0428],{draggable:true}).addTo(map);
-let markerDestino = L.marker([-12.05,-77.05],{draggable:true}).addTo(map);
+let pinActivo = 'origen';
 
-async function obtenerDireccion(lat, lon){
-  const res = await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_API_KEY}&point.lon=${lon}&point.lat=${lat}`);
-  const data = await res.json();
-  return data.features?.[0]?.properties?.label || '';
+const markerOrigen = L.marker([-12.0464,-77.0428],{draggable:true}).addTo(map);
+const markerDestino = L.marker([-12.0564,-77.0528],{draggable:true}).addTo(map);
+
+function activarPin(tipo){
+pinActivo = tipo;
 }
 
+map.on('click', async (e)=>{
+const {lat,lng} = e.latlng;
+
+if(pinActivo==='origen'){
+markerOrigen.setLatLng([lat,lng]);
+document.getElementById('origen').value = await reverse(lat,lng);
+}else{
+markerDestino.setLatLng([lat,lng]);
+document.getElementById('destino').value = await reverse(lat,lng);
+}
+});
+
 markerOrigen.on('dragend', async ()=>{
-  const p = markerOrigen.getLatLng();
-  document.getElementById('origen').value = await obtenerDireccion(p.lat,p.lng);
+const p=markerOrigen.getLatLng();
+document.getElementById('origen').value = await reverse(p.lat,p.lng);
 });
 
 markerDestino.on('dragend', async ()=>{
-  const p = markerDestino.getLatLng();
-  document.getElementById('destino').value = await obtenerDireccion(p.lat,p.lng);
+const p=markerDestino.getLatLng();
+document.getElementById('destino').value = await reverse(p.lat,p.lng);
 });
 
-async function usarUbicacion(){
-  navigator.geolocation.getCurrentPosition(async pos=>{
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
-    map.setView([lat,lon],15);
-    markerOrigen.setLatLng([lat,lon]);
-    document.getElementById('origen').value = await obtenerDireccion(lat,lon);
-  });
+async function reverse(lat,lon){
+const res=await fetch(`https://api.openrouteservice.org/geocode/reverse?api_key=${ORS_API_KEY}&point.lon=${lon}&point.lat=${lat}`);
+const data=await res.json();
+return data.features?.[0]?.properties?.label || '';
 }
 
 async function buscar(texto){
-  if(texto.length<3)return [];
-  const res = await fetch(`https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${texto}&boundary.country=PE`);
-  const data = await res.json();
-  return data.features;
+if(texto.length<3)return [];
+const res=await fetch(`https://api.openrouteservice.org/geocode/autocomplete?api_key=${ORS_API_KEY}&text=${texto}&boundary.country=PE`);
+const data=await res.json();
+return data.features;
 }
 
-function activarAutocomplete(inputId, boxId){
-  const input=document.getElementById(inputId);
-  const box=document.getElementById(boxId);
+function auto(inputId, boxId){
+const input=document.getElementById(inputId);
+const box=document.getElementById(boxId);
 
-  input.addEventListener('input', async ()=>{
-    const r = await buscar(input.value);
-    box.innerHTML = r.map(x=>`<div onclick="sel('${inputId}','${x.properties.label}',${x.geometry.coordinates})">${x.properties.label}</div>`).join('');
-  });
+input.addEventListener('input', async ()=>{
+const r=await buscar(input.value);
+
+box.innerHTML=r.map((x,i)=>`
+<div onclick="seleccionar('${inputId}','${x.properties.label}',${x.geometry.coordinates})">
+${x.properties.label}
+</div>`).join('');
+});
 }
 
-function sel(id,val,coords){
-  document.getElementById(id).value = val;
-  if(id==='origen'){
-    markerOrigen.setLatLng([coords[1],coords[0]]);
-  }else{
-    markerDestino.setLatLng([coords[1],coords[0]]);
-  }
+function seleccionar(id,val,coords){
+document.getElementById(id).value=val;
+
+if(id==='origen'){
+markerOrigen.setLatLng([coords[1],coords[0]]);
+}else{
+markerDestino.setLatLng([coords[1],coords[0]]);
+}
 }
 
-activarAutocomplete('origen','sugOrigen');
-activarAutocomplete('destino','sugDestino');
+auto('origen','sugOrigen');
+auto('destino','sugDestino');
 
-let dataRuta=null;
+document.getElementById('origen').addEventListener('keydown',buscarExacto);
+document.getElementById('destino').addEventListener('keydown',buscarExacto);
+
+async function buscarExacto(e){
+if(e.key!=='Enter')return;
+
+const input=e.target;
+const res=await fetch(`https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${input.value}`);
+const data=await res.json();
+
+if(!data.features.length)return;
+
+const f=data.features[0];
+const lat=f.geometry.coordinates[1];
+const lon=f.geometry.coordinates[0];
+
+if(input.id==='origen'){
+markerOrigen.setLatLng([lat,lon]);
+}else{
+markerDestino.setLatLng([lat,lon]);
+}
+
+input.value=f.properties.label;
+}
+
+function usarUbicacion(){
+navigator.geolocation.getCurrentPosition(async pos=>{
+const lat=pos.coords.latitude;
+const lon=pos.coords.longitude;
+
+map.setView([lat,lon],15);
+markerOrigen.setLatLng([lat,lon]);
+
+document.getElementById('origen').value = await reverse(lat,lon);
+});
+}
+
+let ruta=null;
 
 async function calcular(){
-  const o = markerOrigen.getLatLng();
-  const d = markerDestino.getLatLng();
 
-  const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car',{
-    method:'POST',
-    headers:{
-      'Authorization': ORS_API_KEY,
-      'Content-Type':'application/json'
-    },
-    body:JSON.stringify({
-      coordinates:[[o.lng,o.lat],[d.lng,d.lat]]
-    })
-  });
+const o=markerOrigen.getLatLng();
+const d=markerDestino.getLatLng();
 
-  const data = await res.json();
+const res=await fetch('https://api.openrouteservice.org/v2/directions/driving-car',{
+method:'POST',
+headers:{
+'Authorization': ORS_API_KEY,
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+coordinates:[[o.lng,o.lat],[d.lng,d.lat]]
+})
+});
 
-  const km = data.routes[0].summary.distance/1000;
-  const min = data.routes[0].summary.duration/60;
+const data=await res.json();
 
-  let tarifa = km * 2.5;
+const km=data.routes[0].summary.distance/1000;
+const min=data.routes[0].summary.duration/60;
 
-  dataRuta={km:min?km.toFixed(2):0,minutos:min.toFixed(0),tarifa};
+const tarifa=km*2.5;
 
-  document.getElementById('resultado').innerHTML=
-  `Distancia: ${km.toFixed(2)} km<br>
-   Tiempo: ${min.toFixed(0)} min<br>
-   Tarifa: S/ ${tarifa.toFixed(2)}`;
+ruta={km,min,tarifa};
+
+document.getElementById('resultado').innerHTML=
+`Distancia: ${km.toFixed(2)} km<br>
+Tiempo: ${min.toFixed(0)} min<br>
+Tarifa: S/ ${tarifa.toFixed(2)}`;
+
 }
 
-function enviarWhatsApp(){
-  const txt = `
-🚗 *NS STELLAR EXPERIENCE*
+function enviar(){
+
+const txt = `🚗 *NS STELLAR EXPERIENCE*
 
 Cliente: ${nombre.value}
 Celular: ${telefono.value}
@@ -185,17 +256,17 @@ Hora: ${hora.value}
 Pasajeros: ${pasajeros.value}
 Equipaje: ${equipaje.value}
 
-Distancia: ${dataRuta?.km||'-'} km
-Tiempo: ${dataRuta?.minutos||'-'} min
-Tarifa: S/ ${dataRuta?.tarifa?.toFixed(2)||'-'}
+Distancia: ${ruta?.km?.toFixed(2)||'-'} km
+Tiempo: ${ruta?.min?.toFixed(0)||'-'} min
+Tarifa: S/ ${ruta?.tarifa?.toFixed(2)||'-'}
 
-Observaciones: ${obs.value||'Ninguna'}
+Observaciones: ${obs.value || 'Ninguna'}
 
-Solicito confirmación.
-  `;
+Solicito confirmación`;
 
-  window.open(`https://wa.me/51992044102?text=${encodeURIComponent(txt)}`);
+window.open(`https://wa.me/51999999999?text=${encodeURIComponent(txt)}`);
 }
+
 </script>
 
 </body>
