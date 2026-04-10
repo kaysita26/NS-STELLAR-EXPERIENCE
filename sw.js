@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ns-stellar-cache-v1';
+const CACHE_NAME = 'ns-stellar-cache-v3';
 const URLS = [
   './',
   './index.html',
@@ -18,9 +18,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
     )
   );
