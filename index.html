@@ -1,83 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Pedido con ubicación</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body { font-family: Arial; }
-    #map { height: 400px; margin-top:10px; }
-    .pin {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -100%);
-      font-size: 30px;
-      pointer-events: none;
-    }
-    button {
-      margin-top: 10px;
-      padding: 12px;
-      width: 100%;
-      background: green;
-      color: white;
-      border: none;
-      font-size: 16px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Pedido con ubicación PRO</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body { font-family: Arial; margin:0; padding:15px; background:#f5f5f5;}
+.container { max-width:500px; margin:auto; background:white; padding:15px; border-radius:10px; }
+
+input, select {
+  width:100%; padding:10px; margin-top:8px;
+  border-radius:6px; border:1px solid #ccc;
+}
+
+#map { height:300px; margin-top:10px; border-radius:10px; }
+
+.pin {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%,-100%);
+  font-size:28px;
+  pointer-events:none;
+}
+
+.estado { font-size:14px; margin-top:5px; }
+
+.ok { color:green; }
+.warn { color:#d9534f; }
+
+button {
+  width:100%; padding:14px;
+  background:#25D366; color:white;
+  border:none; border-radius:8px;
+  font-size:16px; margin-top:10px;
+}
+
+.resumen {
+  background:#fafafa;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  font-size:14px;
+}
+</style>
 </head>
+
 <body>
+
+<div class="container">
 
 <h3>Haz tu pedido</h3>
 
-<input type="text" id="direccion" placeholder="Escribe tu dirección" style="width:100%; padding:10px;">
-<p id="estado">📍 Escribe tu dirección y ajusta el mapa</p>
+<input id="nombre" placeholder="Tu nombre">
+<input id="direccion" placeholder="Escribe tu dirección">
+<input id="producto" placeholder="¿Qué deseas pedir?">
+<select id="pago">
+  <option>Efectivo</option>
+  <option>Yape</option>
+  <option>Plin</option>
+</select>
+
+<div class="estado" id="estado">
+📍 Escribe tu dirección y ajusta el mapa
+</div>
 
 <div id="map"></div>
 <div class="pin">📍</div>
 
+<div class="resumen" id="resumen">
+Aún no has confirmado tu ubicación
+</div>
+
 <button onclick="enviarPedido()">Enviar pedido por WhatsApp</button>
+
+</div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-  const map = L.map('map').setView([-12.0464, -77.0428], 13);
+const map = L.map('map').setView([-12.0464, -77.0428], 13);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+ attribution: '&copy; OpenStreetMap'
+}).addTo(map);
 
-  const estado = document.getElementById("estado");
+const estado = document.getElementById("estado");
+const resumen = document.getElementById("resumen");
+let movido = false;
 
-  map.on("movestart", () => {
-    estado.innerText = "📍 Ajustando ubicación...";
-  });
+map.on("movestart", () => {
+  estado.innerText = "📍 Ajustando ubicación...";
+  estado.className = "estado";
+  movido = true;
+});
 
-  map.on("moveend", () => {
-    estado.innerText = "✔️ Ubicación lista";
-  });
+map.on("moveend", () => {
+  estado.innerText = "✔️ Ubicación lista";
+  estado.className = "estado ok";
 
-  function enviarPedido() {
-    const center = map.getCenter();
-    const direccion = document.getElementById("direccion").value;
+  const c = map.getCenter();
+  resumen.innerHTML = `
+  ✔️ Ubicación confirmada<br>
+  Lat: ${c.lat.toFixed(5)}<br>
+  Lng: ${c.lng.toFixed(5)}
+  `;
+});
 
-    const lat = center.lat.toFixed(6);
-    const lng = center.lng.toFixed(6);
+// 🔎 AUTOCOMPLETE SIMPLE (ENTER)
+document.getElementById("direccion").addEventListener("keydown", async (e)=>{
+  if(e.key === "Enter"){
+    const q = e.target.value;
 
-    const mensaje = `
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${q}`);
+    const data = await res.json();
+
+    if(data.length > 0){
+      const lat = data[0].lat;
+      const lon = data[0].lon;
+      map.setView([lat, lon], 17);
+
+      estado.innerText = "📍 Ajusta el mapa para mayor precisión";
+      estado.className = "estado warn";
+      movido = false;
+    }
+  }
+});
+
+function enviarPedido(){
+
+  const nombre = document.getElementById("nombre").value;
+  const direccion = document.getElementById("direccion").value;
+  const producto = document.getElementById("producto").value;
+  const pago = document.getElementById("pago").value;
+
+  if(!movido){
+    estado.innerText = "⚠️ Confirma tu ubicación moviendo el mapa";
+    estado.className = "estado warn";
+    return;
+  }
+
+  if(!nombre || !producto){
+    alert("Completa los datos");
+    return;
+  }
+
+  const c = map.getCenter();
+
+  const mensaje = `
 Hola, quiero hacer un pedido:
 
-📍 Dirección: ${direccion}
-🌎 Ubicación: https://www.google.com/maps?q=${lat},${lng}
+👤 Nombre: ${nombre}
+🛒 Pedido: ${producto}
+💳 Pago: ${pago}
 
+📍 Dirección: ${direccion}
+🌎 Ubicación: https://www.google.com/maps?q=${c.lat},${c.lng}
 `.trim();
 
-    const numero = "51999999999"; // <-- CAMBIA TU NÚMERO
+  const numero = "51999999999";
 
-    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 
-    window.open(url, "_blank");
-  }
+  window.open(url, "_blank");
+}
 </script>
 
 </body>
