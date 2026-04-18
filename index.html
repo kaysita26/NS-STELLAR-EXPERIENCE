@@ -3,23 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Taxi Ejecutivo</title>
+  <title>Transporte Ejecutivo & Turístico</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     :root{
-      --bg:#f3f4f6;
+      --bg:#0b1220;
+      --bg-soft:#111827;
       --card:#ffffff;
       --text:#111827;
       --muted:#6b7280;
       --line:#e5e7eb;
       --primary:#2563eb;
+      --primary-soft:#dbeafe;
       --success:#16a34a;
+      --success-soft:#dcfce7;
       --warn:#d97706;
+      --warn-soft:#fef3c7;
       --danger:#dc2626;
+      --danger-soft:#fee2e2;
       --wa:#25D366;
-      --dark:#111827;
+      --radius:20px;
+      --shadow:0 18px 40px rgba(0,0,0,.10);
     }
 
     *{
@@ -27,57 +33,77 @@
       -webkit-tap-highlight-color:transparent;
     }
 
-    body{
+    html,body{
       margin:0;
-      font-family:Arial,sans-serif;
-      background:var(--bg);
+      padding:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:#f3f4f6;
       color:var(--text);
     }
 
     .app{
       max-width:560px;
       margin:0 auto;
-      background:#fff;
       min-height:100vh;
+      background:#fff;
     }
 
-    .top{
-      padding:18px 14px 8px;
-      background:linear-gradient(135deg,#111827,#1f2937);
+    .hero{
+      padding:18px 16px 16px;
+      background:linear-gradient(135deg,#0f172a,#111827 55%,#1d4ed8);
       color:#fff;
     }
 
-    h1{
-      margin:0;
-      font-size:28px;
-      line-height:1.1;
+    .badge{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.4px;
+      margin-bottom:10px;
     }
 
-    .sub{
-      margin-top:8px;
+    .hero h1{
+      margin:0;
+      font-size:28px;
+      line-height:1.08;
+    }
+
+    .hero p{
+      margin:10px 0 0;
+      color:#dbeafe;
+      line-height:1.45;
       font-size:14px;
-      line-height:1.4;
-      color:#e5e7eb;
     }
 
     .content{
-      padding:14px;
+      padding:16px;
     }
 
     .section-title{
       font-size:13px;
-      font-weight:700;
       color:#6b7280;
+      font-weight:800;
+      letter-spacing:.6px;
       text-transform:uppercase;
-      letter-spacing:.5px;
       margin:18px 0 10px;
     }
 
     .label{
       display:block;
-      margin:14px 0 8px;
+      margin:12px 0 8px;
       font-size:14px;
       font-weight:700;
+    }
+
+    .helper{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
     }
 
     .input-wrap{
@@ -115,15 +141,17 @@
       min-height:54px;
       border:none;
       border-radius:16px;
+      padding:14px 16px;
       font-size:16px;
-      font-weight:700;
+      font-weight:800;
       cursor:pointer;
     }
 
     .btn-location{
       background:var(--primary);
       color:#fff;
-      margin-top:8px;
+      box-shadow:0 12px 24px rgba(37,99,235,.22);
+      margin-top:6px;
     }
 
     .btn-secondary{
@@ -136,22 +164,15 @@
       background:var(--wa);
       color:#fff;
       margin-top:14px;
-      box-shadow:0 10px 24px rgba(37,211,102,.25);
+      box-shadow:0 12px 24px rgba(37,211,102,.26);
     }
 
-    .helper{
-      margin-top:8px;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .mode-box{
+    .mode-card{
       margin-top:14px;
-      padding:14px;
-      border-radius:18px;
-      background:#f9fafb;
+      background:#f8fafc;
       border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
     }
 
     .mode-badge{
@@ -161,42 +182,51 @@
       background:#111827;
       color:#fff;
       font-size:12px;
-      font-weight:700;
+      font-weight:800;
+      letter-spacing:.4px;
       margin-bottom:8px;
+    }
+
+    .mode-text{
+      color:#374151;
+      font-size:14px;
+      line-height:1.45;
     }
 
     .status{
       margin:12px 0 10px;
+      padding:14px 16px;
+      border-radius:18px;
       font-weight:800;
       line-height:1.35;
-      border-radius:16px;
-      padding:14px 16px;
     }
 
     .status.info{
-      color:#1d4ed8;
       background:#eff6ff;
+      color:#1d4ed8;
       border:1px solid #bfdbfe;
       font-size:15px;
     }
 
-    .status.ok{
-      color:#166534;
-      background:#ecfdf5;
-      border:1px solid #bbf7d0;
-      font-size:22px;
-    }
-
     .status.warn{
+      background:#fff7ed;
       color:#b45309;
-      background:#fffbeb;
-      border:1px solid #fde68a;
+      border:1px solid #fed7aa;
       font-size:18px;
     }
 
+    .status.ok{
+      background:#ecfdf5;
+      color:#166534;
+      border:1px solid #bbf7d0;
+      font-size:24px;
+      text-align:center;
+      letter-spacing:.4px;
+    }
+
     .status.error{
-      color:#b91c1c;
       background:#fef2f2;
+      color:#b91c1c;
       border:1px solid #fecaca;
       font-size:16px;
     }
@@ -205,23 +235,25 @@
       position:relative;
       border-radius:22px;
       overflow:hidden;
-      box-shadow:0 8px 24px rgba(0,0,0,.08);
+      box-shadow:var(--shadow);
+      background:#e5e7eb;
       margin-top:10px;
     }
 
     #map{
-      height:400px;
       width:100%;
+      height:420px;
     }
 
     .center-pin{
       position:absolute;
-      top:50%;
       left:50%;
+      top:50%;
       transform:translate(-50%,-100%);
-      z-index:999;
+      z-index:900;
       pointer-events:none;
       font-size:46px;
+      line-height:1;
       filter:drop-shadow(0 4px 8px rgba(0,0,0,.30));
       transition:transform .18s ease;
     }
@@ -235,85 +267,41 @@
       top:12px;
       left:50%;
       transform:translateX(-50%);
-      z-index:999;
+      z-index:900;
       background:rgba(17,24,39,.92);
       color:#fff;
       padding:11px 14px;
       border-radius:999px;
       font-size:13px;
-      font-weight:700;
+      font-weight:800;
       max-width:calc(100% - 24px);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-    }
-
-    .summary{
-      margin-top:14px;
-      padding:16px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:#f9fafb;
-      font-size:14px;
-      line-height:1.6;
-    }
-
-    .summary strong{
-      display:block;
-      margin-bottom:8px;
-      font-size:15px;
-    }
-
-    .price-box{
-      margin-top:14px;
-      padding:16px;
-      border-radius:18px;
-      background:#111827;
-      color:#fff;
-    }
-
-    .price-title{
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:.5px;
-      color:#d1d5db;
-      margin-bottom:8px;
-      font-weight:700;
-    }
-
-    .price-value{
-      font-size:30px;
-      font-weight:800;
-      line-height:1.1;
-    }
-
-    .price-sub{
-      margin-top:6px;
-      font-size:13px;
-      color:#d1d5db;
-      line-height:1.4;
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
     }
 
     .suggestions{
       position:absolute;
+      top:calc(100% + 6px);
       left:0;
       right:0;
-      top:calc(100% + 6px);
+      z-index:1200;
       background:#fff;
       border:1px solid var(--line);
       border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      z-index:1200;
+      box-shadow:var(--shadow);
+      overflow:hidden;
       display:none;
-      max-height:220px;
-      overflow:auto;
+      max-height:230px;
+      overflow-y:auto;
     }
 
     .suggestion-item{
       padding:12px 14px;
+      border-bottom:1px solid #f1f5f9;
       font-size:14px;
       line-height:1.35;
-      border-bottom:1px solid #f1f5f9;
       cursor:pointer;
     }
 
@@ -326,33 +314,104 @@
       background:#f8fafc;
     }
 
+    .summary{
+      margin-top:14px;
+      background:#f9fafb;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .summary strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:15px;
+    }
+
+    .price{
+      margin-top:14px;
+      background:linear-gradient(135deg,#111827,#1f2937);
+      color:#fff;
+      border-radius:20px;
+      padding:18px 16px;
+      box-shadow:var(--shadow);
+    }
+
+    .price-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .price-label{
+      font-size:13px;
+      color:#d1d5db;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+      font-weight:800;
+    }
+
+    .price-value{
+      font-size:34px;
+      font-weight:900;
+      line-height:1;
+      margin-top:6px;
+    }
+
+    .price-sub{
+      margin-top:8px;
+      color:#d1d5db;
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .footer-note{
+      margin-top:10px;
+      color:#6b7280;
+      font-size:12px;
+      line-height:1.45;
+    }
+
     @media (max-width:600px){
       .app{
         max-width:100%;
       }
+      .content{
+        padding:14px;
+      }
+      .hero{
+        padding:18px 14px 16px;
+      }
+      #map{
+        height:430px;
+      }
       .grid-2{
         grid-template-columns:1fr 1fr;
       }
-      #map{
-        height:420px;
-      }
       .status.ok{
-        font-size:24px;
+        font-size:26px;
       }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="top">
-      <h1>Taxi Ejecutivo</h1>
-      <div class="sub">
-        Confirma el punto exacto de recojo y destino, elige el tipo de unidad y obtén un costo estimado por kilometraje.
-      </div>
+    <div class="hero">
+      <div class="badge">SERVICIO PREMIUM</div>
+      <h1>Transporte Ejecutivo & Turístico</h1>
+      <p>
+        Reserva tu unidad con origen y destino exactos, tarifa estimada por kilometraje
+        y confirmación precisa para el conductor.
+      </p>
     </div>
 
     <div class="content">
-      <button class="btn btn-location" id="btnUbicacion" type="button">📍 Usar mi ubicación actual para el recojo</button>
+      <button class="btn btn-location" id="btnUbicacion" type="button">
+        📍 Usar mi ubicación actual para el recojo
+      </button>
 
       <div class="section-title">Recojo</div>
 
@@ -360,11 +419,16 @@
         ¿Dónde te recogemos?
       </label>
       <div class="input-wrap">
-        <input id="pickup" type="text" placeholder="Dirección, número de casa, torre o referencia" autocomplete="off">
+        <input
+          id="pickup"
+          type="text"
+          placeholder="Ej: Av. Angélica Gamarra 470, puerta negra, frente a la farmacia"
+          autocomplete="off"
+        />
         <div id="pickupSuggestions" class="suggestions"></div>
       </div>
       <div class="helper">
-        Ejemplo: Av. Angélica Gamarra 470, puerta negra, frente a la farmacia.
+        Escribe dirección, número, torre, oficina o referencia. Luego ajusta el mapa para marcar el punto exacto.
       </div>
 
       <div class="section-title">Destino</div>
@@ -373,11 +437,16 @@
         ¿A dónde vas?
       </label>
       <div class="input-wrap">
-        <input id="destino" type="text" placeholder="Dirección, número, oficina o referencia" autocomplete="off">
+        <input
+          id="destino"
+          type="text"
+          placeholder="Ej: Aeropuerto Jorge Chávez, terminal nacional, puerta principal"
+          autocomplete="off"
+        />
         <div id="destinoSuggestions" class="suggestions"></div>
       </div>
       <div class="helper">
-        Ejemplo: Aeropuerto Jorge Chávez, puerta principal, terminal nacional.
+        También puedes escribir dirección exacta, número, oficina o referencia.
       </div>
 
       <div class="section-title">Servicio</div>
@@ -386,38 +455,9 @@
         <div>
           <label class="label" for="servicio">Tipo de unidad</label>
           <select id="servicio">
-            <option value="Ejecutivo">Taxi Ejecutivo</option>
+            <option value="Auto">Auto Ejecutivo</option>
             <option value="Camioneta">Camioneta</option>
             <option value="Van">Van</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="label" for="pasajeros">Pasajeros</label>
-          <select id="pasajeros">
-            <option value="1">1 pasajero</option>
-            <option value="2">2 pasajeros</option>
-            <option value="3">3 pasajeros</option>
-            <option value="4">4 pasajeros</option>
-            <option value="5">5 pasajeros</option>
-            <option value="6">6 pasajeros</option>
-            <option value="7">7 pasajeros</option>
-            <option value="8">8 pasajeros</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div>
-          <label class="label" for="maletas">Maletas</label>
-          <select id="maletas">
-            <option value="0">Sin maletas</option>
-            <option value="1">1 maleta</option>
-            <option value="2">2 maletas</option>
-            <option value="3">3 maletas</option>
-            <option value="4">4 maletas</option>
-            <option value="5">5 maletas</option>
-            <option value="6">6 maletas</option>
           </select>
         </div>
 
@@ -432,10 +472,39 @@
         </div>
       </div>
 
-      <div class="mode-box">
+      <div class="grid-2">
+        <div>
+          <label class="label" for="pasajeros">Pasajeros</label>
+          <select id="pasajeros">
+            <option value="1">1 pasajero</option>
+            <option value="2">2 pasajeros</option>
+            <option value="3">3 pasajeros</option>
+            <option value="4">4 pasajeros</option>
+            <option value="5">5 pasajeros</option>
+            <option value="6">6 pasajeros</option>
+            <option value="7">7 pasajeros</option>
+            <option value="8">8 pasajeros</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="label" for="maletas">Maletas</label>
+          <select id="maletas">
+            <option value="0">Sin maletas</option>
+            <option value="1">1 maleta</option>
+            <option value="2">2 maletas</option>
+            <option value="3">3 maletas</option>
+            <option value="4">4 maletas</option>
+            <option value="5">5 maletas</option>
+            <option value="6">6 maletas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mode-card">
         <div class="mode-badge" id="modeBadge">PASO 1 · CONFIRMAR RECOJO</div>
-        <div class="helper" id="modeText">
-          Busca el recojo, acerca el mapa y confirma el punto exacto.
+        <div class="mode-text" id="modeText">
+          Primero busca el punto de recojo y luego ajusta el mapa hasta marcar el lugar exacto.
         </div>
       </div>
 
@@ -450,47 +519,59 @@
       </div>
 
       <button class="btn btn-secondary" id="btnConfirmarPunto" type="button">
-        Confirmar punto actual
+        Confirmar punto de recojo
       </button>
 
       <div id="summary" class="summary">
-        <strong>Resumen del viaje</strong>
+        <strong>Resumen del servicio</strong>
         Esperando datos del viaje.
       </div>
 
-      <div class="price-box">
-        <div class="price-title">Costo estimado</div>
-        <div id="priceValue" class="price-value">S/ --</div>
+      <div class="price">
+        <div class="price-top">
+          <div>
+            <div class="price-label">Tarifa estimada</div>
+            <div id="priceValue" class="price-value">S/ --</div>
+          </div>
+        </div>
         <div id="priceSub" class="price-sub">
-          Se calculará cuando confirmes recojo y destino.
+          Se calculará cuando confirmes el recojo y el destino.
         </div>
       </div>
 
       <button class="btn btn-submit" id="btnPedir" type="button">
-        🚖 Solicitar taxi por WhatsApp
+        🚖 Solicitar servicio por WhatsApp
       </button>
+
+      <div class="footer-note">
+        Puedes cambiar las tarifas por vehículo editando el bloque <strong>TARIFAS</strong> dentro del código.
+      </div>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const WHATSAPP_NUMBER = "51999999999"; // CAMBIA ESTE NÚMERO
 
-    const DEFAULT_COORDS = [-12.0464, -77.0428];
+  <script>
+    const WHATSAPP_NUMBER = "51999999999";
 
     const TARIFAS = {
-      Ejecutivo: { base: 8, km: 2.6 },
-      Camioneta: { base: 12, km: 3.4 },
-      Van: { base: 18, km: 4.4 }
+      Auto: { base: 10, km: 3.00 },
+      Camioneta: { base: 15, km: 5.00 },
+      Van: { base: 20, km: 6.50 }
     };
 
     const CAPACIDAD = {
-      Ejecutivo: { maxPasajeros: 4, maxMaletas: 2 },
+      Auto: { maxPasajeros: 4, maxMaletas: 2 },
       Camioneta: { maxPasajeros: 6, maxMaletas: 4 },
       Van: { maxPasajeros: 8, maxMaletas: 6 }
     };
 
-    const map = L.map("map").setView(DEFAULT_COORDS, 13);
+    const DEFAULT_COORDS = [-12.0464, -77.0428];
+
+    const map = L.map("map", {
+      zoomControl: true,
+      attributionControl: true
+    }).setView(DEFAULT_COORDS, 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap"
@@ -499,33 +580,42 @@
     const pickupInput = document.getElementById("pickup");
     const destinoInput = document.getElementById("destino");
     const servicioSelect = document.getElementById("servicio");
+    const pagoSelect = document.getElementById("pago");
     const pasajerosSelect = document.getElementById("pasajeros");
     const maletasSelect = document.getElementById("maletas");
-    const pagoSelect = document.getElementById("pago");
+
     const pickupSuggestions = document.getElementById("pickupSuggestions");
     const destinoSuggestions = document.getElementById("destinoSuggestions");
+
     const btnUbicacion = document.getElementById("btnUbicacion");
     const btnConfirmarPunto = document.getElementById("btnConfirmarPunto");
     const btnPedir = document.getElementById("btnPedir");
+
     const statusEl = document.getElementById("status");
+    const modeBadgeEl = document.getElementById("modeBadge");
+    const modeTextEl = document.getElementById("modeText");
+    const mapTipEl = document.getElementById("mapTip");
+    const centerPinEl = document.getElementById("centerPin");
     const summaryEl = document.getElementById("summary");
     const priceValueEl = document.getElementById("priceValue");
     const priceSubEl = document.getElementById("priceSub");
-    const mapTipEl = document.getElementById("mapTip");
-    const centerPinEl = document.getElementById("centerPin");
-    const modeBadgeEl = document.getElementById("modeBadge");
-    const modeTextEl = document.getElementById("modeText");
 
-    let mode = "pickup"; // pickup | destination
+    let mode = "pickup";
     let pickupCoords = null;
-    let destinoCoords = null;
+    let destinationCoords = null;
     let pickupConfirmed = false;
-    let destinoConfirmed = false;
+    let destinationConfirmed = false;
     let routeDistanceKm = null;
 
     function setStatus(text, type = "info") {
       statusEl.className = "status " + type;
       statusEl.textContent = text;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     function showSuggestions(box) {
@@ -537,121 +627,76 @@
       box.innerHTML = "";
     }
 
-    function updateModeUI() {
-      if (mode === "pickup") {
-        modeBadgeEl.textContent = "PASO 1 · CONFIRMAR RECOJO";
-        modeTextEl.textContent = "Busca el recojo, acerca el mapa y confirma el punto exacto.";
-        mapTipEl.textContent = "🎯 Ajusta el punto exacto de recojo";
-        btnConfirmarPunto.textContent = "Confirmar punto de recojo";
-      } else {
-        modeBadgeEl.textContent = "PASO 2 · CONFIRMAR DESTINO";
-        modeTextEl.textContent = "Busca el destino, acerca el mapa y confirma el punto exacto.";
-        mapTipEl.textContent = "🎯 Ajusta el punto exacto de destino";
-        btnConfirmarPunto.textContent = "Confirmar punto de destino";
-      }
-    }
-
-    function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
+    function getCenterCoords() {
+      const c = map.getCenter();
+      return { lat: c.lat, lng: c.lng };
     }
 
     function formatKm(km) {
       return km == null ? "--" : km.toFixed(2);
     }
 
-    function getCurrentCenter() {
-      const c = map.getCenter();
-      return { lat: c.lat, lng: c.lng };
+    function getVehicleLabel() {
+      const value = servicioSelect.value;
+      if (value === "Auto") return "Auto Ejecutivo";
+      if (value === "Camioneta") return "Camioneta";
+      return "Van";
     }
 
     function validarCapacidad() {
-      const servicio = servicioSelect.value;
+      const tipo = servicioSelect.value;
       const pasajeros = parseInt(pasajerosSelect.value, 10);
       const maletas = parseInt(maletasSelect.value, 10);
-      const cap = CAPACIDAD[servicio];
+      const cap = CAPACIDAD[tipo];
 
       if (pasajeros > cap.maxPasajeros) {
-        return `⚠️ ${servicio} admite hasta ${cap.maxPasajeros} pasajeros.`;
+        return `${getVehicleLabel()} admite hasta ${cap.maxPasajeros} pasajeros.`;
       }
 
       if (maletas > cap.maxMaletas) {
-        return `⚠️ ${servicio} admite hasta ${cap.maxMaletas} maletas.`;
+        return `${getVehicleLabel()} admite hasta ${cap.maxMaletas} maletas.`;
       }
 
       return "";
     }
 
-    function calcularCosto(km, servicio) {
+    function calcularCosto(km, tipo) {
       if (km == null) return null;
-      const tarifa = TARIFAS[servicio];
+      const tarifa = TARIFAS[tipo];
       return tarifa.base + (km * tarifa.km);
     }
 
-    async function searchPlaces(query) {
-      const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=" + encodeURIComponent(query);
-      const res = await fetch(url, {
-        headers: { "Accept": "application/json" }
-      });
-      if (!res.ok) throw new Error("Error al buscar");
-      return await res.json();
-    }
-
-    async function reverseGeocode(lat, lng) {
-      const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lng);
-      const res = await fetch(url, {
-        headers: { "Accept": "application/json" }
-      });
-      if (!res.ok) throw new Error("Error al obtener dirección");
-      return await res.json();
-    }
-
-    async function getRouteDistanceKm(from, to) {
-      try {
-        const url = `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=false`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Error en ruta");
-        const data = await res.json();
-        if (data && data.routes && data.routes.length) {
-          return data.routes[0].distance / 1000;
-        }
-      } catch (e) {}
-
-      // fallback línea recta
-      return haversineKm(from.lat, from.lng, to.lat, to.lng);
-    }
-
-    function haversineKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
+    function updateModeUI() {
+      if (mode === "pickup") {
+        modeBadgeEl.textContent = "PASO 1 · CONFIRMAR RECOJO";
+        modeTextEl.textContent = "Primero busca el punto de recojo y luego ajusta el mapa hasta marcar el lugar exacto.";
+        mapTipEl.textContent = "🎯 Ajusta el punto exacto de recojo";
+        btnConfirmarPunto.textContent = "Confirmar punto de recojo";
+      } else {
+        modeBadgeEl.textContent = "PASO 2 · CONFIRMAR DESTINO";
+        modeTextEl.textContent = "Ahora busca el destino y ajusta el mapa hasta marcar el punto exacto para el conductor.";
+        mapTipEl.textContent = "🎯 Ajusta el punto exacto de destino";
+        btnConfirmarPunto.textContent = "Confirmar punto de destino";
+      }
     }
 
     function updateSummary() {
-      const servicio = servicioSelect.value;
+      const tipo = getVehicleLabel();
       const pasajeros = pasajerosSelect.value;
       const maletas = maletasSelect.value;
       const pago = pagoSelect.value;
       const capacidadMsg = validarCapacidad();
-
-      const costo = calcularCosto(routeDistanceKm, servicio);
+      const costo = calcularCosto(routeDistanceKm, servicioSelect.value);
 
       summaryEl.innerHTML = `
-        <strong>Resumen del viaje</strong>
+        <strong>Resumen del servicio</strong>
         📍 Recojo: ${escapeHtml(pickupInput.value.trim() || "Sin definir")}<br>
         ${pickupConfirmed ? "✅ Recojo exacto confirmado" : "⚠️ Falta confirmar el recojo exacto"}<br><br>
 
         🏁 Destino: ${escapeHtml(destinoInput.value.trim() || "Sin definir")}<br>
-        ${destinoConfirmed ? "✅ Destino exacto confirmado" : "⚠️ Falta confirmar el destino exacto"}<br><br>
+        ${destinationConfirmed ? "✅ Destino exacto confirmado" : "⚠️ Falta confirmar el destino exacto"}<br><br>
 
-        🚘 Servicio: ${escapeHtml(servicio)}<br>
+        🚘 Unidad: ${escapeHtml(tipo)}<br>
         👥 Pasajeros: ${escapeHtml(pasajeros)}<br>
         🧳 Maletas: ${escapeHtml(maletas)}<br>
         💳 Pago: ${escapeHtml(pago)}<br>
@@ -659,31 +704,66 @@
         ${capacidadMsg ? "<br><br>" + escapeHtml(capacidadMsg) : ""}
       `;
 
-      if (pickupConfirmed && destinoConfirmed && costo != null) {
+      if (pickupConfirmed && destinationConfirmed && costo != null) {
         priceValueEl.textContent = "S/ " + costo.toFixed(2);
-        priceSubEl.textContent = `Tarifa estimada para ${servicio} · ${formatKm(routeDistanceKm)} km recorridos`;
+        priceSubEl.textContent = `Tarifa estimada para ${tipo} · ${formatKm(routeDistanceKm)} km recorridos`;
       } else {
         priceValueEl.textContent = "S/ --";
-        priceSubEl.textContent = "Se calculará cuando confirmes recojo y destino.";
+        priceSubEl.textContent = "Se calculará cuando confirmes el recojo y el destino.";
       }
+    }
+
+    async function searchPlaces(query) {
+      const url =
+        "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=" +
+        encodeURIComponent(query);
+
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo buscar la dirección.");
+      }
+
+      return await response.json();
+    }
+
+    async function reverseGeocode(lat, lng) {
+      const url =
+        "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
+        encodeURIComponent(lat) +
+        "&lon=" +
+        encodeURIComponent(lng);
+
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" }
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo obtener la dirección.");
+      }
+
+      return await response.json();
     }
 
     function setupAutocomplete(input, box, type) {
       let timer = null;
 
       input.addEventListener("input", () => {
+        const value = input.value.trim();
+
         if (type === "pickup") {
           pickupConfirmed = false;
           pickupCoords = null;
         } else {
-          destinoConfirmed = false;
-          destinoCoords = null;
+          destinationConfirmed = false;
+          destinationCoords = null;
         }
 
         routeDistanceKm = null;
         updateSummary();
 
-        const value = input.value.trim();
         if (timer) clearTimeout(timer);
 
         if (value.length < 3) {
@@ -694,6 +774,7 @@
         timer = setTimeout(async () => {
           try {
             const places = await searchPlaces(value);
+
             box.innerHTML = "";
 
             if (!places.length) {
@@ -706,6 +787,7 @@
               const item = document.createElement("div");
               item.className = "suggestion-item";
               item.textContent = place.display_name;
+
               item.onclick = () => {
                 input.value = place.display_name;
                 hideSuggestions(box);
@@ -713,18 +795,19 @@
 
                 const lat = parseFloat(place.lat);
                 const lng = parseFloat(place.lon);
-                map.setView([lat, lng], 17, { animate:true });
 
                 mode = type;
                 updateModeUI();
+
+                map.setView([lat, lng], 17, { animate: true });
 
                 if (type === "pickup") {
                   pickupConfirmed = false;
                   pickupCoords = null;
                   setStatus("📍 Ajusta el mapa y confirma el punto exacto de recojo.", "warn");
                 } else {
-                  destinoConfirmed = false;
-                  destinoCoords = null;
+                  destinationConfirmed = false;
+                  destinationCoords = null;
                   setStatus("📍 Ajusta el mapa y confirma el punto exacto de destino.", "warn");
                 }
 
@@ -732,21 +815,24 @@
                 routeDistanceKm = null;
                 updateSummary();
               };
+
               box.appendChild(item);
             });
 
             showSuggestions(box);
-          } catch {
+          } catch (err) {
             box.innerHTML = '<div class="suggestion-item">Error al buscar direcciones</div>';
             showSuggestions(box);
           }
-        }, 300);
+        }, 320);
       });
 
       input.addEventListener("focus", () => {
         mode = type;
         updateModeUI();
-        if (box.innerHTML.trim()) showSuggestions(box);
+        if (box.innerHTML.trim()) {
+          showSuggestions(box);
+        }
       });
     }
 
@@ -754,13 +840,17 @@
     setupAutocomplete(destinoInput, destinoSuggestions, "destination");
 
     document.addEventListener("click", (e) => {
-      if (!pickupSuggestions.parentElement.contains(e.target)) hideSuggestions(pickupSuggestions);
-      if (!destinoSuggestions.parentElement.contains(e.target)) hideSuggestions(destinoSuggestions);
+      if (!pickupSuggestions.parentElement.contains(e.target)) {
+        hideSuggestions(pickupSuggestions);
+      }
+      if (!destinoSuggestions.parentElement.contains(e.target)) {
+        hideSuggestions(destinoSuggestions);
+      }
     });
 
     btnUbicacion.addEventListener("click", () => {
       if (!navigator.geolocation) {
-        setStatus("❌ Tu celular no permite obtener ubicación.", "error");
+        setStatus("❌ Tu dispositivo no permite obtener ubicación.", "error");
         return;
       }
 
@@ -768,16 +858,19 @@
       btnUbicacion.textContent = "Buscando ubicación...";
 
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
 
-          map.setView([lat, lng], 18, { animate:true });
           mode = "pickup";
           updateModeUI();
+
+          map.setView([lat, lng], 18, { animate: true });
+
           pickupConfirmed = false;
           pickupCoords = null;
           routeDistanceKm = null;
+
           setStatus("📍 Ya te acerqué a tu ubicación. Ajusta el mapa y confirma el recojo exacto.", "warn");
           mapTipEl.style.display = "block";
 
@@ -786,9 +879,10 @@
             if (result && result.display_name) {
               pickupInput.value = result.display_name;
             }
-          } catch {}
+          } catch (e) {}
 
           updateSummary();
+
           btnUbicacion.disabled = false;
           btnUbicacion.textContent = "📍 Usar mi ubicación actual para el recojo";
         },
@@ -803,9 +897,9 @@
           btnUbicacion.textContent = "📍 Usar mi ubicación actual para el recojo";
         },
         {
-          enableHighAccuracy:true,
-          timeout:12000,
-          maximumAge:0
+          enableHighAccuracy: true,
+          timeout: 12000,
+          maximumAge: 0
         }
       );
     });
@@ -818,8 +912,8 @@
         pickupCoords = null;
         setStatus("📍 Ajustando punto de recojo...", "warn");
       } else {
-        destinoConfirmed = false;
-        destinoCoords = null;
+        destinationConfirmed = false;
+        destinationCoords = null;
         setStatus("📍 Ajustando punto de destino...", "warn");
       }
 
@@ -833,7 +927,7 @@
     });
 
     btnConfirmarPunto.addEventListener("click", async () => {
-      const center = getCurrentCenter();
+      const center = getCenterCoords();
 
       if (mode === "pickup") {
         if (!pickupInput.value.trim()) {
@@ -850,7 +944,7 @@
           if (result && result.display_name) {
             pickupInput.value = result.display_name;
           }
-        } catch {}
+        } catch (e) {}
 
         setStatus("✅ RECOJO CONFIRMADO", "ok");
         mapTipEl.style.display = "none";
@@ -870,28 +964,60 @@
           return;
         }
 
-        destinoCoords = center;
-        destinoConfirmed = true;
+        destinationCoords = center;
+        destinationConfirmed = true;
 
         try {
           const result = await reverseGeocode(center.lat, center.lng);
           if (result && result.display_name) {
             destinoInput.value = result.display_name;
           }
-        } catch {}
+        } catch (e) {}
 
         setStatus("✅ DESTINO CONFIRMADO", "ok");
         mapTipEl.style.display = "none";
       }
 
-      if (pickupConfirmed && destinoConfirmed) {
-        routeDistanceKm = await getRouteDistanceKm(pickupCoords, destinoCoords);
+      if (pickupConfirmed && destinationConfirmed) {
+        routeDistanceKm = await getRouteDistanceKm(pickupCoords, destinationCoords);
       }
 
       updateSummary();
     });
 
-    [servicioSelect, pasajerosSelect, maletasSelect, pagoSelect].forEach(el => {
+    async function getRouteDistanceKm(from, to) {
+      try {
+        const url =
+          `https://router.project-osrm.org/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=false`;
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No se pudo calcular la ruta.");
+
+        const data = await response.json();
+        if (data && data.routes && data.routes.length) {
+          return data.routes[0].distance / 1000;
+        }
+      } catch (e) {}
+
+      return haversineKm(from.lat, from.lng, to.lat, to.lng);
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    [servicioSelect, pagoSelect, pasajerosSelect, maletasSelect].forEach(el => {
       el.addEventListener("change", () => {
         updateSummary();
       });
@@ -900,7 +1026,8 @@
     btnPedir.addEventListener("click", async () => {
       const pickup = pickupInput.value.trim();
       const destino = destinoInput.value.trim();
-      const servicio = servicioSelect.value;
+      const tipo = servicioSelect.value;
+      const tipoLabel = getVehicleLabel();
       const pasajeros = parseInt(pasajerosSelect.value, 10);
       const maletas = parseInt(maletasSelect.value, 10);
       const pago = pagoSelect.value;
@@ -912,9 +1039,9 @@
       }
 
       if (!pickupConfirmed || !pickupCoords) {
-        setStatus("⚠️ Debes confirmar el punto exacto de recojo.", "error");
         mode = "pickup";
         updateModeUI();
+        setStatus("⚠️ Debes confirmar el punto exacto de recojo.", "error");
         return;
       }
 
@@ -924,10 +1051,10 @@
         return;
       }
 
-      if (!destinoConfirmed || !destinoCoords) {
-        setStatus("⚠️ Debes confirmar el punto exacto de destino.", "error");
+      if (!destinationConfirmed || !destinationCoords) {
         mode = "destination";
         updateModeUI();
+        setStatus("⚠️ Debes confirmar el punto exacto de destino.", "error");
         return;
       }
 
@@ -938,15 +1065,15 @@
       }
 
       if (routeDistanceKm == null) {
-        routeDistanceKm = await getRouteDistanceKm(pickupCoords, destinoCoords);
+        routeDistanceKm = await getRouteDistanceKm(pickupCoords, destinationCoords);
       }
 
-      const costo = calcularCosto(routeDistanceKm, servicio);
+      const costo = calcularCosto(routeDistanceKm, tipo);
 
       const mensaje = [
-        "Hola, deseo solicitar un servicio de taxi.",
+        "Hola, deseo solicitar un servicio de transporte ejecutivo/turístico.",
         "",
-        "🚘 Tipo de unidad: " + servicio,
+        "🚘 Unidad: " + tipoLabel,
         "👥 Pasajeros: " + pasajeros,
         "🧳 Maletas: " + maletas,
         "💳 Pago: " + pago,
@@ -955,13 +1082,18 @@
         "🌎 Punto exacto de recojo: https://www.google.com/maps?q=" + pickupCoords.lat + "," + pickupCoords.lng,
         "",
         "🏁 Destino: " + destino,
-        "🌎 Punto exacto de destino: https://www.google.com/maps?q=" + destinoCoords.lat + "," + destinoCoords.lng,
+        "🌎 Punto exacto de destino: https://www.google.com/maps?q=" + destinationCoords.lat + "," + destinationCoords.lng,
         "",
         "📏 Distancia estimada: " + routeDistanceKm.toFixed(2) + " km",
-        "💰 Costo estimado: S/ " + costo.toFixed(2)
+        "💰 Tarifa estimada: S/ " + costo.toFixed(2)
       ].join("\n");
 
-      const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(mensaje);
+      const url =
+        "https://wa.me/" +
+        WHATSAPP_NUMBER +
+        "?text=" +
+        encodeURIComponent(mensaje);
+
       window.open(url, "_blank");
     });
 
