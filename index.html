@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0b0f17" />
   <title>NS STELLAR EXPERIENCE | Traslados</title>
-  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia y tarifa estimada." />
+  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia, ubicación actual y selección exacta en mapa." />
 
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="logo-192.png" />
@@ -156,11 +156,10 @@
     }
     textarea{min-height:100px;resize:vertical}
 
-    .input-with-btn{
+    .address-actions{
       display:grid;
-      grid-template-columns:1fr auto auto;
+      grid-template-columns:1fr 1fr 1fr;
       gap:10px;
-      align-items:center;
     }
 
     .small-note{
@@ -217,7 +216,7 @@
     .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
 
     #map{
-      width:100%;height:350px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
+      width:100%;height:390px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
     }
 
     .summary-main{
@@ -276,8 +275,8 @@
       .hero-copy,.hero-side,.form-panel,.summary-panel{padding:18px}
       .grid,.switches,.vehicle-grid,.hero-points,.trust{grid-template-columns:1fr}
       .footer-box{flex-direction:column;align-items:flex-start}
-      #map{height:300px}
-      .input-with-btn{grid-template-columns:1fr}
+      #map{height:320px}
+      .address-actions{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -305,7 +304,7 @@
           <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
           <h1>Solicita o reserva tu traslado con una experiencia premium.</h1>
           <p class="lead">
-            Una web elegante, moderna y pensada para celular y PC. El cliente cotiza por distancia, elige su unidad y confirma por WhatsApp con toda la información ya ordenada.
+            Una web elegante, moderna y pensada para celular y PC. El cliente cotiza por distancia, usa su ubicación actual, fija puntos exactos en el mapa y confirma por WhatsApp con toda la información ya ordenada.
           </p>
           <div class="hero-actions">
             <a class="btn btn-gold" href="#tarifador">Cotizar traslado</a>
@@ -317,14 +316,14 @@
           <div class="hero-card-top">
             <strong>Imagen ejecutiva desde el primer vistazo</strong>
             <p>
-              Esta versión está pensada para que tu cliente sienta un servicio más serio, claro y confiable antes de escribirte.
+              Esta versión está pensada para que tu cliente sienta un servicio serio, claro y confiable antes de escribirte, y para que el conductor reciba puntos más exactos.
             </p>
           </div>
           <div class="hero-points">
-            <div class="point"><strong>Autocompletado</strong><span>El cliente puede elegir direcciones sugeridas.</span></div>
+            <div class="point"><strong>Autocompletado</strong><span>El cliente escribe y elige direcciones sugeridas.</span></div>
             <div class="point"><strong>Ubicación actual</strong><span>Un botón llena el origen automáticamente.</span></div>
-            <div class="point"><strong>Tarifa estimada</strong><span>Según distancia y unidad.</span></div>
-            <div class="point"><strong>WhatsApp directo</strong><span>Con mensaje completo y ordenado.</span></div>
+            <div class="point"><strong>Pin exacto</strong><span>El pasajero puede tocar el mapa y fijar el punto real.</span></div>
+            <div class="point"><strong>WhatsApp directo</strong><span>Mensaje ordenado con distancia, tiempo y tarifa.</span></div>
           </div>
         </div>
       </div>
@@ -358,22 +357,25 @@
             <div class="grid" style="margin-top:14px">
               <div class="field full" id="originField">
                 <label for="origen">Origen</label>
-                <div class="input-with-btn">
-                  <input id="origen" type="text" placeholder="Escribe origen" autocomplete="off" />
+                <input id="origen" type="text" placeholder="Ejemplo: Angélica Gamarra 470, Los Olivos" autocomplete="off" />
+                <div class="address-actions">
                   <button type="button" class="btn btn-outline" id="btnUbicacion">Usar mi ubicación</button>
+                  <button type="button" class="btn btn-outline" id="btnPinOrigen">Elegir en mapa</button>
                   <button type="button" class="btn btn-red" id="btnLimpiarOrigen">Limpiar</button>
                 </div>
-                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
+                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia, o toca el mapa para marcar el punto exacto.</div>
                 <div class="suggestions" id="origenSuggestions"></div>
               </div>
 
               <div class="field full" id="destinationField">
                 <label for="destino">Destino</label>
-                <div class="input-with-btn">
-                  <input id="destino" type="text" placeholder="Escribe destino" autocomplete="off" />
+                <input id="destino" type="text" placeholder="Ejemplo: Aeropuerto Jorge Chávez" autocomplete="off" />
+                <div class="address-actions">
+                  <button type="button" class="btn btn-outline" id="btnPinDestino">Elegir en mapa</button>
                   <button type="button" class="btn btn-red" id="btnLimpiarDestino">Limpiar</button>
+                  <div></div>
                 </div>
-                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia.</div>
+                <div class="small-note">También puedes fijar el destino exacto con un pin en el mapa.</div>
                 <div class="suggestions" id="destinoSuggestions"></div>
               </div>
 
@@ -460,7 +462,7 @@
 
               <div class="field full">
                 <label for="observaciones">Observaciones</label>
-                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto u otro detalle"></textarea>
+                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto, terminal, puerta o detalle adicional"></textarea>
               </div>
 
               <div class="field full">
@@ -479,7 +481,7 @@
               <div class="row"><span>Tiempo estimado</span><strong id="sumTiempo">—</strong></div>
               <div class="row"><span>Tarifa estimada</span><strong id="sumTarifa">—</strong></div>
               <div class="fare" id="fareBig">S/ 0.00</div>
-              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario y disponibilidad.</div>
+              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario, tránsito y disponibilidad.</div>
             </div>
 
             <div class="alert warn" id="warnBox"></div>
@@ -503,9 +505,9 @@
           </div>
         </div>
         <div class="trust">
-          <div class="trust-card"><strong>Autocompletado visual</strong><span>El cliente puede elegir direcciones sugeridas sin escribir todo completo.</span></div>
-          <div class="trust-card"><strong>Ubicación actual</strong><span>Un botón llena el origen con la ubicación del usuario.</span></div>
-          <div class="trust-card"><strong>Sugerencia inteligente</strong><span>La web recomienda una mejor unidad si la capacidad no coincide.</span></div>
+          <div class="trust-card"><strong>Autocompletado visual</strong><span>El cliente encuentra direcciones más rápido y con menos errores.</span></div>
+          <div class="trust-card"><strong>Ubicación actual</strong><span>Ideal para recojo inmediato sin escribir toda la dirección.</span></div>
+          <div class="trust-card"><strong>Pin exacto en mapa</strong><span>Sirve para puertas, condominios, terminales o puntos difíciles.</span></div>
           <div class="trust-card"><strong>Lista para instalar</strong><span>Puede verse como app desde celular y PC.</span></div>
         </div>
       </div>
@@ -554,6 +556,7 @@
 
     let originSelection = null;
     let destinationSelection = null;
+    let selectingPoint = null;
 
     const $ = id => document.getElementById(id);
 
@@ -631,7 +634,7 @@
 
       let msg = 'La unidad seleccionada podría no ser adecuada.';
       if (needPassengers) msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
-      if (needLuggage) msg += ' El equipaje indicado también requiere una unidad con mayor espacio.';
+      if (needLuggage) msg += ' El equipaje indicado requiere una unidad con mayor espacio.';
       msg += ` Te recomendamos elegir ${suggestion}.`;
 
       showWarn(msg);
@@ -689,8 +692,9 @@
     async function orsReverse(lat, lon){
       const url = `https://api.openrouteservice.org/geocode/reverse?api_key=${encodeURIComponent(ORS_API_KEY)}&point.lon=${encodeURIComponent(lon)}&point.lat=${encodeURIComponent(lat)}&size=1`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudo obtener la dirección de tu ubicación.');
+      if (!res.ok) throw new Error('No se pudo obtener la dirección de ese punto.');
       const data = await res.json();
+
       if (!Array.isArray(data.features) || !data.features.length) {
         return {
           lat,
@@ -703,6 +707,7 @@
 
     function renderSuggestions(containerId, features, onSelect){
       const container = $(containerId);
+
       if (!features.length) {
         container.innerHTML = '';
         container.classList.remove('show');
@@ -732,14 +737,10 @@
       });
     }
 
-    function hideSuggestions(){
-      $('origenSuggestions').classList.remove('show');
-      $('destinoSuggestions').classList.remove('show');
-    }
-
     const handleOriginAutocomplete = debounce(async () => {
       const text = $('origen').value.trim();
       originSelection = null;
+
       if (text.length < 3) {
         $('origenSuggestions').classList.remove('show');
         $('origenSuggestions').innerHTML = '';
@@ -752,6 +753,7 @@
           const selected = parseORSFeature(feature);
           originSelection = selected;
           $('origen').value = selected.label;
+          drawSingleMarker('origin', selected);
         });
       } catch (err) {
         console.error(err);
@@ -761,6 +763,7 @@
     const handleDestinationAutocomplete = debounce(async () => {
       const text = $('destino').value.trim();
       destinationSelection = null;
+
       if (text.length < 3) {
         $('destinoSuggestions').classList.remove('show');
         $('destinoSuggestions').innerHTML = '';
@@ -773,6 +776,7 @@
           const selected = parseORSFeature(feature);
           destinationSelection = selected;
           $('destino').value = selected.label;
+          drawSingleMarker('destination', selected);
         });
       } catch (err) {
         console.error(err);
@@ -788,6 +792,56 @@
 
       if (!insideOrigin) $('origenSuggestions').classList.remove('show');
       if (!insideDest) $('destinoSuggestions').classList.remove('show');
+    });
+
+    function drawSingleMarker(type, point){
+      if (type === 'origin') {
+        if (markerOrigen) map.removeLayer(markerOrigen);
+        markerOrigen = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Origen exacto');
+        map.setView([point.lat, point.lon], 15);
+      } else {
+        if (markerDestino) map.removeLayer(markerDestino);
+        markerDestino = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Destino exacto');
+        map.setView([point.lat, point.lon], 15);
+      }
+    }
+
+    function activateMapSelection(type){
+      selectingPoint = type;
+      if (type === 'origin') {
+        showOk('Toca el mapa para fijar el origen exacto.');
+      } else {
+        showOk('Toca el mapa para fijar el destino exacto.');
+      }
+      showWarn('');
+    }
+
+    map.on('click', async (e) => {
+      if (!selectingPoint) return;
+
+      showWarn('');
+      showOk('Buscando dirección exacta del punto seleccionado...');
+
+      try {
+        const lat = e.latlng.lat;
+        const lon = e.latlng.lng;
+        const place = await orsReverse(lat, lon);
+
+        if (selectingPoint === 'origin') {
+          originSelection = { lat, lon, label: place.label };
+          $('origen').value = place.label;
+          drawSingleMarker('origin', originSelection);
+        } else {
+          destinationSelection = { lat, lon, label: place.label };
+          $('destino').value = place.label;
+          drawSingleMarker('destination', destinationSelection);
+        }
+
+        selectingPoint = null;
+        showOk('Ubicación fijada correctamente con pin exacto.');
+      } catch (err) {
+        showWarn(err.message || 'No se pudo obtener la dirección del punto.');
+      }
     });
 
     async function useCurrentLocation(){
@@ -816,9 +870,10 @@
             };
 
             $('origen').value = place.label;
+            drawSingleMarker('origin', originSelection);
             showOk('Tu ubicación actual se cargó correctamente en el origen.');
           } catch (err) {
-            showWarn(err.message || 'No se pudo convertir tu ubicación en una dirección.');
+            showWarn(err.message || 'No se pudo convertir tu ubicación en dirección.');
           } finally {
             $('btnUbicacion').disabled = false;
             $('btnUbicacion').textContent = 'Usar mi ubicación';
@@ -835,7 +890,7 @@
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 12000,
           maximumAge: 0
         }
       );
@@ -846,6 +901,10 @@
       $('origen').value = '';
       $('origenSuggestions').classList.remove('show');
       $('origenSuggestions').innerHTML = '';
+      if (markerOrigen) {
+        map.removeLayer(markerOrigen);
+        markerOrigen = null;
+      }
     }
 
     function clearDestination(){
@@ -853,9 +912,15 @@
       $('destino').value = '';
       $('destinoSuggestions').classList.remove('show');
       $('destinoSuggestions').innerHTML = '';
+      if (markerDestino) {
+        map.removeLayer(markerDestino);
+        markerDestino = null;
+      }
     }
 
     $('btnUbicacion').addEventListener('click', useCurrentLocation);
+    $('btnPinOrigen').addEventListener('click', () => activateMapSelection('origin'));
+    $('btnPinDestino').addEventListener('click', () => activateMapSelection('destination'));
     $('btnLimpiarOrigen').addEventListener('click', clearOrigin);
     $('btnLimpiarDestino').addEventListener('click', clearDestination);
 
@@ -864,6 +929,7 @@
         if (originSelection) return originSelection;
         return await orsSearch($('origen').value.trim());
       }
+
       if (destinationSelection) return destinationSelection;
       return await orsSearch($('destino').value.trim());
     }
@@ -970,6 +1036,8 @@
         routeData = {
           origen: from.label,
           destino: to.label,
+          origenCoords: `${from.lat}, ${from.lon}`,
+          destinoCoords: `${to.lat}, ${to.lon}`,
           km: km.toFixed(1),
           minutos: min,
           tarifa: fare.toFixed(2)
@@ -1019,7 +1087,9 @@
         'RUC: 20603104260',
         `Tipo de servicio: ${currentService}`,
         `Origen: ${routeData?.origen || $('origen').value.trim() || '-'}`,
+        `Coordenadas origen: ${routeData?.origenCoords || '-'}`,
         `Destino: ${routeData?.destino || $('destino').value.trim() || '-'}`,
+        `Coordenadas destino: ${routeData?.destinoCoords || '-'}`,
         `Fecha: ${fecha}`,
         `Hora: ${hora}`,
         `Pasajeros: ${pasajeros || '-'}`,
