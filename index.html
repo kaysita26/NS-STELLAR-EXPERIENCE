@@ -2,409 +2,283 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Pedir Taxi</title>
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
-    :root {
-      --bg: #f3f4f6;
-      --card: #ffffff;
-      --text: #111827;
-      --muted: #6b7280;
-      --line: #e5e7eb;
-      --primary: #2563eb;
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --whatsapp: #25d366;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      --radius: 18px;
+    :root{
+      --bg:#f3f4f6;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#2563eb;
+      --success:#16a34a;
+      --warn:#d97706;
+      --danger:#dc2626;
+      --wa:#25D366;
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
     }
 
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, sans-serif;
+    .app{
+      max-width:560px;
+      margin:0 auto;
+      background:#fff;
+      min-height:100vh;
     }
 
-    body {
-      min-height: 100vh;
+    .top{
+      padding:18px 14px 10px;
     }
 
-    .app {
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 14px 14px 24px;
+    h1{
+      margin:0;
+      font-size:28px;
     }
 
-    .card {
-      background: var(--card);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
+    .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
     }
 
-    .top {
-      padding: 18px 16px 10px;
+    .content{
+      padding:0 14px 18px;
     }
 
-    .title {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.1;
-      font-weight: 700;
+    .label{
+      display:block;
+      margin:14px 0 8px;
+      font-size:14px;
+      font-weight:700;
     }
 
-    .subtitle {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.4;
+    .input-wrap{
+      position:relative;
     }
 
-    .fields {
-      padding: 0 16px 14px;
+    input, select, button{
+      font:inherit;
     }
 
-    .label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      margin: 14px 0 8px;
+    input, select{
+      width:100%;
+      height:52px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:0 14px;
+      font-size:16px;
+      outline:none;
+      background:#fff;
     }
 
-    .input-wrap {
-      position: relative;
+    input:focus, select:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(37,99,235,.12);
     }
 
-    input,
-    select,
-    button {
-      font: inherit;
+    .btn{
+      width:100%;
+      min-height:52px;
+      border:none;
+      border-radius:14px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
     }
 
-    input,
-    select {
-      width: 100%;
-      height: 52px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 0 14px;
-      font-size: 16px;
-      background: #fff;
-      outline: none;
-      color: var(--text);
+    .btn-location{
+      background:var(--primary);
+      color:#fff;
+      margin-top:8px;
     }
 
-    input:focus,
-    select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    .btn-submit{
+      background:var(--wa);
+      color:#fff;
+      margin-top:14px;
     }
 
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      min-height: 52px;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
+    .helper{
+      margin-top:8px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
     }
 
-    .btn-location {
-      background: var(--primary);
-      color: #fff;
-      margin-top: 14px;
+    .status{
+      margin:12px 0 10px;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.4;
     }
 
-    .btn-submit {
-      background: var(--whatsapp);
-      color: #fff;
-      margin-top: 14px;
-      box-shadow: 0 10px 20px rgba(37, 211, 102, 0.25);
+    .info{color:var(--primary)}
+    .ok{color:var(--success)}
+    .warn{color:var(--warn)}
+    .error{color:var(--danger)}
+
+    .map-wrap{
+      position:relative;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 8px 24px rgba(0,0,0,.08);
+      margin-top:10px;
     }
 
-    .helper {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
+    #map{
+      height:390px;
+      width:100%;
     }
 
-    .suggestions {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      z-index: 1200;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      display: none;
-      max-height: 240px;
-      overflow-y: auto;
+    .center-pin{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-100%);
+      z-index:999;
+      pointer-events:none;
+      font-size:42px;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.28));
     }
 
-    .suggestion-item {
-      padding: 12px 14px;
-      font-size: 14px;
-      line-height: 1.35;
-      border-bottom: 1px solid #f1f5f9;
-      cursor: pointer;
+    .map-tip{
+      position:absolute;
+      top:12px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:999;
+      background:rgba(17,24,39,.92);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      max-width:calc(100% - 24px);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
-    .suggestion-item:last-child {
-      border-bottom: none;
+    .summary{
+      margin-top:12px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#f9fafb;
+      font-size:14px;
+      line-height:1.5;
     }
 
-    .suggestion-item:active,
-    .suggestion-item:hover {
-      background: #f8fafc;
+    .summary strong{
+      display:block;
+      margin-bottom:6px;
     }
 
-    .map-section {
-      padding: 0 16px 16px;
+    .suggestions{
+      position:absolute;
+      left:0;
+      right:0;
+      top:calc(100% + 6px);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      z-index:1200;
+      display:none;
+      max-height:220px;
+      overflow:auto;
     }
 
-    .status {
-      margin: 12px 0 10px;
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1.4;
+    .suggestion-item{
+      padding:12px 14px;
+      font-size:14px;
+      line-height:1.35;
+      border-bottom:1px solid #f1f5f9;
+      cursor:pointer;
     }
 
-    .status.info {
-      color: var(--primary);
+    .suggestion-item:last-child{
+      border-bottom:none;
     }
 
-    .status.ok {
-      color: var(--success);
-    }
-
-    .status.warn {
-      color: var(--warning);
-    }
-
-    .status.error {
-      color: var(--danger);
-    }
-
-    .map-wrap {
-      position: relative;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      background: #e5e7eb;
-    }
-
-    #map {
-      width: 100%;
-      height: 360px;
-    }
-
-    .center-pin {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -100%);
-      z-index: 900;
-      pointer-events: none;
-      font-size: 42px;
-      line-height: 1;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
-    }
-
-    .map-tip {
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 900;
-      background: rgba(17, 24, 39, 0.92);
-      color: #fff;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 999px;
-      white-space: nowrap;
-      max-width: calc(100% - 24px);
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .summary {
-      margin-top: 12px;
-      padding: 14px;
-      background: #f9fafb;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .summary strong {
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    .footer-space {
-      height: 4px;
-    }
-
-    @media (max-width: 600px) {
-      .app {
-        padding: 0;
-      }
-
-      .card {
-        border-radius: 0;
-        min-height: 100vh;
-        box-shadow: none;
-      }
-
-      .top {
-        padding: 18px 14px 10px;
-      }
-
-      .fields,
-      .map-section {
-        padding-left: 14px;
-        padding-right: 14px;
-      }
-
-      .title {
-        font-size: 26px;
-      }
-
-      #map {
-        height: 390px;
-      }
-
-      .center-pin {
-        font-size: 44px;
-      }
-
-      .btn {
-        min-height: 54px;
-      }
+    .suggestion-item:hover,
+    .suggestion-item:active{
+      background:#f8fafc;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="card">
-      <div class="top">
-        <h1 class="title">Pedir Taxi</h1>
-        <div class="subtitle">
-          Elige tu punto de recojo, escribe tu destino y solicita tu taxi por WhatsApp.
-        </div>
+    <div class="top">
+      <h1>Pedir Taxi</h1>
+      <div class="sub">
+        Usa tu ubicación actual o escribe la dirección. Luego ajusta el mapa y confirma tu viaje.
+      </div>
+    </div>
+
+    <div class="content">
+      <button class="btn btn-location" id="btnUbicacion" type="button">📍 Usar mi ubicación actual</button>
+
+      <label class="label" for="pickup">¿Dónde te recogemos?</label>
+      <div class="input-wrap">
+        <input id="pickup" type="text" placeholder="Ejemplo: Av. Angélica Gamarra 470" autocomplete="off">
+        <div id="pickupSuggestions" class="suggestions"></div>
+      </div>
+      <div class="helper">
+        Escribe tu dirección o usa tu ubicación actual. El mapa se acercará automáticamente.
       </div>
 
-      <div class="fields">
-        <button class="btn btn-location" id="btnUbicacion" type="button">
-          📍 Usar mi ubicación actual
-        </button>
-
-        <label class="label" for="pickup">¿Dónde te recogemos?</label>
-        <div class="input-wrap">
-          <input
-            id="pickup"
-            type="text"
-            placeholder="Ejemplo: Av. Angélica Gamarra 470"
-            autocomplete="off"
-          />
-          <div id="pickupSuggestions" class="suggestions"></div>
-        </div>
-        <div class="helper">
-          Escribe tu dirección o usa tu ubicación actual. Luego ajusta el mapa si hace falta.
-        </div>
-
-        <label class="label" for="destino">¿A dónde vas?</label>
-        <div class="input-wrap">
-          <input
-            id="destino"
-            type="text"
-            placeholder="Ejemplo: Mega Plaza"
-            autocomplete="off"
-          />
-          <div id="destinoSuggestions" class="suggestions"></div>
-        </div>
-
-        <label class="label" for="pago">Método de pago</label>
-        <select id="pago">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Yape">Yape</option>
-          <option value="Plin">Plin</option>
-        </select>
-
-        <label class="label" for="referencia">Referencia opcional</label>
-        <input
-          id="referencia"
-          type="text"
-          placeholder="Ejemplo: Frente a la farmacia"
-          autocomplete="off"
-        />
+      <label class="label" for="destino">¿A dónde vas?</label>
+      <div class="input-wrap">
+        <input id="destino" type="text" placeholder="Ejemplo: Mega Plaza" autocomplete="off">
+        <div id="destinoSuggestions" class="suggestions"></div>
       </div>
 
-      <div class="map-section">
-        <div id="status" class="status info">
-          📍 Ajusta el mapa hasta tu punto exacto de recojo.
-        </div>
+      <label class="label" for="pago">Método de pago</label>
+      <select id="pago">
+        <option value="Efectivo">Efectivo</option>
+        <option value="Yape">Yape</option>
+        <option value="Plin">Plin</option>
+      </select>
 
-        <div class="map-wrap">
-          <div id="map"></div>
-          <div class="center-pin">📍</div>
-          <div id="mapTip" class="map-tip">🎯 Mueve el mapa hasta tu punto exacto</div>
-        </div>
+      <label class="label" for="referencia">Referencia opcional</label>
+      <input id="referencia" type="text" placeholder="Ejemplo: Frente a la farmacia" autocomplete="off">
 
-        <div id="summary" class="summary">
-          <strong>Resumen</strong>
-          Esperando punto de recojo.
-        </div>
+      <div id="status" class="status info">📍 Ajusta el mapa hasta tu punto exacto de recojo.</div>
 
-        <button class="btn btn-submit" id="btnPedir" type="button">
-          🚖 Pedir taxi ahora
-        </button>
-
-        <div class="footer-space"></div>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="center-pin">📍</div>
+        <div id="mapTip" class="map-tip">🎯 Mueve el mapa hasta tu punto exacto</div>
       </div>
+
+      <div id="summary" class="summary">
+        <strong>Resumen</strong>
+        Esperando punto de recojo.
+      </div>
+
+      <button class="btn btn-submit" id="btnPedir" type="button">🚖 Pedir taxi ahora</button>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const WHATSAPP_NUMBER = "51999999999"; // CAMBIA TU NÚMERO
     const DEFAULT_COORDS = [-12.0464, -77.0428];
-    const WHATSAPP_NUMBER = "51999999999"; // CAMBIA ESTE NÚMERO
 
-    const map = L.map("map", {
-      zoomControl: true,
-      attributionControl: true
-    }).setView(DEFAULT_COORDS, 13);
+    const map = L.map("map").setView(DEFAULT_COORDS, 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap"
@@ -414,46 +288,21 @@
     const destinoInput = document.getElementById("destino");
     const referenciaInput = document.getElementById("referencia");
     const pagoSelect = document.getElementById("pago");
-    const btnUbicacion = document.getElementById("btnUbicacion");
-    const btnPedir = document.getElementById("btnPedir");
     const statusEl = document.getElementById("status");
     const summaryEl = document.getElementById("summary");
     const mapTipEl = document.getElementById("mapTip");
+    const btnUbicacion = document.getElementById("btnUbicacion");
+    const btnPedir = document.getElementById("btnPedir");
     const pickupSuggestions = document.getElementById("pickupSuggestions");
     const destinoSuggestions = document.getElementById("destinoSuggestions");
 
     let pickupConfirmed = false;
-    let pickupSelected = false;
-    let reverseGeocodeTimeout = null;
-    let activeFetchController = null;
+    let pickupHasValue = false;
+    let reverseTimer = null;
 
     function setStatus(text, type = "info") {
       statusEl.className = "status " + type;
       statusEl.textContent = text;
-    }
-
-    function setLoading(button, isLoading, textNormal, textLoading) {
-      button.disabled = isLoading;
-      button.classList.toggle("loading", isLoading);
-      button.textContent = isLoading ? textLoading : textNormal;
-    }
-
-    function updateSummary(extraText = "") {
-      const center = map.getCenter();
-      const pickupText = pickupInput.value.trim() || "Sin definir";
-      const destinoText = destinoInput.value.trim() || "Sin definir";
-      const referenciaText = referenciaInput.value.trim() || "Sin referencia";
-      const pagoText = pagoSelect.value || "Sin definir";
-
-      summaryEl.innerHTML = `
-        <strong>Resumen</strong>
-        📍 Recojo: ${escapeHtml(pickupText)}<br>
-        🏁 Destino: ${escapeHtml(destinoText)}<br>
-        💳 Pago: ${escapeHtml(pagoText)}<br>
-        📝 Referencia: ${escapeHtml(referenciaText)}<br>
-        🌎 Punto exacto: ${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}
-        ${extraText ? "<br>" + escapeHtml(extraText) : ""}
-      `;
     }
 
     function escapeHtml(text) {
@@ -462,210 +311,159 @@
       return div.innerHTML;
     }
 
-    function hideSuggestions(box) {
-      box.style.display = "none";
-      box.innerHTML = "";
+    function updateSummary(extra = "") {
+      const c = map.getCenter();
+      summaryEl.innerHTML = `
+        <strong>Resumen</strong>
+        📍 Recojo: ${escapeHtml(pickupInput.value.trim() || "Sin definir")}<br>
+        🏁 Destino: ${escapeHtml(destinoInput.value.trim() || "Sin definir")}<br>
+        💳 Pago: ${escapeHtml(pagoSelect.value || "Sin definir")}<br>
+        📝 Referencia: ${escapeHtml(referenciaInput.value.trim() || "Sin referencia")}<br>
+        🌎 Punto exacto: ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}
+        ${extra ? "<br>" + escapeHtml(extra) : ""}
+      `;
     }
 
     function showSuggestions(box) {
       box.style.display = "block";
     }
 
+    function hideSuggestions(box) {
+      box.style.display = "none";
+      box.innerHTML = "";
+    }
+
     async function searchPlaces(query) {
-      if (activeFetchController) {
-        activeFetchController.abort();
-      }
-
-      activeFetchController = new AbortController();
-
-      const url =
-        "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=" +
-        encodeURIComponent(query);
-
-      const response = await fetch(url, {
-        signal: activeFetchController.signal,
-        headers: {
-          Accept: "application/json"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("No se pudo buscar la dirección.");
-      }
-
-      return await response.json();
+      const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=" + encodeURIComponent(query);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error("Error al buscar");
+      return await res.json();
     }
 
     async function reverseGeocode(lat, lng) {
-      const url =
-        "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" +
-        encodeURIComponent(lat) +
-        "&lon=" +
-        encodeURIComponent(lng);
-
-      const response = await fetch(url, {
-        headers: {
-          Accept: "application/json"
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("No se pudo obtener la dirección exacta.");
-      }
-
-      return await response.json();
+      const url = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" + encodeURIComponent(lat) + "&lon=" + encodeURIComponent(lng);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      if (!res.ok) throw new Error("Error al obtener dirección");
+      return await res.json();
     }
 
-    function applyPlaceToPickup(place) {
+    function applyPickup(place) {
       pickupInput.value = place.display_name || "";
-      pickupSelected = true;
+      pickupHasValue = true;
       pickupConfirmed = false;
-
-      const lat = parseFloat(place.lat);
-      const lon = parseFloat(place.lon);
-
-      map.setView([lat, lon], 17, { animate: true });
-      pickupSuggestions.innerHTML = "";
+      map.setView([parseFloat(place.lat), parseFloat(place.lon)], 17, { animate: true });
       hideSuggestions(pickupSuggestions);
       pickupInput.blur();
-
-      setStatus("📍 Ajusta el mapa si necesitas mayor precisión.", "warn");
-      updateSummary("Falta confirmar el punto exacto.");
       mapTipEl.style.display = "block";
+      setStatus("📍 Ya te acerqué a la dirección. Ajusta un poco el mapa si hace falta.", "warn");
+      updateSummary("Falta confirmar el punto exacto.");
     }
 
-    function applyPlaceToDestino(place) {
+    function applyDestino(place) {
       destinoInput.value = place.display_name || "";
       hideSuggestions(destinoSuggestions);
       destinoInput.blur();
       updateSummary();
     }
 
-    function setupAutocomplete(input, box, onSelect) {
-      let debounceTimer = null;
+    function setupAutocomplete(input, box, onSelect, isPickup = false) {
+      let timer = null;
 
       input.addEventListener("input", () => {
         const value = input.value.trim();
 
-        if (input === pickupInput) {
+        if (isPickup) {
           pickupConfirmed = false;
-          pickupSelected = false;
+          pickupHasValue = value.length > 0;
+          updateSummary("Falta confirmar el punto exacto.");
         }
 
-        if (debounceTimer) clearTimeout(debounceTimer);
+        if (timer) clearTimeout(timer);
 
         if (value.length < 3) {
           hideSuggestions(box);
-          updateSummary();
           return;
         }
 
-        debounceTimer = setTimeout(async () => {
+        timer = setTimeout(async () => {
           try {
-            const results = await searchPlaces(value);
+            const places = await searchPlaces(value);
+            box.innerHTML = "";
 
-            if (!Array.isArray(results) || results.length === 0) {
+            if (!places.length) {
               box.innerHTML = '<div class="suggestion-item">No se encontraron resultados</div>';
               showSuggestions(box);
               return;
             }
 
-            box.innerHTML = "";
-            results.forEach((place) => {
+            places.forEach(place => {
               const item = document.createElement("div");
               item.className = "suggestion-item";
               item.textContent = place.display_name;
-
-              item.addEventListener("click", () => {
-                onSelect(place);
-              });
-
+              item.onclick = () => onSelect(place);
               box.appendChild(item);
             });
 
             showSuggestions(box);
-          } catch (error) {
-            if (error.name === "AbortError") return;
+          } catch {
             box.innerHTML = '<div class="suggestion-item">Error al buscar direcciones</div>';
             showSuggestions(box);
           }
-        }, 350);
+        }, 300);
       });
 
       input.addEventListener("focus", () => {
-        if (box.innerHTML.trim()) {
-          showSuggestions(box);
-        }
+        if (box.innerHTML.trim()) showSuggestions(box);
       });
     }
 
-    setupAutocomplete(pickupInput, pickupSuggestions, applyPlaceToPickup);
-    setupAutocomplete(destinoInput, destinoSuggestions, applyPlaceToDestino);
+    setupAutocomplete(pickupInput, pickupSuggestions, applyPickup, true);
+    setupAutocomplete(destinoInput, destinoSuggestions, applyDestino, false);
 
     document.addEventListener("click", (e) => {
-      if (!pickupSuggestions.parentElement.contains(e.target)) {
-        hideSuggestions(pickupSuggestions);
-      }
-      if (!destinoSuggestions.parentElement.contains(e.target)) {
-        hideSuggestions(destinoSuggestions);
-      }
+      if (!pickupSuggestions.parentElement.contains(e.target)) hideSuggestions(pickupSuggestions);
+      if (!destinoSuggestions.parentElement.contains(e.target)) hideSuggestions(destinoSuggestions);
     });
 
     btnUbicacion.addEventListener("click", () => {
       if (!navigator.geolocation) {
-        setStatus("❌ Tu dispositivo no permite obtener ubicación.", "error");
+        setStatus("❌ Tu celular no permite obtener ubicación.", "error");
         return;
       }
 
-      setLoading(
-        btnUbicacion,
-        true,
-        "📍 Usar mi ubicación actual",
-        "Buscando ubicación..."
-      );
+      btnUbicacion.disabled = true;
+      btnUbicacion.textContent = "Buscando ubicación...";
 
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
 
           map.setView([lat, lng], 18, { animate: true });
+          pickupHasValue = true;
           pickupConfirmed = false;
-          pickupSelected = true;
           mapTipEl.style.display = "block";
-          setStatus("📍 Ubicación encontrada. Ajusta el mapa si hace falta.", "warn");
-          updateSummary("Falta confirmar el punto exacto.");
+          setStatus("📍 Ya te acerqué a tu ubicación actual. Ajusta un poco si hace falta.", "warn");
 
           try {
             const result = await reverseGeocode(lat, lng);
             if (result && result.display_name) {
               pickupInput.value = result.display_name;
-              updateSummary("Falta confirmar el punto exacto.");
             }
-          } catch (err) {
-            // sin bloquear la experiencia
-          }
+          } catch {}
 
-          setLoading(
-            btnUbicacion,
-            false,
-            "📍 Usar mi ubicación actual",
-            "Buscando ubicación..."
-          );
+          updateSummary("Falta confirmar el punto exacto.");
+          btnUbicacion.disabled = false;
+          btnUbicacion.textContent = "📍 Usar mi ubicación actual";
         },
         (error) => {
           let msg = "❌ No se pudo obtener tu ubicación.";
           if (error.code === 1) msg = "❌ Debes permitir acceso a tu ubicación.";
           if (error.code === 2) msg = "❌ No se pudo detectar tu ubicación.";
           if (error.code === 3) msg = "❌ Se agotó el tiempo al buscar tu ubicación.";
-
           setStatus(msg, "error");
-          setLoading(
-            btnUbicacion,
-            false,
-            "📍 Usar mi ubicación actual",
-            "Buscando ubicación..."
-          );
+          btnUbicacion.disabled = false;
+          btnUbicacion.textContent = "📍 Usar mi ubicación actual";
         },
         {
           enableHighAccuracy: true,
@@ -676,7 +474,7 @@
     });
 
     map.on("movestart", () => {
-      if (pickupSelected || pickupInput.value.trim()) {
+      if (pickupHasValue || pickupInput.value.trim()) {
         pickupConfirmed = false;
         setStatus("📍 Ajustando punto de recojo...", "warn");
         updateSummary("Falta confirmar el punto exacto.");
@@ -684,36 +482,31 @@
     });
 
     map.on("moveend", () => {
-      if (!(pickupSelected || pickupInput.value.trim())) {
-        return;
-      }
+      if (!(pickupHasValue || pickupInput.value.trim())) return;
 
       pickupConfirmed = true;
+      pickupHasValue = true;
       setStatus("✔️ Punto de recojo confirmado", "ok");
-      updateSummary("Ubicación confirmada.");
       mapTipEl.style.display = "none";
+      updateSummary("Ubicación confirmada.");
 
-      if (reverseGeocodeTimeout) {
-        clearTimeout(reverseGeocodeTimeout);
-      }
+      if (reverseTimer) clearTimeout(reverseTimer);
 
-      reverseGeocodeTimeout = setTimeout(async () => {
-        const center = map.getCenter();
+      reverseTimer = setTimeout(async () => {
+        const c = map.getCenter();
         try {
-          const result = await reverseGeocode(center.lat, center.lng);
+          const result = await reverseGeocode(c.lat, c.lng);
           if (result && result.display_name) {
             pickupInput.value = result.display_name;
             updateSummary("Ubicación confirmada.");
           }
-        } catch (err) {
-          // no interrumpir
-        }
+        } catch {}
       }, 500);
     });
 
-    [pickupInput, destinoInput, referenciaInput, pagoSelect].forEach((el) => {
-      el.addEventListener("input", () => updateSummary());
-      el.addEventListener("change", () => updateSummary());
+    [destinoInput, referenciaInput, pagoSelect].forEach(el => {
+      el.addEventListener("input", () => updateSummary(pickupConfirmed ? "Ubicación confirmada." : "Falta confirmar el punto exacto."));
+      el.addEventListener("change", () => updateSummary(pickupConfirmed ? "Ubicación confirmada." : "Falta confirmar el punto exacto."));
     });
 
     btnPedir.addEventListener("click", () => {
@@ -721,16 +514,16 @@
       const destino = destinoInput.value.trim();
       const referencia = referenciaInput.value.trim();
       const pago = pagoSelect.value;
-      const center = map.getCenter();
+      const c = map.getCenter();
 
       if (!pickup) {
-        setStatus("⚠️ Ingresa tu punto de recojo.", "error");
+        setStatus("⚠️ Ingresa el punto de recojo o usa tu ubicación actual.", "error");
         pickupInput.focus();
         return;
       }
 
       if (!pickupConfirmed) {
-        setStatus("⚠️ Confirma tu punto de recojo moviendo el mapa.", "error");
+        setStatus("⚠️ Confirma el punto de recojo ajustando el mapa.", "error");
         return;
       }
 
@@ -744,19 +537,14 @@
         "Hola, quiero solicitar un taxi.",
         "",
         "📍 Recojo: " + pickup,
-        "🌎 Ubicación exacta: https://www.google.com/maps?q=" + center.lat + "," + center.lng,
+        "🌎 Ubicación exacta: https://www.google.com/maps?q=" + c.lat + "," + c.lng,
         "",
         "🏁 Destino: " + destino,
         "💳 Pago: " + pago,
         "📝 Referencia: " + (referencia || "Sin referencia")
       ].join("\n");
 
-      const url =
-        "https://wa.me/" +
-        WHATSAPP_NUMBER +
-        "?text=" +
-        encodeURIComponent(mensaje);
-
+      const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(mensaje);
       window.open(url, "_blank");
     });
 
