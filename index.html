@@ -7,9 +7,6 @@
   <title>NS STELLAR EXPERIENCE | Traslados</title>
   <meta name="description" content="Reserva o solicita traslados con cálculo por distancia, ubicación actual y selección exacta en mapa." />
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="logo-192.png" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +20,6 @@
     :root{
       --bg:#070b12;
       --bg2:#0d1420;
-      --card:#0f1724;
       --line:rgba(255,255,255,.08);
       --text:#f5f7fb;
       --muted:#9caec4;
@@ -35,10 +31,9 @@
     }
 
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
     body{
       margin:0;
-      font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      font-family:'Inter',system-ui,sans-serif;
       color:var(--text);
       background:
         radial-gradient(circle at top right, rgba(217,179,106,.16), transparent 22%),
@@ -48,7 +43,6 @@
     }
 
     a{text-decoration:none;color:inherit}
-    img{display:block;max-width:100%}
     .container{width:min(1240px, calc(100% - 28px));margin:auto}
 
     .topbar{
@@ -61,16 +55,9 @@
       display:flex;align-items:center;justify-content:space-between;
       gap:16px;padding:14px 0;
     }
-    .brand{display:flex;align-items:center;gap:12px;min-width:0}
-    .brand-logo{
-      width:52px;height:52px;border-radius:15px;overflow:hidden;
-      background:#0c1220;border:1px solid rgba(255,255,255,.08);flex:none;
-      box-shadow:var(--shadow)
-    }
-    .brand-text strong{display:block;font-size:1rem}
-    .brand-text span{display:block;color:var(--muted);font-size:.84rem}
+    .brand strong{display:block;font-size:1rem}
+    .brand span{display:block;color:var(--muted);font-size:.84rem}
 
-    .nav-actions{display:flex;gap:10px;flex-wrap:wrap}
     .btn{
       border:none;cursor:pointer;font:inherit;font-weight:700;
       padding:13px 18px;border-radius:16px;transition:.22s ease;
@@ -93,15 +80,15 @@
     }
     .btn-block{width:100%}
 
-    .hero{padding:40px 0 18px}
-    .hero-grid{display:grid;grid-template-columns:1.06fr .94fr;gap:24px;align-items:stretch}
+    .hero{padding:36px 0 10px}
+    .hero-grid{display:grid;grid-template-columns:1fr;gap:24px}
     .panel{
       border:1px solid var(--line);
       border-radius:30px;
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02));
       box-shadow:var(--shadow);
     }
-    .hero-copy{padding:36px}
+    .hero-copy{padding:30px}
     .eyebrow{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 14px;border-radius:999px;
@@ -111,31 +98,17 @@
     }
     h1{
       margin:18px 0 12px;
-      font-size:clamp(2.15rem,5vw,4.2rem);
+      font-size:clamp(2rem,5vw,4rem);
       line-height:1.02;letter-spacing:-.045em;
     }
     .lead{
-      font-size:1.04rem;line-height:1.72;color:var(--muted);
+      font-size:1rem;line-height:1.7;color:var(--muted);
       max-width:62ch;margin-bottom:24px;
     }
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 
-    .hero-side{padding:24px}
-    .hero-card-top{
-      padding:20px;border-radius:22px;background:linear-gradient(180deg,#101827,#0d1522);
-      border:1px solid var(--line)
-    }
-    .hero-card-top strong{display:block;font-size:1.08rem}
-    .hero-card-top p{margin:10px 0 0;color:var(--muted);line-height:1.66}
-    .hero-points{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
-    .point{padding:16px;border-radius:18px;background:var(--bg2);border:1px solid var(--line)}
-    .point strong{display:block;margin-bottom:6px}
-    .point span{color:var(--muted);font-size:.92rem;line-height:1.6}
-
-    .section{padding:26px 0}
-    .section-head{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:18px}
-    .section-head h2{margin:0;font-size:1.75rem}
-    .section-head p{margin:8px 0 0;color:var(--muted)}
+    .section{padding:20px 0 28px}
+    .section-head h2{margin:0 0 8px;font-size:1.75rem}
+    .section-head p{margin:0;color:var(--muted)}
 
     .booking-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:24px}
     .form-panel,.summary-panel{padding:24px}
@@ -148,11 +121,6 @@
       width:100%;padding:14px 15px;border-radius:16px;
       background:#0b1320;color:var(--text);
       border:1px solid rgba(255,255,255,.08);outline:none;font:inherit;
-      transition:.18s ease;
-    }
-    input:focus,select:focus,textarea:focus{
-      border-color:rgba(217,179,106,.42);
-      box-shadow:0 0 0 4px rgba(217,179,106,.08)
     }
     textarea{min-height:100px;resize:vertical}
 
@@ -190,9 +158,7 @@
       padding:12px 14px;
       border-bottom:1px solid rgba(255,255,255,.06);
       cursor:pointer;
-      transition:.15s ease;
     }
-    .suggestion:last-child{border-bottom:none}
     .suggestion:hover{background:rgba(255,255,255,.05)}
     .suggestion-title{font-weight:700;font-size:.94rem}
     .suggestion-sub{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:4px}
@@ -205,11 +171,9 @@
       padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);
       cursor:pointer;transition:.22s ease;
     }
-    .choice:hover,.vehicle:hover{transform:translateY(-2px);border-color:rgba(217,179,106,.38)}
     .choice.active,.vehicle.active{
       border-color:rgba(217,179,106,.75);
       background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
-      box-shadow:0 10px 26px rgba(0,0,0,.18)
     }
     .choice strong,.vehicle strong{display:block;margin-bottom:6px}
     .choice small,.vehicle small{display:block;color:var(--muted);line-height:1.55}
@@ -245,38 +209,13 @@
 
     .cta-box{margin-top:16px;display:grid;gap:10px}
 
-    .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    .trust-card{padding:18px;border-radius:20px;background:var(--bg2);border:1px solid var(--line)}
-    .trust-card strong{display:block;margin-bottom:8px}
-    .trust-card span{color:var(--muted);font-size:.94rem;line-height:1.6}
-
-    .footer{padding:28px 0 42px;color:var(--muted)}
-    .footer-box{
-      display:flex;justify-content:space-between;gap:16px;align-items:center;
-      padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.02);border:1px solid var(--line)
-    }
-
-    .floating-wa{
-      position:fixed;right:16px;bottom:16px;z-index:70;
-      display:inline-flex;align-items:center;justify-content:center;
-      width:60px;height:60px;border-radius:50%;
-      background:linear-gradient(135deg,#25d366,#1faa55);color:#fff;
-      font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,.35)
-    }
-
     @media (max-width:980px){
-      .hero-grid,.booking-grid{grid-template-columns:1fr}
-      .trust{grid-template-columns:repeat(2,1fr)}
+      .booking-grid{grid-template-columns:1fr}
     }
     @media (max-width:760px){
-      .nav{flex-direction:column;align-items:stretch}
-      .nav-actions{justify-content:stretch}
-      .nav-actions .btn{flex:1}
-      .hero-copy,.hero-side,.form-panel,.summary-panel{padding:18px}
-      .grid,.switches,.vehicle-grid,.hero-points,.trust{grid-template-columns:1fr}
-      .footer-box{flex-direction:column;align-items:flex-start}
-      #map{height:320px}
+      .grid,.switches,.vehicle-grid{grid-template-columns:1fr}
       .address-actions{grid-template-columns:1fr}
+      #map{height:320px}
     }
   </style>
 </head>
@@ -284,16 +223,10 @@
   <header class="topbar">
     <div class="container nav">
       <div class="brand">
-        <div class="brand-logo"><img src="logo-192.png" alt="NS Stellar Experience"></div>
-        <div class="brand-text">
-          <strong>NS STELLAR EXPERIENCE</strong>
-          <span>RUC: 20603104260</span>
-        </div>
+        <strong>NS STELLAR EXPERIENCE</strong>
+        <span>RUC: 20603104260</span>
       </div>
-      <div class="nav-actions">
-        <a class="btn btn-outline" href="#tarifador">Solicitar inmediato</a>
-        <a class="btn btn-gold" href="#tarifador">Reservar traslado</a>
-      </div>
+      <a class="btn btn-gold" href="#tarifador">Reservar traslado</a>
     </div>
   </header>
 
@@ -302,29 +235,10 @@
       <div class="container hero-grid">
         <div class="panel hero-copy">
           <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
-          <h1>Solicita o reserva tu traslado con una experiencia premium.</h1>
+          <h1>Solicita o reserva tu traslado con ubicación exacta.</h1>
           <p class="lead">
-            Una web elegante, moderna y pensada para celular y PC. El cliente cotiza por distancia, usa su ubicación actual, fija puntos exactos en el mapa y confirma por WhatsApp con toda la información ya ordenada.
+            El cliente puede usar su ubicación actual, escribir su dirección o fijar un pin exacto en el mapa. La tarifa se calcula por distancia y tipo de unidad.
           </p>
-          <div class="hero-actions">
-            <a class="btn btn-gold" href="#tarifador">Cotizar traslado</a>
-            <a class="btn btn-outline" href="#beneficios">Ver beneficios</a>
-          </div>
-        </div>
-
-        <div class="panel hero-side">
-          <div class="hero-card-top">
-            <strong>Imagen ejecutiva desde el primer vistazo</strong>
-            <p>
-              Esta versión está pensada para que tu cliente sienta un servicio serio, claro y confiable antes de escribirte, y para que el conductor reciba puntos más exactos.
-            </p>
-          </div>
-          <div class="hero-points">
-            <div class="point"><strong>Autocompletado</strong><span>El cliente escribe y elige direcciones sugeridas.</span></div>
-            <div class="point"><strong>Ubicación actual</strong><span>Un botón llena el origen automáticamente.</span></div>
-            <div class="point"><strong>Pin exacto</strong><span>El pasajero puede tocar el mapa y fijar el punto real.</span></div>
-            <div class="point"><strong>WhatsApp directo</strong><span>Mensaje ordenado con distancia, tiempo y tarifa.</span></div>
-          </div>
         </div>
       </div>
     </section>
@@ -332,10 +246,8 @@
     <section class="section" id="tarifador">
       <div class="container">
         <div class="section-head">
-          <div>
-            <h2>Tarifador profesional</h2>
-            <p>Calcula distancia, tiempo estimado y tarifa referencial según la unidad seleccionada.</p>
-          </div>
+          <h2>Tarifador profesional</h2>
+          <p>Calcula distancia, tiempo estimado y tarifa referencial según la unidad seleccionada.</p>
         </div>
 
         <div class="booking-grid">
@@ -414,7 +326,6 @@
                     <ul>
                       <li>1 a 3 pasajeros</li>
                       <li>Hasta 2 maletas medianas</li>
-                      <li>Ideal para viajes ágiles</li>
                     </ul>
                   </div>
 
@@ -424,7 +335,6 @@
                     <ul>
                       <li>1 a 5 pasajeros</li>
                       <li>Hasta 4 maletas medianas</li>
-                      <li>Ideal para aeropuerto</li>
                     </ul>
                   </div>
 
@@ -434,7 +344,6 @@
                     <ul>
                       <li>6 a 10 pasajeros</li>
                       <li>Equipaje amplio</li>
-                      <li>Ideal para traslados grupales</li>
                     </ul>
                   </div>
 
@@ -444,7 +353,6 @@
                     <ul>
                       <li>1 a 3 pasajeros</li>
                       <li>Servicio premium</li>
-                      <li>Ideal para clientes VIP</li>
                     </ul>
                   </div>
                 </div>
@@ -462,7 +370,7 @@
 
               <div class="field full">
                 <label for="observaciones">Observaciones</label>
-                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto, terminal, puerta o detalle adicional"></textarea>
+                <textarea id="observaciones" placeholder="Referencia, vuelo, punto exacto, puerta o detalle adicional"></textarea>
               </div>
 
               <div class="field full">
@@ -481,7 +389,7 @@
               <div class="row"><span>Tiempo estimado</span><strong id="sumTiempo">—</strong></div>
               <div class="row"><span>Tarifa estimada</span><strong id="sumTarifa">—</strong></div>
               <div class="fare" id="fareBig">S/ 0.00</div>
-              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario, tránsito y disponibilidad.</div>
+              <div class="fare-sub">Tarifa referencial sujeta a confirmación final según ruta, horario y disponibilidad.</div>
             </div>
 
             <div class="alert warn" id="warnBox"></div>
@@ -489,50 +397,22 @@
 
             <div class="cta-box">
               <button class="btn btn-gold btn-block" id="btnWhatsApp">Confirmar por WhatsApp</button>
-              <button class="btn btn-outline btn-block" id="btnInstalar" style="display:none">Instalar app</button>
             </div>
           </div>
         </div>
       </div>
     </section>
-
-    <section class="section" id="beneficios">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <h2>Una experiencia más profesional</h2>
-            <p>Diseñada para inspirar confianza y verse bien en móvil y escritorio.</p>
-          </div>
-        </div>
-        <div class="trust">
-          <div class="trust-card"><strong>Autocompletado visual</strong><span>El cliente encuentra direcciones más rápido y con menos errores.</span></div>
-          <div class="trust-card"><strong>Ubicación actual</strong><span>Ideal para recojo inmediato sin escribir toda la dirección.</span></div>
-          <div class="trust-card"><strong>Pin exacto en mapa</strong><span>Sirve para puertas, condominios, terminales o puntos difíciles.</span></div>
-          <div class="trust-card"><strong>Lista para instalar</strong><span>Puede verse como app desde celular y PC.</span></div>
-        </div>
-      </div>
-    </section>
   </main>
-
-  <footer class="footer">
-    <div class="container footer-box">
-      <div>
-        <strong>NS STELLAR EXPERIENCE</strong><br>
-        <span>RUC: 20603104260 • Servicio de traslados</span>
-      </div>
-      <div><span>Web tipo app lista para GitHub Pages</span></div>
-    </div>
-  </footer>
-
-  <a class="floating-wa" id="floatingWa" href="#" aria-label="WhatsApp">WA</a>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
 
   <script>
-    const WHATSAPP_NUMBER = '51901254466';
-    const ORS_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjZjNzI2MTliZDRiMjQwZDY4OTk1ODc3MjcwMzRlNzA3IiwiaCI6Im11cm11cjY0In0=';
+    const WHATSAPP_NUMBER = '51999999999';
+
+    /* PEGA AQUÍ LA URL DE TU WORKER CUANDO LA TENGAS */
+    const API_BASE = 'https://REEMPLAZAR-POR-TU-WORKER.workers.dev';
 
     const VEHICLES = {
       auto: { name:'Auto', base:8, perKm:2.6, maxPassengers:3, maxLuggageLevel:2 },
@@ -552,8 +432,6 @@
     let currentService = 'Solicitar ahora';
     let currentVehicle = 'auto';
     let routeData = null;
-    let installPromptEvent = null;
-
     let originSelection = null;
     let destinationSelection = null;
     let selectingPoint = null;
@@ -602,13 +480,13 @@
     function showWarn(msg=''){
       const box = $('warnBox');
       box.textContent = msg;
-      box.classList.toggle('show', !!msg);
+      box.className = 'alert warn' + (msg ? ' show' : '');
     }
 
     function showOk(msg=''){
       const box = $('okBox');
       box.textContent = msg;
-      box.classList.toggle('show', !!msg);
+      box.className = 'alert ok' + (msg ? ' show' : '');
     }
 
     function formatMoney(n){
@@ -657,54 +535,6 @@
         .replaceAll("'", '&#039;');
     }
 
-    function parseORSFeature(feature){
-      const coords = feature.geometry?.coordinates || [];
-      const props = feature.properties || {};
-      const label = props.label || props.name || 'Ubicación seleccionada';
-
-      return {
-        lat: Number(coords[1]),
-        lon: Number(coords[0]),
-        label,
-        raw: feature
-      };
-    }
-
-    async function orsAutocomplete(text){
-      const url = `https://api.openrouteservice.org/geocode/autocomplete?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=6&boundary.country=PE`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudieron obtener sugerencias.');
-      const data = await res.json();
-      return Array.isArray(data.features) ? data.features : [];
-    }
-
-    async function orsSearch(text){
-      const url = `https://api.openrouteservice.org/geocode/search?api_key=${encodeURIComponent(ORS_API_KEY)}&text=${encodeURIComponent(text)}&size=1&boundary.country=PE`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudo ubicar la dirección ingresada.');
-      const data = await res.json();
-      if (!Array.isArray(data.features) || !data.features.length) {
-        throw new Error(`No se encontró ubicación para: ${text}`);
-      }
-      return parseORSFeature(data.features[0]);
-    }
-
-    async function orsReverse(lat, lon){
-      const url = `https://api.openrouteservice.org/geocode/reverse?api_key=${encodeURIComponent(ORS_API_KEY)}&point.lon=${encodeURIComponent(lon)}&point.lat=${encodeURIComponent(lat)}&size=1`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('No se pudo obtener la dirección de ese punto.');
-      const data = await res.json();
-
-      if (!Array.isArray(data.features) || !data.features.length) {
-        return {
-          lat,
-          lon,
-          label: `${lat.toFixed(5)}, ${lon.toFixed(5)}`
-        };
-      }
-      return parseORSFeature(data.features[0]);
-    }
-
     function renderSuggestions(containerId, features, onSelect){
       const container = $(containerId);
 
@@ -714,10 +544,9 @@
         return;
       }
 
-      container.innerHTML = features.map((feature, index) => {
-        const props = feature.properties || {};
-        const title = props.name || props.locality || props.label || `Resultado ${index + 1}`;
-        const sub = props.label || '';
+      container.innerHTML = features.map((item, index) => {
+        const title = item.label || `Resultado ${index + 1}`;
+        const sub = item.label || '';
         return `
           <div class="suggestion" data-index="${index}">
             <div class="suggestion-title">${escapeHtml(title)}</div>
@@ -737,6 +566,22 @@
       });
     }
 
+    async function apiGet(path){
+      const res = await fetch(API_BASE + path);
+      if (!res.ok) throw new Error(`Error API ${res.status}`);
+      return await res.json();
+    }
+
+    async function apiPost(path, body){
+      const res = await fetch(API_BASE + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`Error API ${res.status}`);
+      return await res.json();
+    }
+
     const handleOriginAutocomplete = debounce(async () => {
       const text = $('origen').value.trim();
       originSelection = null;
@@ -748,15 +593,15 @@
       }
 
       try {
-        const features = await orsAutocomplete(text);
-        renderSuggestions('origenSuggestions', features, (feature) => {
-          const selected = parseORSFeature(feature);
+        const data = await apiGet(`/autocomplete?text=${encodeURIComponent(text)}`);
+        renderSuggestions('origenSuggestions', data.results || [], (selected) => {
           originSelection = selected;
           $('origen').value = selected.label;
           drawSingleMarker('origin', selected);
         });
       } catch (err) {
         console.error(err);
+        showWarn('No se pudieron cargar sugerencias.');
       }
     }, 350);
 
@@ -771,15 +616,15 @@
       }
 
       try {
-        const features = await orsAutocomplete(text);
-        renderSuggestions('destinoSuggestions', features, (feature) => {
-          const selected = parseORSFeature(feature);
+        const data = await apiGet(`/autocomplete?text=${encodeURIComponent(text)}`);
+        renderSuggestions('destinoSuggestions', data.results || [], (selected) => {
           destinationSelection = selected;
           $('destino').value = selected.label;
           drawSingleMarker('destination', selected);
         });
       } catch (err) {
         console.error(err);
+        showWarn('No se pudieron cargar sugerencias.');
       }
     }, 350);
 
@@ -808,12 +653,10 @@
 
     function activateMapSelection(type){
       selectingPoint = type;
-      if (type === 'origin') {
-        showOk('Toca el mapa para fijar el origen exacto.');
-      } else {
-        showOk('Toca el mapa para fijar el destino exacto.');
-      }
       showWarn('');
+      showOk(type === 'origin'
+        ? 'Toca el mapa para fijar el origen exacto.'
+        : 'Toca el mapa para fijar el destino exacto.');
     }
 
     map.on('click', async (e) => {
@@ -825,22 +668,24 @@
       try {
         const lat = e.latlng.lat;
         const lon = e.latlng.lng;
-        const place = await orsReverse(lat, lon);
+        const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
+        const place = data.result;
 
         if (selectingPoint === 'origin') {
-          originSelection = { lat, lon, label: place.label };
+          originSelection = place;
           $('origen').value = place.label;
-          drawSingleMarker('origin', originSelection);
+          drawSingleMarker('origin', place);
         } else {
-          destinationSelection = { lat, lon, label: place.label };
+          destinationSelection = place;
           $('destino').value = place.label;
-          drawSingleMarker('destination', destinationSelection);
+          drawSingleMarker('destination', place);
         }
 
         selectingPoint = null;
         showOk('Ubicación fijada correctamente con pin exacto.');
       } catch (err) {
-        showWarn(err.message || 'No se pudo obtener la dirección del punto.');
+        console.error(err);
+        showWarn('No se pudo obtener la dirección del punto.');
       }
     });
 
@@ -848,8 +693,13 @@
       showWarn('');
       showOk('');
 
+      if (!window.isSecureContext) {
+        showWarn('La ubicación actual solo funciona en HTTPS.');
+        return;
+      }
+
       if (!navigator.geolocation) {
-        showWarn('Tu navegador no permite usar ubicación actual.');
+        showWarn('Tu navegador no soporta geolocalización.');
         return;
       }
 
@@ -861,36 +711,34 @@
           try {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
-            const place = await orsReverse(lat, lon);
+            const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
+            const place = data.result;
 
-            originSelection = {
-              lat,
-              lon,
-              label: place.label
-            };
-
+            originSelection = place;
             $('origen').value = place.label;
-            drawSingleMarker('origin', originSelection);
-            showOk('Tu ubicación actual se cargó correctamente en el origen.');
+            drawSingleMarker('origin', place);
+            showOk(`Ubicación detectada correctamente. Precisión aprox.: ${Math.round(position.coords.accuracy)} m.`);
           } catch (err) {
-            showWarn(err.message || 'No se pudo convertir tu ubicación en dirección.');
+            console.error(err);
+            showWarn('Se obtuvo la ubicación, pero falló convertirla en dirección.');
           } finally {
             $('btnUbicacion').disabled = false;
             $('btnUbicacion').textContent = 'Usar mi ubicación';
           }
         },
         (error) => {
+          console.error(error);
           let msg = 'No se pudo obtener tu ubicación.';
-          if (error.code === 1) msg = 'Debes permitir el acceso a tu ubicación para usar esta función.';
+          if (error.code === 1) msg = 'Permiso de ubicación denegado.';
           if (error.code === 2) msg = 'No se pudo determinar tu ubicación actual.';
-          if (error.code === 3) msg = 'Se agotó el tiempo para obtener tu ubicación.';
+          if (error.code === 3) msg = 'La ubicación tardó demasiado en responder.';
           showWarn(msg);
           $('btnUbicacion').disabled = false;
           $('btnUbicacion').textContent = 'Usar mi ubicación';
         },
         {
           enableHighAccuracy: true,
-          timeout: 12000,
+          timeout: 15000,
           maximumAge: 0
         }
       );
@@ -927,33 +775,16 @@
     async function getResolvedPlace(type){
       if (type === 'origin') {
         if (originSelection) return originSelection;
-        return await orsSearch($('origen').value.trim());
+        const data = await apiGet(`/search?text=${encodeURIComponent($('origen').value.trim())}`);
+        return data.result;
       }
-
       if (destinationSelection) return destinationSelection;
-      return await orsSearch($('destino').value.trim());
+      const data = await apiGet(`/search?text=${encodeURIComponent($('destino').value.trim())}`);
+      return data.result;
     }
 
     async function calculateRoute(from, to){
-      const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
-        method:'POST',
-        headers:{
-          'Authorization': ORS_API_KEY,
-          'Content-Type':'application/json'
-        },
-        body: JSON.stringify({
-          coordinates: [
-            [from.lon, from.lat],
-            [to.lon, to.lat]
-          ]
-        })
-      });
-
-      if (!res.ok) {
-        throw new Error('No se pudo calcular la ruta. Revisa tu API Key de OpenRouteService.');
-      }
-
-      return await res.json();
+      return await apiPost('/route', { from, to });
     }
 
     function drawRoute(from, to, geojson){
@@ -995,8 +826,8 @@
       const origen = $('origen').value.trim();
       const destino = $('destino').value.trim();
 
-      if (!ORS_API_KEY || ORS_API_KEY === 'PON_AQUI_TU_API_KEY_DE_OPENROUTESERVICE') {
-        showWarn('Primero debes reemplazar tu API Key de OpenRouteService en el archivo index.html.');
+      if (!API_BASE || API_BASE.includes('REEMPLAZAR-POR-TU-WORKER')) {
+        showWarn('Primero debes pegar la URL real de tu Worker en API_BASE.');
         return;
       }
 
@@ -1021,14 +852,14 @@
         destinationSelection = to;
 
         const route = await calculateRoute(from, to);
-        const feature = route.features?.[0];
+        const feature = route.feature;
 
         if (!feature) {
           throw new Error('No se encontró una ruta válida.');
         }
 
-        const meters = feature.properties.summary.distance;
-        const seconds = feature.properties.summary.duration;
+        const meters = route.summary.distance;
+        const seconds = route.summary.duration;
         const km = meters / 1000;
         const min = Math.ceil(seconds / 60);
         const fare = calculateFare(km, currentVehicle);
@@ -1061,6 +892,7 @@
           showOk('Tarifa estimada calculada correctamente. Ya puedes enviarla por WhatsApp.');
         }
       } catch(err) {
+        console.error(err);
         showWarn(err.message || 'Ocurrió un problema al calcular la tarifa.');
       } finally {
         $('btnCalcular').disabled = false;
@@ -1127,32 +959,8 @@
 
     $('btnCalcular').addEventListener('click', runCalculation);
     $('btnWhatsApp').addEventListener('click', openWhatsApp);
-    $('floatingWa').addEventListener('click', e => {
-      e.preventDefault();
-      openWhatsApp();
-    });
 
     validateVehicleSuggestion();
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
-      });
-    }
-
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault();
-      installPromptEvent = e;
-      $('btnInstalar').style.display = 'block';
-    });
-
-    $('btnInstalar').addEventListener('click', async () => {
-      if (!installPromptEvent) return;
-      installPromptEvent.prompt();
-      await installPromptEvent.userChoice;
-      installPromptEvent = null;
-      $('btnInstalar').style.display = 'none';
-    });
   </script>
 </body>
 </html>
