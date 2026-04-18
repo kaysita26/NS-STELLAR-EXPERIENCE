@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Pedir Taxi</title>
+  <title>Taxi Ejecutivo</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -19,9 +19,13 @@
       --warn:#d97706;
       --danger:#dc2626;
       --wa:#25D366;
+      --dark:#0f172a;
     }
 
-    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color:transparent;
+    }
 
     body{
       margin:0;
@@ -31,35 +35,53 @@
     }
 
     .app{
-      max-width:560px;
+      max-width:620px;
       margin:0 auto;
       background:#fff;
       min-height:100vh;
     }
 
     .top{
-      padding:18px 14px 10px;
+      padding:18px 14px 8px;
+      background:linear-gradient(135deg,#0f172a,#1e293b);
+      color:#fff;
     }
 
     h1{
       margin:0;
-      font-size:28px;
+      font-size:30px;
+      line-height:1.1;
     }
 
     .sub{
-      margin-top:6px;
-      color:var(--muted);
+      margin-top:8px;
       font-size:14px;
       line-height:1.4;
+      color:#cbd5e1;
     }
 
     .content{
-      padding:0 14px 18px;
+      padding:0 14px 24px;
+    }
+
+    .section{
+      margin-top:16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      background:#fff;
+      box-shadow:0 8px 24px rgba(0,0,0,.05);
+    }
+
+    .section-title{
+      margin:0 0 8px;
+      font-size:18px;
+      font-weight:700;
     }
 
     .label{
       display:block;
-      margin:14px 0 8px;
+      margin:12px 0 8px;
       font-size:14px;
       font-weight:700;
     }
@@ -74,7 +96,7 @@
 
     input, select{
       width:100%;
-      height:52px;
+      min-height:52px;
       border:1px solid var(--line);
       border-radius:14px;
       padding:0 14px;
@@ -86,6 +108,12 @@
     input:focus, select:focus{
       border-color:var(--primary);
       box-shadow:0 0 0 4px rgba(37,99,235,.12);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
     }
 
     .btn{
@@ -101,33 +129,66 @@
     .btn-location{
       background:var(--primary);
       color:#fff;
-      margin-top:8px;
+      margin-top:10px;
+    }
+
+    .btn-confirm{
+      background:var(--dark);
+      color:#fff;
+      margin-top:12px;
     }
 
     .btn-submit{
       background:var(--wa);
       color:#fff;
-      margin-top:14px;
+      margin-top:16px;
+      min-height:56px;
+      font-size:18px;
     }
 
     .helper{
       margin-top:8px;
       font-size:13px;
       color:var(--muted);
-      line-height:1.4;
+      line-height:1.45;
     }
 
     .status{
       margin:12px 0 10px;
-      font-size:14px;
       font-weight:700;
       line-height:1.4;
+      font-size:15px;
     }
 
     .info{color:var(--primary)}
     .ok{color:var(--success)}
     .warn{color:var(--warn)}
     .error{color:var(--danger)}
+
+    .big-confirm{
+      margin-top:10px;
+      padding:14px;
+      border-radius:16px;
+      font-size:20px;
+      font-weight:800;
+      text-align:center;
+      display:none;
+      border:2px solid transparent;
+    }
+
+    .big-confirm.ok{
+      display:block;
+      color:#166534;
+      background:#dcfce7;
+      border-color:#86efac;
+    }
+
+    .big-confirm.warn{
+      display:block;
+      color:#92400e;
+      background:#fef3c7;
+      border-color:#fcd34d;
+    }
 
     .map-wrap{
       position:relative;
@@ -137,9 +198,9 @@
       margin-top:10px;
     }
 
-    #map{
-      height:390px;
+    #pickupMap, #destMap{
       width:100%;
+      height:320px;
     }
 
     .center-pin{
@@ -169,21 +230,6 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-    }
-
-    .summary{
-      margin-top:12px;
-      padding:14px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:#f9fafb;
-      font-size:14px;
-      line-height:1.5;
-    }
-
-    .summary strong{
-      display:block;
-      margin-bottom:6px;
     }
 
     .suggestions{
@@ -217,111 +263,285 @@
     .suggestion-item:active{
       background:#f8fafc;
     }
+
+    .summary{
+      margin-top:16px;
+      padding:16px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:#f8fafc;
+      font-size:14px;
+      line-height:1.55;
+    }
+
+    .summary strong{
+      display:block;
+      margin-bottom:8px;
+      font-size:16px;
+    }
+
+    .price-box{
+      margin-top:14px;
+      border-radius:18px;
+      background:#ecfeff;
+      border:1px solid #a5f3fc;
+      padding:16px;
+    }
+
+    .price-title{
+      font-size:15px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .price-amount{
+      font-size:28px;
+      font-weight:900;
+      color:#0f766e;
+    }
+
+    .mini{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.4;
+    }
+
+    @media (max-width: 600px){
+      .app{
+        max-width:none;
+      }
+
+      h1{
+        font-size:28px;
+      }
+
+      .grid-2{
+        grid-template-columns:1fr;
+      }
+
+      #pickupMap, #destMap{
+        height:300px;
+      }
+
+      .big-confirm{
+        font-size:22px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="top">
-      <h1>Pedir Taxi</h1>
+      <h1>Taxi Ejecutivo</h1>
       <div class="sub">
-        Usa tu ubicación actual o escribe la dirección. Luego ajusta el mapa y confirma tu viaje.
+        Confirma tu punto de recojo y tu destino exacto en el mapa. El costo se calcula por kilometraje.
       </div>
     </div>
 
     <div class="content">
-      <button class="btn btn-location" id="btnUbicacion" type="button">📍 Usar mi ubicación actual</button>
 
-      <label class="label" for="pickup">¿Dónde te recogemos?</label>
-      <div class="input-wrap">
-        <input id="pickup" type="text" placeholder="Ejemplo: Av. Angélica Gamarra 470" autocomplete="off">
-        <div id="pickupSuggestions" class="suggestions"></div>
+      <div class="section">
+        <h2 class="section-title">1. Punto de recojo</h2>
+
+        <button class="btn btn-location" id="btnUbicacion" type="button">📍 Usar mi ubicación actual</button>
+
+        <label class="label" for="pickupAddress">Dirección de recojo</label>
+        <div class="input-wrap">
+          <input id="pickupAddress" type="text" placeholder="Ejemplo: Av. Angélica Gamarra 470" autocomplete="off">
+          <div id="pickupSuggestions" class="suggestions"></div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label class="label" for="pickupDetail">Número / depa / casa / interior</label>
+            <input id="pickupDetail" type="text" placeholder="Ejemplo: Casa 2, depa 301">
+          </div>
+          <div>
+            <label class="label" for="pickupRef">Referencia de recojo</label>
+            <input id="pickupRef" type="text" placeholder="Ejemplo: Frente a la farmacia">
+          </div>
+        </div>
+
+        <div class="helper">
+          Escribe tu dirección o usa tu ubicación actual. Luego ajusta el mapa para marcar el punto exacto de recojo.
+        </div>
+
+        <div id="pickupStatus" class="status info">📍 Ajusta el mapa hasta tu punto exacto de recojo.</div>
+        <div id="pickupConfirm" class="big-confirm warn">⚠️ FALTA CONFIRMAR EL RECOJO EXACTO</div>
+
+        <div class="map-wrap">
+          <div id="pickupMap"></div>
+          <div class="center-pin">📍</div>
+          <div id="pickupMapTip" class="map-tip">🎯 Mueve el mapa hasta tu recojo exacto</div>
+        </div>
+
+        <button class="btn btn-confirm" id="btnConfirmPickup" type="button">Confirmar ubicación de recojo</button>
       </div>
-      <div class="helper">
-        Escribe tu dirección o usa tu ubicación actual. El mapa se acercará automáticamente.
+
+      <div class="section">
+        <h2 class="section-title">2. Destino</h2>
+
+        <label class="label" for="destAddress">Dirección de destino</label>
+        <div class="input-wrap">
+          <input id="destAddress" type="text" placeholder="Ejemplo: Aeropuerto Jorge Chávez" autocomplete="off">
+          <div id="destSuggestions" class="suggestions"></div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label class="label" for="destDetail">Número / depa / casa / interior</label>
+            <input id="destDetail" type="text" placeholder="Ejemplo: Torre B, oficina 204">
+          </div>
+          <div>
+            <label class="label" for="destRef">Referencia de destino</label>
+            <input id="destRef" type="text" placeholder="Ejemplo: Entrada principal">
+          </div>
+        </div>
+
+        <div class="helper">
+          Elige tu destino y luego ajústalo en el mapa para confirmarlo con precisión.
+        </div>
+
+        <div id="destStatus" class="status info">🏁 Ajusta el mapa hasta tu destino exacto.</div>
+        <div id="destConfirm" class="big-confirm warn">⚠️ FALTA CONFIRMAR EL DESTINO EXACTO</div>
+
+        <div class="map-wrap">
+          <div id="destMap"></div>
+          <div class="center-pin">🏁</div>
+          <div id="destMapTip" class="map-tip">🎯 Mueve el mapa hasta tu destino exacto</div>
+        </div>
+
+        <button class="btn btn-confirm" id="btnConfirmDest" type="button">Confirmar ubicación de destino</button>
       </div>
 
-      <label class="label" for="destino">¿A dónde vas?</label>
-      <div class="input-wrap">
-        <input id="destino" type="text" placeholder="Ejemplo: Mega Plaza" autocomplete="off">
-        <div id="destinoSuggestions" class="suggestions"></div>
+      <div class="section">
+        <h2 class="section-title">3. Servicio</h2>
+
+        <div class="grid-2">
+          <div>
+            <label class="label" for="serviceType">Tipo de servicio</label>
+            <select id="serviceType">
+              <option value="ejecutivo">Taxi Ejecutivo</option>
+              <option value="camioneta">Camioneta</option>
+              <option value="van">Van</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="label" for="passengerType">Pasajeros</label>
+            <select id="passengerType">
+              <option value="1">1 pasajero</option>
+              <option value="2">2 pasajeros</option>
+              <option value="3">3 pasajeros</option>
+              <option value="4">4 o más pasajeros</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="label" for="luggageType">Maletas</label>
+        <select id="luggageType">
+          <option value="0">Sin maletas</option>
+          <option value="1">1 a 2 maletas</option>
+          <option value="2">3 a 4 maletas</option>
+          <option value="3">5 o más maletas</option>
+        </select>
+
+        <div class="price-box">
+          <div class="price-title">Costo estimado del viaje</div>
+          <div class="price-amount" id="estimatedPrice">S/ 0.00</div>
+          <div class="mini" id="distanceInfo">Distancia estimada: 0.00 km</div>
+          <div class="mini">La tarifa se calcula por kilometraje según el servicio elegido.</div>
+        </div>
       </div>
 
-      <label class="label" for="pago">Método de pago</label>
-      <select id="pago">
-        <option value="Efectivo">Efectivo</option>
-        <option value="Yape">Yape</option>
-        <option value="Plin">Plin</option>
-      </select>
-
-      <label class="label" for="referencia">Referencia opcional</label>
-      <input id="referencia" type="text" placeholder="Ejemplo: Frente a la farmacia" autocomplete="off">
-
-      <div id="status" class="status info">📍 Ajusta el mapa hasta tu punto exacto de recojo.</div>
-
-      <div class="map-wrap">
-        <div id="map"></div>
-        <div class="center-pin">📍</div>
-        <div id="mapTip" class="map-tip">🎯 Mueve el mapa hasta tu punto exacto</div>
+      <div class="summary" id="summary">
+        <strong>Resumen del servicio</strong>
+        Completa y confirma recojo y destino.
       </div>
 
-      <div id="summary" class="summary">
-        <strong>Resumen</strong>
-        Esperando punto de recojo.
-      </div>
-
-      <button class="btn btn-submit" id="btnPedir" type="button">🚖 Pedir taxi ahora</button>
+      <button class="btn btn-submit" id="btnRequestTaxi" type="button">🚖 Solicitar taxi por WhatsApp</button>
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    const WHATSAPP_NUMBER = "51999999999"; // CAMBIA TU NÚMERO
+    const WHATSAPP_NUMBER = "51999999999"; // CAMBIA ESTE NÚMERO
+
+    const SERVICE_CONFIG = {
+      ejecutivo: { name: "Taxi Ejecutivo", base: 8, perKm: 2.8 },
+      camioneta: { name: "Camioneta", base: 12, perKm: 3.8 },
+      van: { name: "Van", base: 18, perKm: 5.0 }
+    };
+
+    const PASSENGER_EXTRA = {
+      "1": 0,
+      "2": 0,
+      "3": 2,
+      "4": 4
+    };
+
+    const LUGGAGE_EXTRA = {
+      "0": 0,
+      "1": 0,
+      "2": 4,
+      "3": 8
+    };
+
     const DEFAULT_COORDS = [-12.0464, -77.0428];
 
-    const map = L.map("map").setView(DEFAULT_COORDS, 13);
+    const pickupMap = L.map("pickupMap").setView(DEFAULT_COORDS, 13);
+    const destMap = L.map("destMap").setView(DEFAULT_COORDS, 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap"
-    }).addTo(map);
+    }).addTo(pickupMap);
 
-    const pickupInput = document.getElementById("pickup");
-    const destinoInput = document.getElementById("destino");
-    const referenciaInput = document.getElementById("referencia");
-    const pagoSelect = document.getElementById("pago");
-    const statusEl = document.getElementById("status");
-    const summaryEl = document.getElementById("summary");
-    const mapTipEl = document.getElementById("mapTip");
-    const btnUbicacion = document.getElementById("btnUbicacion");
-    const btnPedir = document.getElementById("btnPedir");
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(destMap);
+
+    const pickupAddress = document.getElementById("pickupAddress");
+    const pickupDetail = document.getElementById("pickupDetail");
+    const pickupRef = document.getElementById("pickupRef");
     const pickupSuggestions = document.getElementById("pickupSuggestions");
-    const destinoSuggestions = document.getElementById("destinoSuggestions");
+    const pickupStatus = document.getElementById("pickupStatus");
+    const pickupConfirm = document.getElementById("pickupConfirm");
+    const pickupMapTip = document.getElementById("pickupMapTip");
+    const btnUbicacion = document.getElementById("btnUbicacion");
+    const btnConfirmPickup = document.getElementById("btnConfirmPickup");
 
-    let pickupConfirmed = false;
-    let pickupHasValue = false;
-    let reverseTimer = null;
+    const destAddress = document.getElementById("destAddress");
+    const destDetail = document.getElementById("destDetail");
+    const destRef = document.getElementById("destRef");
+    const destSuggestions = document.getElementById("destSuggestions");
+    const destStatus = document.getElementById("destStatus");
+    const destConfirm = document.getElementById("destConfirm");
+    const destMapTip = document.getElementById("destMapTip");
+    const btnConfirmDest = document.getElementById("btnConfirmDest");
 
-    function setStatus(text, type = "info") {
-      statusEl.className = "status " + type;
-      statusEl.textContent = text;
+    const serviceType = document.getElementById("serviceType");
+    const passengerType = document.getElementById("passengerType");
+    const luggageType = document.getElementById("luggageType");
+    const estimatedPrice = document.getElementById("estimatedPrice");
+    const distanceInfo = document.getElementById("distanceInfo");
+    const summary = document.getElementById("summary");
+    const btnRequestTaxi = document.getElementById("btnRequestTaxi");
+
+    let pickupReady = false;
+    let destReady = false;
+
+    let pickupLatLng = null;
+    let destLatLng = null;
+
+    function setStatus(el, text, type) {
+      el.className = "status " + type;
+      el.textContent = text;
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function updateSummary(extra = "") {
-      const c = map.getCenter();
-      summaryEl.innerHTML = `
-        <strong>Resumen</strong>
-        📍 Recojo: ${escapeHtml(pickupInput.value.trim() || "Sin definir")}<br>
-        🏁 Destino: ${escapeHtml(destinoInput.value.trim() || "Sin definir")}<br>
-        💳 Pago: ${escapeHtml(pagoSelect.value || "Sin definir")}<br>
-        📝 Referencia: ${escapeHtml(referenciaInput.value.trim() || "Sin referencia")}<br>
-        🌎 Punto exacto: ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}
-        ${extra ? "<br>" + escapeHtml(extra) : ""}
-      `;
+    function setBigConfirm(el, text, type) {
+      el.className = "big-confirm " + type;
+      el.textContent = text;
     }
 
     function showSuggestions(box) {
@@ -336,7 +556,7 @@
     async function searchPlaces(query) {
       const url = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=" + encodeURIComponent(query);
       const res = await fetch(url, { headers: { "Accept": "application/json" } });
-      if (!res.ok) throw new Error("Error al buscar");
+      if (!res.ok) throw new Error("Error al buscar dirección");
       return await res.json();
     }
 
@@ -347,208 +567,84 @@
       return await res.json();
     }
 
-    function applyPickup(place) {
-      pickupInput.value = place.display_name || "";
-      pickupHasValue = true;
-      pickupConfirmed = false;
-      map.setView([parseFloat(place.lat), parseFloat(place.lon)], 17, { animate: true });
-      hideSuggestions(pickupSuggestions);
-      pickupInput.blur();
-      mapTipEl.style.display = "block";
-      setStatus("📍 Ya te acerqué a la dirección. Ajusta un poco el mapa si hace falta.", "warn");
-      updateSummary("Falta confirmar el punto exacto.");
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text || "";
+      return div.innerHTML;
     }
 
-    function applyDestino(place) {
-      destinoInput.value = place.display_name || "";
-      hideSuggestions(destinoSuggestions);
-      destinoInput.blur();
-      updateSummary();
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
     }
 
-    function setupAutocomplete(input, box, onSelect, isPickup = false) {
-      let timer = null;
-
-      input.addEventListener("input", () => {
-        const value = input.value.trim();
-
-        if (isPickup) {
-          pickupConfirmed = false;
-          pickupHasValue = value.length > 0;
-          updateSummary("Falta confirmar el punto exacto.");
-        }
-
-        if (timer) clearTimeout(timer);
-
-        if (value.length < 3) {
-          hideSuggestions(box);
-          return;
-        }
-
-        timer = setTimeout(async () => {
-          try {
-            const places = await searchPlaces(value);
-            box.innerHTML = "";
-
-            if (!places.length) {
-              box.innerHTML = '<div class="suggestion-item">No se encontraron resultados</div>';
-              showSuggestions(box);
-              return;
-            }
-
-            places.forEach(place => {
-              const item = document.createElement("div");
-              item.className = "suggestion-item";
-              item.textContent = place.display_name;
-              item.onclick = () => onSelect(place);
-              box.appendChild(item);
-            });
-
-            showSuggestions(box);
-          } catch {
-            box.innerHTML = '<div class="suggestion-item">Error al buscar direcciones</div>';
-            showSuggestions(box);
-          }
-        }, 300);
-      });
-
-      input.addEventListener("focus", () => {
-        if (box.innerHTML.trim()) showSuggestions(box);
-      });
+    function formatFullAddress(base, detail, ref) {
+      let parts = [];
+      if (base) parts.push(base);
+      if (detail) parts.push("Detalle: " + detail);
+      if (ref) parts.push("Referencia: " + ref);
+      return parts.join(" | ");
     }
 
-    setupAutocomplete(pickupInput, pickupSuggestions, applyPickup, true);
-    setupAutocomplete(destinoInput, destinoSuggestions, applyDestino, false);
-
-    document.addEventListener("click", (e) => {
-      if (!pickupSuggestions.parentElement.contains(e.target)) hideSuggestions(pickupSuggestions);
-      if (!destinoSuggestions.parentElement.contains(e.target)) hideSuggestions(destinoSuggestions);
-    });
-
-    btnUbicacion.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        setStatus("❌ Tu celular no permite obtener ubicación.", "error");
+    function updatePrice() {
+      if (!pickupLatLng || !destLatLng) {
+        estimatedPrice.textContent = "S/ 0.00";
+        distanceInfo.textContent = "Distancia estimada: 0.00 km";
         return;
       }
 
-      btnUbicacion.disabled = true;
-      btnUbicacion.textContent = "Buscando ubicación...";
-
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-
-          map.setView([lat, lng], 18, { animate: true });
-          pickupHasValue = true;
-          pickupConfirmed = false;
-          mapTipEl.style.display = "block";
-          setStatus("📍 Ya te acerqué a tu ubicación actual. Ajusta un poco si hace falta.", "warn");
-
-          try {
-            const result = await reverseGeocode(lat, lng);
-            if (result && result.display_name) {
-              pickupInput.value = result.display_name;
-            }
-          } catch {}
-
-          updateSummary("Falta confirmar el punto exacto.");
-          btnUbicacion.disabled = false;
-          btnUbicacion.textContent = "📍 Usar mi ubicación actual";
-        },
-        (error) => {
-          let msg = "❌ No se pudo obtener tu ubicación.";
-          if (error.code === 1) msg = "❌ Debes permitir acceso a tu ubicación.";
-          if (error.code === 2) msg = "❌ No se pudo detectar tu ubicación.";
-          if (error.code === 3) msg = "❌ Se agotó el tiempo al buscar tu ubicación.";
-          setStatus(msg, "error");
-          btnUbicacion.disabled = false;
-          btnUbicacion.textContent = "📍 Usar mi ubicación actual";
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 0
-        }
+      const km = haversineKm(
+        pickupLatLng.lat, pickupLatLng.lng,
+        destLatLng.lat, destLatLng.lng
       );
-    });
 
-    map.on("movestart", () => {
-      if (pickupHasValue || pickupInput.value.trim()) {
-        pickupConfirmed = false;
-        setStatus("📍 Ajustando punto de recojo...", "warn");
-        updateSummary("Falta confirmar el punto exacto.");
-      }
-    });
+      const cfg = SERVICE_CONFIG[serviceType.value];
+      const passengerExtra = PASSENGER_EXTRA[passengerType.value] || 0;
+      const luggageExtra = LUGGAGE_EXTRA[luggageType.value] || 0;
 
-    map.on("moveend", () => {
-      if (!(pickupHasValue || pickupInput.value.trim())) return;
+      const total = cfg.base + (km * cfg.perKm) + passengerExtra + luggageExtra;
 
-      pickupConfirmed = true;
-      pickupHasValue = true;
-      setStatus("✔️ Punto de recojo confirmado", "ok");
-      mapTipEl.style.display = "none";
-      updateSummary("Ubicación confirmada.");
+      estimatedPrice.textContent = "S/ " + total.toFixed(2);
+      distanceInfo.textContent = "Distancia estimada: " + km.toFixed(2) + " km";
+    }
 
-      if (reverseTimer) clearTimeout(reverseTimer);
+    function updateSummary() {
+      const pickupText = formatFullAddress(
+        pickupAddress.value.trim(),
+        pickupDetail.value.trim(),
+        pickupRef.value.trim()
+      ) || "Sin definir";
 
-      reverseTimer = setTimeout(async () => {
-        const c = map.getCenter();
-        try {
-          const result = await reverseGeocode(c.lat, c.lng);
-          if (result && result.display_name) {
-            pickupInput.value = result.display_name;
-            updateSummary("Ubicación confirmada.");
-          }
-        } catch {}
-      }, 500);
-    });
+      const destText = formatFullAddress(
+        destAddress.value.trim(),
+        destDetail.value.trim(),
+        destRef.value.trim()
+      ) || "Sin definir";
 
-    [destinoInput, referenciaInput, pagoSelect].forEach(el => {
-      el.addEventListener("input", () => updateSummary(pickupConfirmed ? "Ubicación confirmada." : "Falta confirmar el punto exacto."));
-      el.addEventListener("change", () => updateSummary(pickupConfirmed ? "Ubicación confirmada." : "Falta confirmar el punto exacto."));
-    });
+      const serviceName = SERVICE_CONFIG[serviceType.value].name;
 
-    btnPedir.addEventListener("click", () => {
-      const pickup = pickupInput.value.trim();
-      const destino = destinoInput.value.trim();
-      const referencia = referenciaInput.value.trim();
-      const pago = pagoSelect.value;
-      const c = map.getCenter();
+      summary.innerHTML = `
+        <strong>Resumen del servicio</strong>
+        🚕 Servicio: ${escapeHtml(serviceName)}<br>
+        👤 Pasajeros: ${escapeHtml(passengerType.options[passengerType.selectedIndex].text)}<br>
+        🧳 Maletas: ${escapeHtml(luggageType.options[luggageType.selectedIndex].text)}<br><br>
 
-      if (!pickup) {
-        setStatus("⚠️ Ingresa el punto de recojo o usa tu ubicación actual.", "error");
-        pickupInput.focus();
-        return;
-      }
+        📍 Recojo: ${escapeHtml(pickupText)}<br>
+        ${pickupLatLng ? "🌎 Recojo exacto: " + pickupLatLng.lat.toFixed(6) + ", " + pickupLatLng.lng.toFixed(6) + "<br>" : ""}
 
-      if (!pickupConfirmed) {
-        setStatus("⚠️ Confirma el punto de recojo ajustando el mapa.", "error");
-        return;
-      }
+        🏁 Destino: ${escapeHtml(destText)}<br>
+        ${destLatLng ? "🌎 Destino exacto: " + destLatLng.lat.toFixed(6) + ", " + destLatLng.lng.toFixed(6) + "<br>" : ""}
 
-      if (!destino) {
-        setStatus("⚠️ Ingresa tu destino.", "error");
-        destinoInput.focus();
-        return;
-      }
+        <br>💰 Tarifa estimada: ${escapeHtml(estimatedPrice.textContent)}
+      `;
+    }
 
-      const mensaje = [
-        "Hola, quiero solicitar un taxi.",
-        "",
-        "📍 Recojo: " + pickup,
-        "🌎 Ubicación exacta: https://www.google.com/maps?q=" + c.lat + "," + c.lng,
-        "",
-        "🏁 Destino: " + destino,
-        "💳 Pago: " + pago,
-        "📝 Referencia: " + (referencia || "Sin referencia")
-      ].join("\n");
-
-      const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(mensaje);
-      window.open(url, "_blank");
-    });
-
-    updateSummary("Falta confirmar el punto exacto.");
-  </script>
-</body>
-</html>
+    function setupAutocomplete(input, box, onSelect) {
