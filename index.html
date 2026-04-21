@@ -237,7 +237,7 @@
           <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
           <h1>Solicita o reserva tu traslado con ubicación exacta.</h1>
           <p class="lead">
-            El cliente puede usar su ubicación actual, escribir su dirección o fijar un pin exacto en el mapa. La tarifa se calcula por distancia y tipo de unidad.
+            El cliente puede usar su ubicación actual, escribir su dirección o fijar un pin exacto en el mapa y confirmarlo antes de guardar.
           </p>
         </div>
       </div>
@@ -275,7 +275,7 @@
                   <button type="button" class="btn btn-outline" id="btnPinOrigen">Elegir en mapa</button>
                   <button type="button" class="btn btn-red" id="btnLimpiarOrigen">Limpiar</button>
                 </div>
-                <div class="small-note">Escribe al menos 3 letras y elige una sugerencia, o toca el mapa para marcar el punto exacto.</div>
+                <div class="small-note">Puedes escribir la dirección completa o elegir el punto exacto en el mapa y luego confirmarlo.</div>
                 <div class="suggestions" id="origenSuggestions"></div>
               </div>
 
@@ -287,7 +287,7 @@
                   <button type="button" class="btn btn-red" id="btnLimpiarDestino">Limpiar</button>
                   <div></div>
                 </div>
-                <div class="small-note">También puedes fijar el destino exacto con un pin en el mapa.</div>
+                <div class="small-note">También puedes fijar el destino exacto con un pin y confirmarlo antes de guardar.</div>
                 <div class="suggestions" id="destinoSuggestions"></div>
               </div>
 
@@ -382,6 +382,11 @@
           <div class="panel summary-panel">
             <div id="map"></div>
 
+            <div id="mapConfirmBox" style="display:none; margin-top:12px;">
+              <button type="button" class="btn btn-gold btn-block" id="btnConfirmPoint">Confirmar punto seleccionado</button>
+              <button type="button" class="btn btn-red btn-block" id="btnCancelPoint" style="margin-top:10px;">Cancelar selección</button>
+            </div>
+
             <div class="summary-main">
               <div class="row"><span>Servicio</span><strong id="sumServicio">Solicitar ahora</strong></div>
               <div class="row"><span>Vehículo</span><strong id="sumVehiculo">Auto</strong></div>
@@ -410,8 +415,6 @@
 
   <script>
     const WHATSAPP_NUMBER = '51901254466';
-
-    /* PEGA AQUÍ LA URL DE TU WORKER CUANDO LA TENGAS */
     const API_BASE = 'https://fragrant-sound-c290.novedadessophiee.workers.dev';
 
     const VEHICLES = {
@@ -436,6 +439,12 @@
     let destinationSelection = null;
     let selectingPoint = null;
 
+    let routeLayer = null;
+    let markerOrigen = null;
+    let markerDestino = null;
+    let tempMarker = null;
+    let pendingPoint = null;
+
     const $ = id => document.getElementById(id);
 
     const map = L.map('map').setView([-12.0464, -77.0428], 11);
@@ -444,10 +453,6 @@
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
-
-    let routeLayer = null;
-    let markerOrigen = null;
-    let markerDestino = null;
 
     const serviceChoices = [...document.querySelectorAll('#serviceSwitches .choice')];
     const vehicleChoices = [...document.querySelectorAll('#vehicleGrid .vehicle')];
@@ -582,6 +587,42 @@
       return await res.json();
     }
 
+    function showMapConfirmBox(){
+      $('mapConfirmBox').style.display = 'block';
+    }
+
+    function hideMapConfirmBox(){
+      $('mapConfirmBox').style.display = 'none';
+    }
+
+    function placeTemporaryMarker(lat, lon){
+      if (tempMarker) map.removeLayer(tempMarker);
+      tempMarker = L.marker([lat, lon]).addTo(map).bindPopup('Punto por confirmar').openPopup();
+    }
+
+    function clearPendingPoint(){
+      pendingPoint = null;
+      selectingPoint = null;
+      if (tempMarker) {
+        map.removeLayer(tempMarker);
+        tempMarker = null;
+      }
+      hideMapConfirmBox();
+      map.getContainer().style.cursor = '';
+    }
+
+    function drawSingleMarker(type, point){
+      if (type === 'origin') {
+        if (markerOrigen) map.removeLayer(markerOrigen);
+        markerOrigen = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Origen exacto');
+        map.setView([point.lat, point.lon], 15);
+      } else {
+        if (markerDestino) map.removeLayer(markerDestino);
+        markerDestino = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Destino exacto');
+        map.setView([point.lat, point.lon], 15);
+      }
+    }
+
     const handleOriginAutocomplete = debounce(async () => {
       const text = $('origen').value.trim();
       originSelection = null;
@@ -639,31 +680,23 @@
       if (!insideDest) $('destinoSuggestions').classList.remove('show');
     });
 
-    function drawSingleMarker(type, point){
-      if (type === 'origin') {
-        if (markerOrigen) map.removeLayer(markerOrigen);
-        markerOrigen = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Origen exacto');
-        map.setView([point.lat, point.lon], 15);
-      } else {
-        if (markerDestino) map.removeLayer(markerDestino);
-        markerDestino = L.marker([point.lat, point.lon]).addTo(map).bindPopup('Destino exacto');
-        map.setView([point.lat, point.lon], 15);
-      }
-    }
-
     function activateMapSelection(type){
+      clearPendingPoint();
       selectingPoint = type;
       showWarn('');
       showOk(type === 'origin'
-        ? 'Toca el mapa para fijar el origen exacto.'
-        : 'Toca el mapa para fijar el destino exacto.');
+        ? 'Toca el mapa para elegir el ORIGEN exacto y luego confirma el punto.'
+        : 'Toca el mapa para elegir el DESTINO exacto y luego confirma el punto.');
+
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      map.getContainer().style.cursor = 'crosshair';
     }
 
     map.on('click', async (e) => {
       if (!selectingPoint) return;
 
       showWarn('');
-      showOk('Buscando dirección exacta del punto seleccionado...');
+      showOk('Buscando dirección del punto seleccionado...');
 
       try {
         const lat = e.latlng.lat;
@@ -671,18 +704,14 @@
         const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
         const place = data.result;
 
-        if (selectingPoint === 'origin') {
-          originSelection = place;
-          $('origen').value = place.label;
-          drawSingleMarker('origin', place);
-        } else {
-          destinationSelection = place;
-          $('destino').value = place.label;
-          drawSingleMarker('destination', place);
-        }
+        pendingPoint = {
+          type: selectingPoint,
+          place
+        };
 
-        selectingPoint = null;
-        showOk('Ubicación fijada correctamente con pin exacto.');
+        placeTemporaryMarker(place.lat, place.lon);
+        showMapConfirmBox();
+        showOk('Punto seleccionado. Ahora pulsa "Confirmar punto seleccionado".');
       } catch (err) {
         console.error(err);
         showWarn('No se pudo obtener la dirección del punto.');
@@ -753,6 +782,7 @@
         map.removeLayer(markerOrigen);
         markerOrigen = null;
       }
+      clearPendingPoint();
     }
 
     function clearDestination(){
@@ -764,6 +794,7 @@
         map.removeLayer(markerDestino);
         markerDestino = null;
       }
+      clearPendingPoint();
     }
 
     $('btnUbicacion').addEventListener('click', useCurrentLocation);
@@ -771,6 +802,42 @@
     $('btnPinDestino').addEventListener('click', () => activateMapSelection('destination'));
     $('btnLimpiarOrigen').addEventListener('click', clearOrigin);
     $('btnLimpiarDestino').addEventListener('click', clearDestination);
+
+    $('btnConfirmPoint').addEventListener('click', () => {
+      if (!pendingPoint) {
+        showWarn('Primero selecciona un punto en el mapa.');
+        return;
+      }
+
+      const { type, place } = pendingPoint;
+
+      if (type === 'origin') {
+        originSelection = place;
+        $('origen').value = place.label;
+        drawSingleMarker('origin', place);
+        showOk('Origen confirmado correctamente.');
+      } else {
+        destinationSelection = place;
+        $('destino').value = place.label;
+        drawSingleMarker('destination', place);
+        showOk('Destino confirmado correctamente.');
+      }
+
+      if (tempMarker) {
+        map.removeLayer(tempMarker);
+        tempMarker = null;
+      }
+
+      pendingPoint = null;
+      selectingPoint = null;
+      hideMapConfirmBox();
+      map.getContainer().style.cursor = '';
+    });
+
+    $('btnCancelPoint').addEventListener('click', () => {
+      clearPendingPoint();
+      showWarn('Selección cancelada.');
+    });
 
     async function getResolvedPlace(type){
       if (type === 'origin') {
@@ -825,11 +892,6 @@
 
       const origen = $('origen').value.trim();
       const destino = $('destino').value.trim();
-
-      if (!API_BASE || API_BASE.includes('REEMPLAZAR-POR-TU-WORKER')) {
-        showWarn('Primero debes pegar la URL real de tu Worker en API_BASE.');
-        return;
-      }
 
       if (!origen || !destino) {
         showWarn('Ingresa origen y destino para calcular la tarifa.');
