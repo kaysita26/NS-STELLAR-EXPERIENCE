@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0b0f17" />
   <title>NS STELLAR EXPERIENCE | Traslados</title>
-  <meta name="description" content="Reserva o solicita traslados con cálculo por distancia, ubicación actual y selección exacta en mapa." />
+  <meta name="description" content="Reserva o solicita traslados con ubicación actual, búsqueda de direcciones y pin exacto tipo app." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,6 @@
 
   <link rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
 
   <style>
@@ -27,8 +26,8 @@
       --gold2:#f3d8a3;
       --ok:#27c786;
       --warn:#ff8d8d;
+      --blue:#6db8ff;
       --shadow:0 20px 60px rgba(0,0,0,.36);
-      --blue:#66b6ff;
     }
 
     *{box-sizing:border-box}
@@ -44,10 +43,10 @@
     }
 
     a{text-decoration:none;color:inherit}
-    .container{width:min(1240px, calc(100% - 28px));margin:auto}
+    .container{width:min(1240px, calc(100% - 24px));margin:auto}
 
     .topbar{
-      position:sticky;top:0;z-index:80;
+      position:sticky;top:0;z-index:90;
       backdrop-filter:blur(16px);
       background:rgba(7,11,18,.78);
       border-bottom:1px solid rgba(255,255,255,.05);
@@ -80,13 +79,13 @@
       color:#fff;
     }
     .btn-blue{
-      background:rgba(102,182,255,.10);
-      border:1px solid rgba(102,182,255,.28);
-      color:#dcefff;
+      background:rgba(109,184,255,.10);
+      border:1px solid rgba(109,184,255,.28);
+      color:#dff0ff;
     }
     .btn-block{width:100%}
 
-    .hero{padding:36px 0 10px}
+    .hero{padding:34px 0 10px}
     .hero-grid{display:grid;grid-template-columns:1fr;gap:24px}
     .panel{
       border:1px solid var(--line);
@@ -109,19 +108,20 @@
     }
     .lead{
       font-size:1rem;line-height:1.7;color:var(--muted);
-      max-width:62ch;margin-bottom:24px;
+      max-width:62ch;margin-bottom:0;
     }
 
-    .section{padding:20px 0 28px}
+    .section{padding:20px 0 30px}
     .section-head h2{margin:0 0 8px;font-size:1.75rem}
     .section-head p{margin:0;color:var(--muted)}
 
-    .booking-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px}
-    .form-panel,.summary-panel{padding:24px}
+    .booking-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:24px}
+    .form-panel,.summary-panel{padding:22px}
 
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
     .field{display:flex;flex-direction:column;gap:8px;position:relative}
     .field.full{grid-column:1/-1}
+
     label{font-size:.93rem;font-weight:700}
     input,select,textarea{
       width:100%;padding:14px 15px;border-radius:16px;
@@ -135,7 +135,24 @@
     }
     textarea{min-height:100px;resize:vertical}
 
-    .address-card{
+    .switches,.vehicle-grid{display:grid;gap:12px}
+    .switches{grid-template-columns:repeat(2,1fr)}
+    .vehicle-grid{grid-template-columns:repeat(2,1fr)}
+
+    .choice,.vehicle{
+      padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);
+      cursor:pointer;transition:.22s ease;
+    }
+    .choice:hover,.vehicle:hover{transform:translateY(-2px)}
+    .choice.active,.vehicle.active{
+      border-color:rgba(217,179,106,.75);
+      background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
+    }
+    .choice strong,.vehicle strong{display:block;margin-bottom:6px}
+    .choice small,.vehicle small{display:block;color:var(--muted);line-height:1.55}
+    .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
+
+    .address-box{
       padding:14px;
       border-radius:20px;
       background:rgba(255,255,255,.02);
@@ -153,21 +170,21 @@
       font-size:.82rem;
       color:var(--muted);
       line-height:1.5;
-      margin-top:6px;
+      margin-top:8px;
     }
 
-    .status-pill{
-      display:inline-flex;
+    .address-status{
+      display:flex;
       align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:.82rem;
-      font-weight:700;
-      background:rgba(102,182,255,.08);
-      border:1px solid rgba(102,182,255,.16);
-      color:#dcefff;
-      margin-bottom:10px;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(109,184,255,.08);
+      border:1px solid rgba(109,184,255,.15);
+      color:#dff0ff;
+      font-size:.84rem;
     }
 
     .suggestions{
@@ -198,26 +215,53 @@
     .suggestion-title{font-weight:700;font-size:.94rem}
     .suggestion-sub{color:var(--muted);font-size:.84rem;line-height:1.5;margin-top:4px}
 
-    .switches,.vehicle-grid{display:grid;gap:12px}
-    .switches{grid-template-columns:repeat(2,1fr)}
-    .vehicle-grid{grid-template-columns:repeat(2,1fr)}
+    .map-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
 
-    .choice,.vehicle{
-      padding:16px;border-radius:22px;background:var(--bg2);border:1px solid var(--line);
-      cursor:pointer;transition:.22s ease;
+    .map-mode{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(109,184,255,.08);
+      border:1px solid rgba(109,184,255,.16);
+      color:#dff0ff;
+      font-size:.82rem;
+      font-weight:700;
     }
-    .choice:hover,.vehicle:hover{transform:translateY(-2px)}
-    .choice.active,.vehicle.active{
-      border-color:rgba(217,179,106,.75);
-      background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
+
+    .map-wrapper{
+      position:relative;
     }
-    .choice strong,.vehicle strong{display:block;margin-bottom:6px}
-    .choice small,.vehicle small{display:block;color:var(--muted);line-height:1.55}
-    .vehicle ul{margin:10px 0 0;padding-left:16px;color:var(--muted);font-size:.92rem;line-height:1.62}
 
     #map{
-      width:100%;height:430px;border-radius:24px;border:1px solid var(--line);overflow:hidden;
+      width:100%;
+      height:450px;
+      border-radius:24px;
+      border:1px solid var(--line);
+      overflow:hidden;
     }
+
+    .center-pin{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%, calc(-100% + 8px));
+      z-index:500;
+      font-size:42px;
+      line-height:1;
+      pointer-events:none;
+      display:none;
+      filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));
+    }
+    .center-pin.show{display:block}
 
     .map-toolbar{
       display:grid;
@@ -258,7 +302,8 @@
     @media (max-width:760px){
       .grid,.switches,.vehicle-grid,.map-toolbar{grid-template-columns:1fr}
       .address-actions{grid-template-columns:1fr}
-      #map{height:340px}
+      #map{height:360px}
+      .center-pin{font-size:38px}
     }
   </style>
 </head>
@@ -278,9 +323,9 @@
       <div class="container hero-grid">
         <div class="panel hero-copy">
           <span class="eyebrow">Traslados ejecutivos • Reserva y solicitud inmediata</span>
-          <h1>Solicita o reserva tu traslado con ubicación exacta.</h1>
+          <h1>Selecciona tu punto exacto de forma fácil.</h1>
           <p class="lead">
-            El cliente puede usar su ubicación actual, escribir una dirección, mover el mapa a la sugerencia más cercana y confirmar el pin exacto tanto en origen como en destino.
+            Como en inDrive: escribe una dirección o usa tu ubicación, el mapa te lleva al punto cercano y tú confirmas el pin exacto moviendo el mapa.
           </p>
         </div>
       </div>
@@ -289,7 +334,7 @@
     <section class="section" id="tarifador">
       <div class="container">
         <div class="section-head">
-          <h2>Tarifador profesional</h2>
+          <h2>Tarifador premium</h2>
           <p>El cliente siempre puede confirmar el punto exacto en el mapa antes de calcular.</p>
         </div>
 
@@ -311,29 +356,31 @@
 
             <div class="grid" style="margin-top:14px">
               <div class="field full" id="originField">
-                <label>Origen</label>
-                <div class="address-card">
+                <label for="origen">Origen</label>
+                <div class="address-box">
                   <input id="origen" type="text" placeholder="Ejemplo: Angélica Gamarra 470, Los Olivos" autocomplete="off" />
                   <div class="address-actions">
                     <button type="button" class="btn btn-outline" id="btnUbicacion">Usar mi ubicación</button>
-                    <button type="button" class="btn btn-blue" id="btnPinOrigen">Elegir en mapa</button>
+                    <button type="button" class="btn btn-blue" id="btnPinOrigen">Pin en mapa</button>
                     <button type="button" class="btn btn-red" id="btnLimpiarOrigen">Limpiar</button>
                   </div>
-                  <div class="small-note">Si eliges una sugerencia, el mapa irá a ese punto. Luego puedes ajustar el pin y confirmar.</div>
+                  <div class="small-note">Si eliges una sugerencia, el mapa irá al punto cercano. Luego puedes ajustar el pin moviendo el mapa.</div>
+                  <div class="address-status" id="originStatus">Origen aún no confirmado</div>
                 </div>
                 <div class="suggestions" id="origenSuggestions"></div>
               </div>
 
               <div class="field full" id="destinationField">
-                <label>Destino</label>
-                <div class="address-card">
+                <label for="destino">Destino</label>
+                <div class="address-box">
                   <input id="destino" type="text" placeholder="Ejemplo: Aeropuerto Jorge Chávez" autocomplete="off" />
                   <div class="address-actions">
-                    <button type="button" class="btn btn-blue" id="btnPinDestino">Elegir en mapa</button>
-                    <button type="button" class="btn btn-outline" id="btnCenterDestino">Ver en mapa</button>
+                    <button type="button" class="btn btn-blue" id="btnPinDestino">Pin en mapa</button>
+                    <button type="button" class="btn btn-outline" id="btnCenterDestino">Buscar y ver</button>
                     <button type="button" class="btn btn-red" id="btnLimpiarDestino">Limpiar</button>
                   </div>
-                  <div class="small-note">Si la sugerencia no es exacta, el cliente ajusta el pin manualmente y lo confirma.</div>
+                  <div class="small-note">El cliente puede escribir dirección, ver el punto cercano y ajustar el pin exacto antes de confirmar.</div>
+                  <div class="address-status" id="destinationStatus">Destino aún no confirmado</div>
                 </div>
                 <div class="suggestions" id="destinoSuggestions"></div>
               </div>
@@ -427,8 +474,14 @@
           </div>
 
           <div class="panel summary-panel">
-            <div class="status-pill" id="mapModeLabel">Mapa listo</div>
-            <div id="map"></div>
+            <div class="map-head">
+              <div class="map-mode" id="mapModeLabel">Mapa listo</div>
+            </div>
+
+            <div class="map-wrapper">
+              <div id="map"></div>
+              <div class="center-pin" id="centerPin">📍</div>
+            </div>
 
             <div class="map-toolbar">
               <button type="button" class="btn btn-gold btn-block" id="btnConfirmPoint" style="display:none;">Confirmar pin seleccionado</button>
@@ -442,7 +495,7 @@
               <div class="row"><span>Tiempo estimado</span><strong id="sumTiempo">—</strong></div>
               <div class="row"><span>Tarifa estimada</span><strong id="sumTarifa">—</strong></div>
               <div class="fare" id="fareBig">S/ 0.00</div>
-              <div class="fare-sub">El cliente puede corregir el punto exacto antes de calcular.</div>
+              <div class="fare-sub">Mueve el mapa hasta que el pin quede exacto y luego confirma.</div>
             </div>
 
             <div class="alert warn" id="warnBox"></div>
@@ -458,7 +511,6 @@
   </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
 
   <script>
@@ -485,8 +537,12 @@
     let routeData = null;
     let originSelection = null;
     let destinationSelection = null;
+
     let selectingPoint = null;
     let pendingPoint = null;
+    let routeLayer = null;
+    let markerOrigen = null;
+    let markerDestino = null;
 
     const $ = id => document.getElementById(id);
 
@@ -496,11 +552,6 @@
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
-
-    let routeLayer = null;
-    let markerOrigen = null;
-    let markerDestino = null;
-    let tempMarker = null;
 
     const serviceChoices = [...document.querySelectorAll('#serviceSwitches .choice')];
     const vehicleChoices = [...document.querySelectorAll('#vehicleGrid .vehicle')];
@@ -534,16 +585,22 @@
       $('mapModeLabel').textContent = text;
     }
 
+    function setOriginStatus(text){
+      $('originStatus').textContent = text;
+    }
+
+    function setDestinationStatus(text){
+      $('destinationStatus').textContent = text;
+    }
+
     function showWarn(msg=''){
-      const box = $('warnBox');
-      box.textContent = msg;
-      box.className = 'alert warn' + (msg ? ' show' : '');
+      $('warnBox').textContent = msg;
+      $('warnBox').className = 'alert warn' + (msg ? ' show' : '');
     }
 
     function showOk(msg=''){
-      const box = $('okBox');
-      box.textContent = msg;
-      box.className = 'alert ok' + (msg ? ' show' : '');
+      $('okBox').textContent = msg;
+      $('okBox').className = 'alert ok' + (msg ? ' show' : '');
     }
 
     function formatMoney(n){
@@ -566,12 +623,10 @@
 
       showOk('');
       const suggestion = passengers > 5 || luggage > 3 ? 'Van' : 'Camioneta';
-
       let msg = 'La unidad seleccionada podría no ser adecuada.';
       if (needPassengers) msg += ` Capacidad máxima de ${vehicle.name}: ${vehicle.maxPassengers} pasajero(s).`;
       if (needLuggage) msg += ' El equipaje indicado requiere una unidad con mayor espacio.';
       msg += ` Te recomendamos elegir ${suggestion}.`;
-
       showWarn(msg);
     }
 
@@ -601,16 +656,12 @@
         return;
       }
 
-      container.innerHTML = features.map((item, index) => {
-        const title = item.label || `Resultado ${index + 1}`;
-        const sub = item.label || '';
-        return `
-          <div class="suggestion" data-index="${index}">
-            <div class="suggestion-title">${escapeHtml(title)}</div>
-            <div class="suggestion-sub">${escapeHtml(sub)}</div>
-          </div>
-        `;
-      }).join('');
+      container.innerHTML = features.map((item, index) => `
+        <div class="suggestion" data-index="${index}">
+          <div class="suggestion-title">${escapeHtml(item.label || `Resultado ${index+1}`)}</div>
+          <div class="suggestion-sub">${escapeHtml(item.label || '')}</div>
+        </div>
+      `).join('');
 
       container.classList.add('show');
 
@@ -632,33 +683,25 @@
     async function apiPost(path, body){
       const res = await fetch(API_BASE + path, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type':'application/json' },
         body: JSON.stringify(body)
       });
       if (!res.ok) throw new Error(`Error API ${res.status}`);
       return await res.json();
     }
 
-    function showPinButtons(show){
+    function showPinSelection(show){
+      $('centerPin').classList.toggle('show', show);
       $('btnConfirmPoint').style.display = show ? 'block' : 'none';
       $('btnCancelPoint').style.display = show ? 'block' : 'none';
     }
 
-    function placeTemporaryMarker(lat, lon){
-      if (tempMarker) map.removeLayer(tempMarker);
-      tempMarker = L.marker([lat, lon]).addTo(map).bindPopup('Pin por confirmar').openPopup();
-    }
-
     function clearPendingPoint(){
-      pendingPoint = null;
       selectingPoint = null;
-      if (tempMarker) {
-        map.removeLayer(tempMarker);
-        tempMarker = null;
-      }
-      showPinButtons(false);
+      pendingPoint = null;
+      showPinSelection(false);
       map.getContainer().style.cursor = '';
-      setMapMode('Mapa listo');
+      if (!routeLayer) setMapMode('Mapa listo');
     }
 
     function flyToPoint(point, zoom = 17){
@@ -677,21 +720,21 @@
       }
     }
 
-    function previewSuggestedPoint(type, point){
+    function previewForConfirmation(type, point){
       selectingPoint = type;
       pendingPoint = { type, place: point };
-      placeTemporaryMarker(point.lat, point.lon);
+      showPinSelection(true);
       flyToPoint(point);
-      showPinButtons(true);
-      setMapMode(type === 'origin' ? 'Confirma el pin de ORIGEN' : 'Confirma el pin de DESTINO');
+      setMapMode(type === 'origin' ? 'Ajusta y confirma ORIGEN' : 'Ajusta y confirma DESTINO');
       showOk(type === 'origin'
-        ? 'Se encontró una ubicación cercana para el origen. Revisa el mapa y confirma el pin o ajústalo tocando otro punto.'
-        : 'Se encontró una ubicación cercana para el destino. Revisa el mapa y confirma el pin o ajústalo tocando otro punto.');
+        ? 'Se encontró una ubicación cercana para el origen. Si quieres, mueve el mapa un poco y confirma el pin.'
+        : 'Se encontró una ubicación cercana para el destino. Si quieres, mueve el mapa un poco y confirma el pin.');
     }
 
     const handleOriginAutocomplete = debounce(async () => {
       const text = $('origen').value.trim();
       originSelection = null;
+      setOriginStatus('Origen pendiente de confirmar');
 
       if (text.length < 3) {
         $('origenSuggestions').classList.remove('show');
@@ -703,7 +746,7 @@
         const data = await apiGet(`/autocomplete?text=${encodeURIComponent(text)}`);
         renderSuggestions('origenSuggestions', data.results || [], (selected) => {
           $('origen').value = selected.label;
-          previewSuggestedPoint('origin', selected);
+          previewForConfirmation('origin', selected);
         });
       } catch (err) {
         console.error(err);
@@ -714,6 +757,7 @@
     const handleDestinationAutocomplete = debounce(async () => {
       const text = $('destino').value.trim();
       destinationSelection = null;
+      setDestinationStatus('Destino pendiente de confirmar');
 
       if (text.length < 3) {
         $('destinoSuggestions').classList.remove('show');
@@ -725,7 +769,7 @@
         const data = await apiGet(`/autocomplete?text=${encodeURIComponent(text)}`);
         renderSuggestions('destinoSuggestions', data.results || [], (selected) => {
           $('destino').value = selected.label;
-          previewSuggestedPoint('destination', selected);
+          previewForConfirmation('destination', selected);
         });
       } catch (err) {
         console.error(err);
@@ -739,50 +783,22 @@
     document.addEventListener('click', (e) => {
       const insideOrigin = $('originField').contains(e.target);
       const insideDest = $('destinationField').contains(e.target);
-
       if (!insideOrigin) $('origenSuggestions').classList.remove('show');
       if (!insideDest) $('destinoSuggestions').classList.remove('show');
     });
 
     function activateMapSelection(type){
-      clearPendingPoint();
       selectingPoint = type;
-      showPinButtons(true);
-      setMapMode(type === 'origin' ? 'Seleccionando ORIGEN' : 'Seleccionando DESTINO');
+      pendingPoint = null;
+      showPinSelection(true);
+      map.getContainer().style.cursor = 'grab';
+      document.getElementById('map').scrollIntoView({ behavior:'smooth', block:'center' });
+      setMapMode(type === 'origin' ? 'Mueve el mapa para ORIGEN' : 'Mueve el mapa para DESTINO');
       showWarn('');
       showOk(type === 'origin'
-        ? 'Toca el mapa para poner el pin del ORIGEN y luego confírmalo.'
-        : 'Toca el mapa para poner el pin del DESTINO y luego confírmalo.');
-      document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      map.getContainer().style.cursor = 'crosshair';
+        ? 'Mueve el mapa hasta que el pin quede justo en tu origen y luego confirma.'
+        : 'Mueve el mapa hasta que el pin quede justo en tu destino y luego confirma.');
     }
-
-    map.on('click', async (e) => {
-      if (!selectingPoint) return;
-
-      showWarn('');
-      showOk('Buscando dirección del punto seleccionado...');
-
-      try {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-        const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
-        const place = data.result;
-
-        pendingPoint = {
-          type: selectingPoint,
-          place
-        };
-
-        placeTemporaryMarker(place.lat, place.lon);
-        showPinButtons(true);
-        setMapMode(selectingPoint === 'origin' ? 'Confirma el pin de ORIGEN' : 'Confirma el pin de DESTINO');
-        showOk('Pin colocado. Revisa el punto y pulsa "Confirmar pin seleccionado".');
-      } catch (err) {
-        console.error(err);
-        showWarn('No se pudo obtener la dirección del punto.');
-      }
-    });
 
     async function useCurrentLocation(){
       showWarn('');
@@ -812,7 +828,8 @@
             originSelection = place;
             $('origen').value = place.label;
             drawSingleMarker('origin', place);
-            setMapMode('Origen cargado desde ubicación actual');
+            setOriginStatus('Origen confirmado desde ubicación actual');
+            setMapMode('Origen cargado');
             showOk(`Ubicación detectada correctamente. Precisión aprox.: ${Math.round(position.coords.accuracy)} m.`);
           } catch (err) {
             console.error(err);
@@ -843,18 +860,17 @@
     async function centerDestinationFromText(){
       const text = $('destino').value.trim();
       if (!text) {
-        showWarn('Primero escribe un destino o elige una sugerencia.');
+        showWarn('Primero escribe un destino.');
         return;
       }
 
       try {
         const data = await apiGet(`/search?text=${encodeURIComponent(text)}`);
-        const place = data.result;
-        $('destino').value = place.label;
-        previewSuggestedPoint('destination', place);
+        $('destino').value = data.result.label;
+        previewForConfirmation('destination', data.result);
       } catch (err) {
         console.error(err);
-        showWarn('No se pudo ubicar ese destino en el mapa.');
+        showWarn('No se pudo ubicar ese destino.');
       }
     }
 
@@ -867,6 +883,7 @@
         map.removeLayer(markerOrigen);
         markerOrigen = null;
       }
+      setOriginStatus('Origen aún no confirmado');
       clearPendingPoint();
     }
 
@@ -879,6 +896,7 @@
         map.removeLayer(markerDestino);
         markerDestino = null;
       }
+      setDestinationStatus('Destino aún no confirmado');
       clearPendingPoint();
     }
 
@@ -889,37 +907,36 @@
     $('btnLimpiarOrigen').addEventListener('click', clearOrigin);
     $('btnLimpiarDestino').addEventListener('click', clearDestination);
 
-    $('btnConfirmPoint').addEventListener('click', () => {
-      if (!pendingPoint) {
-        showWarn('Primero selecciona un punto en el mapa.');
+    $('btnConfirmPoint').addEventListener('click', async () => {
+      if (!selectingPoint) {
+        showWarn('Primero activa la selección en mapa.');
         return;
       }
 
-      const { type, place } = pendingPoint;
+      try {
+        const center = map.getCenter();
+        const data = await apiGet(`/reverse?lat=${encodeURIComponent(center.lat)}&lon=${encodeURIComponent(center.lng)}`);
+        const place = data.result;
 
-      if (type === 'origin') {
-        originSelection = place;
-        $('origen').value = place.label;
-        drawSingleMarker('origin', place);
-        setMapMode('Origen confirmado');
-        showOk('Origen confirmado correctamente.');
-      } else {
-        destinationSelection = place;
-        $('destino').value = place.label;
-        drawSingleMarker('destination', place);
-        setMapMode('Destino confirmado');
-        showOk('Destino confirmado correctamente.');
+        if (selectingPoint === 'origin') {
+          originSelection = place;
+          $('origen').value = place.label;
+          drawSingleMarker('origin', place);
+          setOriginStatus('Origen confirmado en mapa');
+          showOk('Origen confirmado correctamente.');
+        } else {
+          destinationSelection = place;
+          $('destino').value = place.label;
+          drawSingleMarker('destination', place);
+          setDestinationStatus('Destino confirmado en mapa');
+          showOk('Destino confirmado correctamente.');
+        }
+
+        clearPendingPoint();
+      } catch (err) {
+        console.error(err);
+        showWarn('No se pudo confirmar el pin seleccionado.');
       }
-
-      if (tempMarker) {
-        map.removeLayer(tempMarker);
-        tempMarker = null;
-      }
-
-      pendingPoint = null;
-      selectingPoint = null;
-      showPinButtons(false);
-      map.getContainer().style.cursor = '';
     });
 
     $('btnCancelPoint').addEventListener('click', () => {
@@ -987,8 +1004,8 @@
         return;
       }
 
-      if (pendingPoint) {
-        showWarn('Tienes un pin pendiente por confirmar. Confírmalo o cancélalo antes de calcular.');
+      if (selectingPoint) {
+        showWarn('Primero confirma o cancela el pin seleccionado en el mapa.');
         return;
       }
 
@@ -1064,9 +1081,6 @@
       const obs = $('observaciones').value.trim();
       const fecha = $('fecha').value || 'No aplica';
       const hora = $('hora').value || 'No aplica';
-      const warnText = $('warnBox').classList.contains('show')
-        ? `\nSugerencia de unidad: ${$('warnBox').textContent}`
-        : '';
 
       return [
         'Hola, deseo solicitar un traslado:',
@@ -1088,8 +1102,7 @@
         `Tarifa estimada: ${routeData ? formatMoney(routeData.tarifa) : '-'}`,
         `Nombre: ${nombre || '-'}`,
         `Teléfono: ${telefono || '-'}`,
-        `Observaciones: ${obs || 'Ninguna'}`,
-        warnText
+        `Observaciones: ${obs || 'Ninguna'}`
       ].join('\n');
     }
 
@@ -1104,8 +1117,8 @@
         return;
       }
 
-      if (pendingPoint) {
-        showWarn('Tienes un pin pendiente por confirmar. Confírmalo o cancélalo antes de enviar.');
+      if (selectingPoint) {
+        showWarn('Primero confirma o cancela el pin que estás seleccionando.');
         return;
       }
 
