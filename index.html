@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NS STELLAR EXPERIENCE</title>
+  <title>NS EXECUTIVE</title>
   <meta name="theme-color" content="#0c1118" />
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -15,7 +15,6 @@
     :root{
       --bg:#0a0f16;
       --panel:#111924;
-      --panel-2:#0f1722;
       --line:rgba(255,255,255,.08);
       --text:#f5f7fb;
       --muted:#9eafc4;
@@ -25,7 +24,6 @@
       --warn:#ff8d8d;
       --blue:#6db8ff;
       --shadow:0 20px 60px rgba(0,0,0,.35);
-      --radius:24px;
     }
 
     *{box-sizing:border-box}
@@ -33,32 +31,20 @@
       margin:0;
       padding:0;
       width:100%;
-      height:100%;
+      min-height:100%;
       font-family:'Inter',system-ui,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-
-    body{
       background:
         radial-gradient(circle at top right, rgba(217,179,106,.14), transparent 22%),
         radial-gradient(circle at left center, rgba(74,109,168,.10), transparent 18%),
         linear-gradient(180deg, #08101a 0%, #05080e 100%);
+      color:var(--text);
     }
 
     .app{
-      max-width:650px;
+      max-width:700px;
       margin:0 auto;
       min-height:100vh;
-      padding:14px 14px 28px;
-    }
-
-    .brand{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:14px;
+      padding:14px 14px 30px;
     }
 
     .brand-box{
@@ -67,7 +53,7 @@
       border-radius:18px;
       padding:12px 14px;
       box-shadow:var(--shadow);
-      width:100%;
+      margin-bottom:14px;
     }
 
     .brand-box strong{
@@ -105,7 +91,6 @@
       margin-bottom:10px;
     }
 
-    h1,h2,h3,p{margin:0}
     .title{
       font-size:1.35rem;
       font-weight:800;
@@ -119,6 +104,20 @@
       color:var(--muted);
       line-height:1.5;
       margin-bottom:12px;
+    }
+
+    .map-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(109,184,255,.08);
+      border:1px solid rgba(109,184,255,.16);
+      color:#dff0ff;
+      font-size:.82rem;
+      font-weight:700;
+      margin-bottom:10px;
     }
 
     .map-wrap{
@@ -146,20 +145,6 @@
       filter:drop-shadow(0 8px 14px rgba(0,0,0,.45));
     }
     .center-pin.show{display:block}
-
-    .map-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      background:rgba(109,184,255,.08);
-      border:1px solid rgba(109,184,255,.16);
-      color:#dff0ff;
-      font-size:.82rem;
-      font-weight:700;
-      margin-bottom:10px;
-    }
 
     .input-box{
       display:flex;
@@ -307,6 +292,8 @@
       font-weight:700;
     }
 
+    .mode-grid,
+    .service-grid,
     .vehicle-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -314,6 +301,8 @@
       margin-top:10px;
     }
 
+    .mode-card,
+    .service-card,
     .vehicle{
       padding:14px;
       border-radius:18px;
@@ -323,16 +312,22 @@
       transition:.18s ease;
     }
 
+    .mode-card.active,
+    .service-card.active,
     .vehicle.active{
       border-color:rgba(217,179,106,.7);
       background:linear-gradient(180deg, rgba(217,179,106,.11), rgba(255,255,255,.02));
     }
 
+    .mode-card strong,
+    .service-card strong,
     .vehicle strong{
       display:block;
       margin-bottom:4px;
     }
 
+    .mode-card span,
+    .service-card span,
     .vehicle span{
       color:var(--muted);
       font-size:.82rem;
@@ -409,7 +404,7 @@
     .hidden{display:none !important}
 
     @media (max-width:520px){
-      .btn-row,.btn-row-3,.grid-2,.vehicle-grid{
+      .btn-row,.btn-row-3,.grid-2,.vehicle-grid,.mode-grid,.service-grid{
         grid-template-columns:1fr;
       }
     }
@@ -417,11 +412,9 @@
 </head>
 <body>
   <div class="app">
-    <div class="brand">
-      <div class="brand-box">
-        <strong>NS STELLAR EXPERIENCE</strong>
-        <span>Traslados ejecutivos y turísticos</span>
-      </div>
+    <div class="brand-box">
+      <strong>NS EXECUTIVE</strong>
+      <span>Traslados ejecutivos y turísticos</span>
     </div>
 
     <div class="panel">
@@ -496,6 +489,28 @@
       </div>
 
       <div id="panelStep3" class="hidden">
+        <div class="mode-grid" id="messageModeGrid">
+          <div class="mode-card active" data-mode="cotizacion">
+            <strong>💼 Cotización</strong>
+            <span>Solo consulta de precio</span>
+          </div>
+          <div class="mode-card" data-mode="pedido">
+            <strong>✅ Pedido</strong>
+            <span>Reserva / solicitud directa</span>
+          </div>
+        </div>
+
+        <div class="service-grid" id="serviceTypeGrid">
+          <div class="service-card active" data-service="Inmediato">
+            <strong>⚡ Servicio inmediato</strong>
+            <span>Salida lo antes posible</span>
+          </div>
+          <div class="service-card" data-service="Programado">
+            <strong>🗓️ Programado</strong>
+            <span>Fecha y hora definidas</span>
+          </div>
+        </div>
+
         <div class="card">
           <div class="label">Origen confirmado</div>
           <div class="value" id="summaryOrigin">-</div>
@@ -507,19 +522,19 @@
         </div>
 
         <div class="vehicle-grid" id="vehicleGrid">
-          <div class="vehicle active" data-key="auto">
+          <div class="vehicle active" data-key="auto" data-label="Auto">
             <strong>Auto</strong>
             <span>Urbano y rápido</span>
           </div>
-          <div class="vehicle" data-key="camioneta">
-            <strong>Camioneta</strong>
+          <div class="vehicle" data-key="camioneta" data-label="Camioneta SUV">
+            <strong>Camioneta SUV</strong>
             <span>Más espacio</span>
           </div>
-          <div class="vehicle" data-key="van">
+          <div class="vehicle" data-key="van" data-label="Van">
             <strong>Van</strong>
             <span>Grupos</span>
           </div>
-          <div class="vehicle" data-key="ejecutivo">
+          <div class="vehicle" data-key="ejecutivo" data-label="Ejecutivo">
             <strong>Ejecutivo</strong>
             <span>Premium</span>
           </div>
@@ -527,30 +542,68 @@
 
         <div class="grid-2">
           <div>
-            <label>Pasajeros</label>
-            <input id="pasajeros" type="number" min="1" max="10" value="1" />
+            <label>Atención</label>
+            <select id="atencion">
+              <option value="Ejecutivo">Ejecutivo</option>
+              <option value="Turístico">Turístico</option>
+              <option value="Corporativo">Corporativo</option>
+            </select>
           </div>
           <div>
-            <label>Equipaje</label>
-            <select id="equipaje">
-              <option value="Sin equipaje">Sin equipaje</option>
-              <option value="Ligero">Ligero</option>
-              <option value="1 a 2 maletas medianas">1 a 2 maletas medianas</option>
-              <option value="3 a 4 maletas medianas">3 a 4 maletas medianas</option>
-              <option value="Maletas grandes">Maletas grandes</option>
+            <label>Tipo de viaje</label>
+            <select id="tipoViaje">
+              <option value="Solo ida">Solo ida</option>
+              <option value="Ida y vuelta">Ida y vuelta</option>
             </select>
           </div>
         </div>
 
         <div class="grid-2">
           <div>
-            <label>Nombre</label>
-            <input id="nombre" placeholder="Tu nombre" />
+            <label>Pasajeros</label>
+            <input id="pasajeros" type="number" min="1" max="20" value="1" />
           </div>
           <div>
-            <label>Teléfono</label>
-            <input id="telefono" placeholder="987654321" />
+            <label>Equipaje</label>
+            <select id="equipaje">
+              <option value="Sin equipaje">Sin equipaje</option>
+              <option value="Ligero">Ligero</option>
+              <option value="Equipaje mediano">Equipaje mediano</option>
+              <option value="Equipaje grande">Equipaje grande</option>
+            </select>
           </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Fecha</label>
+            <input id="fecha" type="date" />
+          </div>
+          <div>
+            <label>Hora</label>
+            <input id="hora" type="time" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label>Cliente</label>
+            <input id="nombre" placeholder="Nombre del cliente" />
+          </div>
+          <div>
+            <label>Celular</label>
+            <input id="telefono" placeholder="901254466" />
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Servicio</label>
+          <input id="nombreServicio" placeholder="Ejemplo: Aeropuerto" value="Aeropuerto" />
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Vuelo / referencia</label>
+          <input id="vueloReferencia" placeholder="Ejemplo: AKM0125" />
         </div>
 
         <div style="margin-top:10px">
@@ -562,7 +615,7 @@
           <div class="summary-row"><span>Vehículo</span><strong id="sumVehicle">Auto</strong></div>
           <div class="summary-row"><span>Distancia</span><strong id="sumDistance">—</strong></div>
           <div class="summary-row"><span>Tiempo</span><strong id="sumTime">—</strong></div>
-          <div class="summary-row"><span>Tarifa</span><strong id="sumFare">—</strong></div>
+          <div class="summary-row"><span>Monto</span><strong id="sumFare">—</strong></div>
         </div>
 
         <div class="fare-big" id="fareBig">S/ 0.00</div>
@@ -572,7 +625,7 @@
           <button class="btn btn-dark" id="btnCalculate">Calcular</button>
         </div>
 
-        <button class="btn btn-gold" style="margin-top:10px" id="btnWhatsapp">Confirmar por WhatsApp</button>
+        <button class="btn btn-gold" style="margin-top:10px" id="btnWhatsapp">Enviar por WhatsApp</button>
       </div>
 
       <div class="alert ok" id="okBox"></div>
@@ -588,13 +641,15 @@
 
     const VEHICLES = {
       auto: { name:'Auto', base:8, perKm:2.6 },
-      camioneta: { name:'Camioneta', base:12, perKm:3.3 },
+      camioneta: { name:'Camioneta SUV', base:12, perKm:3.3 },
       van: { name:'Van', base:18, perKm:4.3 },
       ejecutivo: { name:'Ejecutivo', base:15, perKm:3.9 }
     };
 
     let currentVehicle = 'auto';
     let currentStep = 1;
+    let messageMode = 'cotizacion';
+    let serviceType = 'Inmediato';
     let originSelection = null;
     let destinationSelection = null;
     let selectingPoint = null;
@@ -646,8 +701,8 @@
       }
       if (step === 3){
         $('stepBadge').textContent = 'Paso 3 • Resumen del viaje';
-        $('sheetTitle').textContent = 'Revisa tu viaje';
-        $('sheetSub').textContent = 'Calcula la tarifa y confirma tu solicitud por WhatsApp.';
+        $('sheetTitle').textContent = 'Revisa y envía tu solicitud';
+        $('sheetSub').textContent = 'Calcula el monto y envía la cotización o pedido por WhatsApp.';
       }
     }
 
@@ -978,36 +1033,90 @@
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
-        showOk('Tarifa calculada correctamente.');
+        showOk('Monto calculado correctamente.');
       }catch(err){
         console.error(err);
-        showWarn('No se pudo calcular la tarifa.');
+        showWarn('No se pudo calcular el monto.');
       }finally{
         $('btnCalculate').disabled = false;
         $('btnCalculate').textContent = 'Calcular';
       }
     }
 
+    function getGoogleLink(point){
+      return point ? `https://www.google.com/maps?q=${point.lat},${point.lon}` : '-';
+    }
+
+    function getWazeLink(point){
+      return point ? `https://waze.com/ul?ll=${point.lat},${point.lon}&navigate=yes` : '-';
+    }
+
     function buildWhatsappMessage(){
+      const cliente = $('nombre').value.trim() || '-';
+      const celular = $('telefono').value.trim() || '-';
+      const servicio = $('nombreServicio').value.trim() || '-';
+      const vehiculo = VEHICLES[currentVehicle].name;
+      const atencion = $('atencion').value;
+      const tipoViaje = $('tipoViaje').value;
+      const fecha = $('fecha').value || '-';
+      const hora = $('hora').value || '-';
+      const pasajeros = $('pasajeros').value || '-';
+      const equipaje = $('equipaje').value || '-';
+      const vueloRef = $('vueloReferencia').value.trim() || '-';
+      const observaciones = $('observaciones').value.trim() || 'Ninguna';
+
+      const titulo = messageMode === 'cotizacion'
+        ? '💼 COTIZACIÓN DE SERVICIO - NS EXECUTIVE'
+        : '✅ PEDIDO DE SERVICIO - NS EXECUTIVE';
+
+      const lineaServicio = serviceType === 'Inmediato'
+        ? '⚡ Servicio inmediato'
+        : '🗓️ Servicio programado';
+
+      const lineaMonto = messageMode === 'cotizacion'
+        ? `💰 MONTO COTIZADO: ${routeData ? 'S/ ' + routeData.tarifa : '-'}`
+        : `💰 MONTO CONFIRMADO: ${routeData ? 'S/ ' + routeData.tarifa : '-'}`;
+
       return [
-        'Hola, deseo solicitar un traslado:',
+        titulo,
         '',
-        'Empresa: NS STELLAR EXPERIENCE',
-        'RUC: 20603104260',
-        'Tipo de servicio: Solicitar ahora',
-        `Origen: ${routeData?.origen || originSelection?.label || '-'}`,
-        `Coordenadas origen: ${routeData?.origenCoords || '-'}`,
-        `Destino: ${routeData?.destino || destinationSelection?.label || '-'}`,
-        `Coordenadas destino: ${routeData?.destinoCoords || '-'}`,
-        `Pasajeros: ${$('pasajeros').value}`,
-        `Equipaje: ${$('equipaje').value}`,
-        `Vehículo: ${VEHICLES[currentVehicle].name}`,
-        `Distancia: ${routeData?.km ? routeData.km + ' km' : '-'}`,
-        `Tiempo: ${routeData?.minutos ? routeData.minutos + ' min' : '-'}`,
-        `Tarifa: ${routeData?.tarifa ? 'S/ ' + routeData.tarifa : '-'}`,
-        `Nombre: ${$('nombre').value.trim() || '-'}`,
-        `Teléfono: ${$('telefono').value.trim() || '-'}`,
-        `Observaciones: ${$('observaciones').value.trim() || 'Ninguna'}`
+        `👤 Cliente: ${cliente}`,
+        `📱 Celular: ${celular}`,
+        '',
+        '📋 DETALLE DEL SERVICIO',
+        `🚘 Servicio: ${servicio}`,
+        `🚙 Vehículo: ${vehiculo}`,
+        `⭐ Atención: ${atencion}`,
+        `🔁 Tipo de viaje: ${tipoViaje}`,
+        `${lineaServicio}`,
+        '',
+        '📍 RUTA',
+        `📌 Origen: ${originSelection?.label || '-'}`,
+        `📍 Coordenadas origen: ${routeData?.origenCoords || '-'}`,
+        `🗺️ Google Maps origen: ${getGoogleLink(originSelection)}`,
+        `🚦 Waze origen: ${getWazeLink(originSelection)}`,
+        '',
+        `🏁 Destino: ${destinationSelection?.label || '-'}`,
+        `📍 Coordenadas destino: ${routeData?.destinoCoords || '-'}`,
+        `🗺️ Google Maps destino: ${getGoogleLink(destinationSelection)}`,
+        `🚦 Waze destino: ${getWazeLink(destinationSelection)}`,
+        '',
+        '🗓️ PROGRAMACIÓN',
+        `📅 Fecha: ${fecha}`,
+        `🕓 Hora: ${hora}`,
+        `👥 Pasajeros: ${pasajeros}`,
+        `🧳 Equipaje: ${equipaje}`,
+        `✈️ Vuelo / referencia: ${vueloRef}`,
+        '',
+        `💬 Observaciones: ${observaciones}`,
+        '',
+        lineaMonto,
+        routeData ? `📏 Distancia estimada: ${routeData.km} km` : '📏 Distancia estimada: -',
+        routeData ? `⏱️ Tiempo estimado: ${routeData.minutos} min` : '⏱️ Tiempo estimado: -',
+        '',
+        messageMode === 'cotizacion'
+          ? '🙏 Gracias. Quedo atento(a) a su confirmación.'
+          : '🙏 Gracias. Su solicitud ha sido registrada. Quedo atento(a) a su confirmación.'
       ].join('\n');
     }
 
@@ -1020,7 +1129,7 @@
       }
 
       if (!routeData){
-        showWarn('Primero calcula la tarifa.');
+        showWarn('Primero calcula el monto.');
         return;
       }
 
@@ -1028,7 +1137,7 @@
       const telefono = $('telefono').value.trim();
 
       if (!nombre || !telefono){
-        showWarn('Completa tu nombre y teléfono.');
+        showWarn('Completa cliente y celular.');
         return;
       }
 
@@ -1049,6 +1158,22 @@
         card.classList.add('active');
         currentVehicle = card.dataset.key;
         $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
+      });
+    });
+
+    document.querySelectorAll('#messageModeGrid .mode-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        document.querySelectorAll('#messageModeGrid .mode-card').forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        messageMode = card.dataset.mode;
+      });
+    });
+
+    document.querySelectorAll('#serviceTypeGrid .service-card').forEach(card=>{
+      card.addEventListener('click', ()=>{
+        document.querySelectorAll('#serviceTypeGrid .service-card').forEach(c=>c.classList.remove('active'));
+        card.classList.add('active');
+        serviceType = card.dataset.service;
       });
     });
 
