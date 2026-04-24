@@ -27,6 +27,7 @@
     }
 
     *{box-sizing:border-box}
+
     html,body{
       margin:0;
       padding:0;
@@ -144,7 +145,10 @@
       display:none;
       filter:drop-shadow(0 8px 14px rgba(0,0,0,.45));
     }
-    .center-pin.show{display:block}
+
+    .center-pin.show{
+      display:block;
+    }
 
     .input-box{
       display:flex;
@@ -182,27 +186,34 @@
       cursor:pointer;
       transition:.18s ease;
     }
-    .btn:hover{transform:translateY(-1px)}
+
+    .btn:hover{
+      transform:translateY(-1px);
+    }
 
     .btn-gold{
       background:linear-gradient(135deg,var(--gold),var(--gold2));
       color:#111;
     }
+
     .btn-dark{
       background:#162131;
       color:#fff;
       border:1px solid rgba(255,255,255,.08);
     }
+
     .btn-ghost{
       background:rgba(255,255,255,.03);
       color:#fff;
       border:1px solid rgba(255,255,255,.08);
     }
+
     .btn-red{
       background:rgba(255,255,255,.03);
       color:#fff;
       border:1px solid rgba(255,255,255,.08);
     }
+
     .btn-blue{
       background:rgba(109,184,255,.10);
       border:1px solid rgba(109,184,255,.28);
@@ -235,6 +246,7 @@
       font-size:.78rem;
       color:var(--muted);
       margin-bottom:6px;
+      display:block;
     }
 
     .value{
@@ -252,20 +264,31 @@
       background:#101827;
       display:none;
     }
-    .suggestions.show{display:block}
+
+    .suggestions.show{
+      display:block;
+    }
 
     .suggestion{
       padding:12px 14px;
       border-bottom:1px solid rgba(255,255,255,.06);
       cursor:pointer;
     }
-    .suggestion:last-child{border-bottom:none}
-    .suggestion:hover{background:rgba(255,255,255,.05)}
+
+    .suggestion:last-child{
+      border-bottom:none;
+    }
+
+    .suggestion:hover{
+      background:rgba(255,255,255,.05);
+    }
+
     .suggestion-title{
       font-weight:700;
       font-size:.94rem;
       line-height:1.4;
     }
+
     .suggestion-sub{
       color:var(--muted);
       font-size:.82rem;
@@ -280,6 +303,7 @@
       padding-bottom:2px;
       margin-top:8px;
     }
+
     .chip{
       flex:0 0 auto;
       padding:10px 14px;
@@ -341,7 +365,9 @@
       margin-top:10px;
     }
 
-    input, select, textarea{
+    input,
+    select,
+    textarea{
       width:100%;
       padding:14px 14px;
       border-radius:16px;
@@ -370,8 +396,14 @@
       padding:10px 0;
       border-bottom:1px dashed rgba(255,255,255,.08);
     }
-    .summary-row:last-child{border-bottom:none}
-    .summary-row span:first-child{color:var(--muted)}
+
+    .summary-row:last-child{
+      border-bottom:none;
+    }
+
+    .summary-row span:first-child{
+      color:var(--muted);
+    }
 
     .fare-big{
       font-size:2rem;
@@ -389,22 +421,34 @@
       line-height:1.55;
       font-size:.92rem;
     }
-    .alert.show{display:block}
+
+    .alert.show{
+      display:block;
+    }
+
     .alert.ok{
       background:rgba(40,199,134,.08);
       border-color:rgba(40,199,134,.18);
       color:#d8ffed;
     }
+
     .alert.warn{
       background:rgba(255,141,141,.08);
       border-color:rgba(255,141,141,.18);
       color:#ffe0e0;
     }
 
-    .hidden{display:none !important}
+    .hidden{
+      display:none !important;
+    }
 
     @media (max-width:520px){
-      .btn-row,.btn-row-3,.grid-2,.vehicle-grid,.mode-grid,.service-grid{
+      .btn-row,
+      .btn-row-3,
+      .grid-2,
+      .vehicle-grid,
+      .mode-grid,
+      .service-grid{
         grid-template-columns:1fr;
       }
     }
@@ -430,7 +474,7 @@
       </div>
 
       <div id="panelStep1">
-        <div class="input-box" style="margin-top:12px">
+        <div class="input-box" style="margin-top:12px" id="originField">
           <div class="input-icon">📍</div>
           <input id="origen" placeholder="Escribe tu origen" autocomplete="off" />
         </div>
@@ -448,6 +492,11 @@
           <div class="value" id="originValue">Aún no confirmado</div>
         </div>
 
+        <div style="margin-top:10px">
+          <label class="label">Dirección exacta / referencia de recojo</label>
+          <input id="origenExacto" placeholder="Ejemplo: Av. Angélica Gamarra 470, puerta negra, frente a..." />
+        </div>
+
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">Confirmar origen en el pin</button>
         <button class="btn btn-red hidden" style="margin-top:10px" id="btnCancelOriginPin">Cancelar selección</button>
 
@@ -455,7 +504,7 @@
       </div>
 
       <div id="panelStep2" class="hidden">
-        <div class="input-box" style="margin-top:12px">
+        <div class="input-box" style="margin-top:12px" id="destinationField">
           <div class="input-icon">🔎</div>
           <input id="destino" placeholder="¿A dónde vas?" autocomplete="off" />
         </div>
@@ -477,6 +526,11 @@
         <div class="card">
           <div class="label">Destino actual</div>
           <div class="value" id="destinationValue">Aún no confirmado</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label">Dirección exacta / referencia de destino</label>
+          <input id="destinoExacto" placeholder="Ejemplo: Terminal nacional, puerta 2, entrada principal..." />
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">Confirmar destino en el pin</button>
@@ -506,7 +560,7 @@
             <span>Salida lo antes posible</span>
           </div>
           <div class="service-card" data-service="Programado">
-            <strong>🗓️ Programado</strong>
+            <strong>🗓️ Servicio programado</strong>
             <span>Fecha y hora definidas</span>
           </div>
         </div>
@@ -522,19 +576,19 @@
         </div>
 
         <div class="vehicle-grid" id="vehicleGrid">
-          <div class="vehicle active" data-key="auto" data-label="Auto">
+          <div class="vehicle active" data-key="auto">
             <strong>Auto</strong>
             <span>Urbano y rápido</span>
           </div>
-          <div class="vehicle" data-key="camioneta" data-label="Camioneta SUV">
+          <div class="vehicle" data-key="camioneta">
             <strong>Camioneta SUV</strong>
             <span>Más espacio</span>
           </div>
-          <div class="vehicle" data-key="van" data-label="Van">
+          <div class="vehicle" data-key="van">
             <strong>Van</strong>
             <span>Grupos</span>
           </div>
-          <div class="vehicle" data-key="ejecutivo" data-label="Ejecutivo">
+          <div class="vehicle" data-key="ejecutivo">
             <strong>Ejecutivo</strong>
             <span>Premium</span>
           </div>
@@ -542,7 +596,7 @@
 
         <div class="grid-2">
           <div>
-            <label>Atención</label>
+            <label class="label">Atención</label>
             <select id="atencion">
               <option value="Ejecutivo">Ejecutivo</option>
               <option value="Turístico">Turístico</option>
@@ -550,7 +604,7 @@
             </select>
           </div>
           <div>
-            <label>Tipo de viaje</label>
+            <label class="label">Tipo de viaje</label>
             <select id="tipoViaje">
               <option value="Solo ida">Solo ida</option>
               <option value="Ida y vuelta">Ida y vuelta</option>
@@ -560,11 +614,11 @@
 
         <div class="grid-2">
           <div>
-            <label>Pasajeros</label>
+            <label class="label">Pasajeros</label>
             <input id="pasajeros" type="number" min="1" max="20" value="1" />
           </div>
           <div>
-            <label>Equipaje</label>
+            <label class="label">Equipaje</label>
             <select id="equipaje">
               <option value="Sin equipaje">Sin equipaje</option>
               <option value="Ligero">Ligero</option>
@@ -574,40 +628,40 @@
           </div>
         </div>
 
-        <div class="grid-2">
+        <div class="grid-2" id="programacionBox">
           <div>
-            <label>Fecha</label>
+            <label class="label">Fecha</label>
             <input id="fecha" type="date" />
           </div>
           <div>
-            <label>Hora</label>
+            <label class="label">Hora</label>
             <input id="hora" type="time" />
           </div>
         </div>
 
         <div class="grid-2">
           <div>
-            <label>Cliente</label>
+            <label class="label">Cliente</label>
             <input id="nombre" placeholder="Nombre del cliente" />
           </div>
           <div>
-            <label>Celular</label>
+            <label class="label">Celular</label>
             <input id="telefono" placeholder="901254466" />
           </div>
         </div>
 
         <div style="margin-top:10px">
-          <label>Servicio</label>
+          <label class="label">Servicio</label>
           <input id="nombreServicio" placeholder="Ejemplo: Aeropuerto" value="Aeropuerto" />
         </div>
 
         <div style="margin-top:10px">
-          <label>Vuelo / referencia</label>
+          <label class="label">Vuelo / referencia</label>
           <input id="vueloReferencia" placeholder="Ejemplo: AKM0125" />
         </div>
 
         <div style="margin-top:10px">
-          <label>Observaciones</label>
+          <label class="label">Observaciones</label>
           <textarea id="observaciones" placeholder="Referencia, vuelo, puerta, etc."></textarea>
         </div>
 
@@ -622,18 +676,17 @@
 
         <div class="btn-row" style="margin-top:12px">
           <button class="btn btn-ghost" id="btnBackStep2">Volver</button>
-          <button class="btn btn-dark" id="btnCalculate">Calcular</button>
+          <button class="btn btn-dark" id="btnCalculate">Calcular monto</button>
         </div>
 
-        <button class="btn btn-gold" style="margin-top:10px" id="btnWhatsapp">Enviar por WhatsApp</button>
+        <button class="btn btn-gold" style="margin-top:10px" id="btnWhatsapp">Enviar cotización</button>
       </div>
 
       <div class="alert ok" id="okBox"></div>
       <div class="alert warn" id="warnBox"></div>
     </div>
   </div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
     const API_BASE = 'https://fragrant-sound-c290.novedadessophiee.workers.dev';
@@ -668,6 +721,30 @@
     let markerDestino = null;
     let routeLayer = null;
 
+    function updateDynamicTexts(){
+      const immediate = serviceType === 'Inmediato';
+      const isQuote = messageMode === 'cotizacion';
+
+      if (currentStep === 3){
+        $('sheetTitle').textContent = isQuote ? 'Revisa y envía tu cotización' : 'Revisa y envía tu pedido';
+        $('sheetSub').textContent = immediate
+          ? 'Servicio inmediato listo para enviar. No necesitas fecha ni hora.'
+          : 'Servicio programado listo para enviar. Completa fecha y hora.';
+      }
+
+      if ($('programacionBox')) {
+        $('programacionBox').style.display = immediate ? 'none' : 'grid';
+      }
+
+      if ($('btnCalculate')) {
+        $('btnCalculate').textContent = immediate ? 'Calcular monto' : 'Calcular monto programado';
+      }
+
+      if ($('btnWhatsapp')) {
+        $('btnWhatsapp').textContent = isQuote ? 'Enviar cotización' : 'Enviar pedido';
+      }
+    }
+
     function showOk(msg=''){
       $('okBox').textContent = msg;
       $('okBox').classList.toggle('show', !!msg);
@@ -685,6 +762,7 @@
 
     function setStep(step){
       currentStep = step;
+
       $('panelStep1').classList.toggle('hidden', step !== 1);
       $('panelStep2').classList.toggle('hidden', step !== 2);
       $('panelStep3').classList.toggle('hidden', step !== 3);
@@ -694,16 +772,18 @@
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
         $('sheetSub').textContent = 'Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.';
       }
+
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • Elegir destino';
         $('sheetTitle').textContent = '¿A dónde vas?';
         $('sheetSub').textContent = 'Escribe un destino, elige una sugerencia o mueve el mapa y confirma el pin.';
       }
+
       if (step === 3){
         $('stepBadge').textContent = 'Paso 3 • Resumen del viaje';
-        $('sheetTitle').textContent = 'Revisa y envía tu solicitud';
-        $('sheetSub').textContent = 'Calcula el monto y envía la cotización o pedido por WhatsApp.';
       }
+
+      updateDynamicTexts();
     }
 
     function debounce(fn, wait=350){
@@ -741,8 +821,10 @@
 
     function showPinSelection(show){
       $('centerPin').classList.toggle('show', show);
+
       $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
       $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
+
       $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
       $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
     }
@@ -750,10 +832,14 @@
     function hidePinMode(){
       selectingPoint = null;
       $('centerPin').classList.remove('show');
+
       $('btnConfirmOriginPin').classList.add('hidden');
       $('btnCancelOriginPin').classList.add('hidden');
+
       $('btnConfirmDestinationPin').classList.add('hidden');
       $('btnCancelDestinationPin').classList.add('hidden');
+
+      $('mapModeLabel').textContent = 'Mapa listo';
     }
 
     function setOriginValue(text){
@@ -780,6 +866,7 @@
 
     function renderSuggestions(containerId, results, onSelect){
       const box = $(containerId);
+
       if (!results.length){
         box.innerHTML = '';
         box.classList.remove('show');
@@ -817,11 +904,15 @@
 
       try{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
+
         renderSuggestions('originSuggestions', data.results || [], (item)=>{
           $('origen').value = item.label;
           map.setView([item.lat, item.lon], 17);
+
           selectingPoint = 'origin';
           showPinSelection(true);
+
+          $('mapModeLabel').textContent = 'Confirma origen';
           showOk('Se ubicó un punto cercano. Ajusta el mapa si quieres y confirma el origen.');
         });
       }catch(err){
@@ -843,11 +934,15 @@
 
       try{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
+
         renderSuggestions('destinationSuggestions', data.results || [], (item)=>{
           $('destino').value = item.label;
           map.setView([item.lat, item.lon], 17);
+
           selectingPoint = 'destination';
           showPinSelection(true);
+
+          $('mapModeLabel').textContent = 'Confirma destino';
           showOk('Se ubicó un punto cercano. Ajusta el mapa si quieres y confirma el destino.');
         });
       }catch(err){
@@ -860,13 +955,19 @@
     $('destino').addEventListener('input', searchDestination);
 
     document.addEventListener('click', (e)=>{
-      if (!$('originField').contains(e.target)) $('originSuggestions').classList.remove('show');
-      if (!$('destinationField').contains(e.target)) $('destinationSuggestions').classList.remove('show');
+      if (!$('originField').contains(e.target)) {
+        $('originSuggestions').classList.remove('show');
+      }
+
+      if (!$('destinationField').contains(e.target)) {
+        $('destinationSuggestions').classList.remove('show');
+      }
     });
 
     async function confirmCenterPoint(type){
       try{
         clearMessages();
+
         const c = map.getCenter();
         const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
         const place = data.result;
@@ -913,6 +1014,7 @@
           try{
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+
             map.setView([lat, lon], 17);
 
             const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
@@ -922,6 +1024,8 @@
             $('origen').value = place.label;
             drawMarker('origin', place);
             setOriginValue(place.label);
+
+            $('mapModeLabel').textContent = 'Origen cargado';
             showOk('Ubicación actual cargada correctamente.');
           }catch(err){
             console.error(err);
@@ -933,10 +1037,12 @@
         },
         (err)=>{
           console.error(err);
+
           if (err.code === 1) showWarn('Permiso de ubicación denegado.');
           else if (err.code === 2) showWarn('No se pudo detectar tu ubicación.');
           else if (err.code === 3) showWarn('La ubicación tardó demasiado.');
           else showWarn('Error de ubicación.');
+
           $('btnUseCurrentLocation').disabled = false;
           $('btnUseCurrentLocation').textContent = 'Mi ubicación';
         },
@@ -946,6 +1052,7 @@
 
     async function searchDestinationOnMap(){
       const text = $('destino').value.trim();
+
       if (!text){
         showWarn('Primero escribe el destino.');
         return;
@@ -953,10 +1060,14 @@
 
       try{
         const data = await apiGet('/search?text=' + encodeURIComponent(text));
+
         $('destino').value = data.result.label;
         map.setView([data.result.lat, data.result.lon], 17);
+
         selectingPoint = 'destination';
         showPinSelection(true);
+
+        $('mapModeLabel').textContent = 'Confirma destino';
         showOk('Se ubicó el destino en el mapa. Ajusta si quieres y confirma.');
       }catch(err){
         console.error(err);
@@ -967,8 +1078,10 @@
     function clearOrigin(){
       originSelection = null;
       $('origen').value = '';
+
       if (markerOrigen) map.removeLayer(markerOrigen);
       markerOrigen = null;
+
       setOriginValue('Aún no confirmado');
       hidePinMode();
     }
@@ -976,15 +1089,25 @@
     function clearDestination(){
       destinationSelection = null;
       $('destino').value = '';
+
       if (markerDestino) map.removeLayer(markerDestino);
       markerDestino = null;
+
       setDestinationValue('Aún no confirmado');
       hidePinMode();
     }
 
     function calculateFare(distanceKm, vehicleKey){
       const v = VEHICLES[vehicleKey];
-      return v.base + (distanceKm * v.perKm);
+
+      let fare = v.base + (distanceKm * v.perKm);
+
+      if (serviceType === 'Programado') fare += 5;
+
+      const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
+      if (tipoViaje === 'Ida y vuelta') fare = fare * 1.8;
+
+      return fare;
     }
 
     async function calculateTrip(){
@@ -1005,9 +1128,11 @@
         });
 
         const feature = route.feature;
+
         if (!feature) throw new Error('No se encontró ruta');
 
         if (routeLayer) map.removeLayer(routeLayer);
+
         routeLayer = L.geoJSON(feature, {
           style:{ color:'#d9b36a', weight:5, opacity:.9 }
         }).addTo(map);
@@ -1033,13 +1158,14 @@
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
+        $('mapModeLabel').textContent = 'Ruta calculada';
         showOk('Monto calculado correctamente.');
       }catch(err){
         console.error(err);
         showWarn('No se pudo calcular el monto.');
       }finally{
         $('btnCalculate').disabled = false;
-        $('btnCalculate').textContent = 'Calcular';
+        updateDynamicTexts();
       }
     }
 
@@ -1058,12 +1184,17 @@
       const vehiculo = VEHICLES[currentVehicle].name;
       const atencion = $('atencion').value;
       const tipoViaje = $('tipoViaje').value;
-      const fecha = $('fecha').value || '-';
-      const hora = $('hora').value || '-';
+
+      const fecha = serviceType === 'Inmediato' ? 'Servicio inmediato' : ($('fecha').value || '-');
+      const hora = serviceType === 'Inmediato' ? 'Lo antes posible' : ($('hora').value || '-');
+
       const pasajeros = $('pasajeros').value || '-';
       const equipaje = $('equipaje').value || '-';
       const vueloRef = $('vueloReferencia').value.trim() || '-';
       const observaciones = $('observaciones').value.trim() || 'Ninguna';
+
+      const origenExacto = $('origenExacto').value.trim() || '-';
+      const destinoExacto = $('destinoExacto').value.trim() || '-';
 
       const titulo = messageMode === 'cotizacion'
         ? '💼 COTIZACIÓN DE SERVICIO - NS EXECUTIVE'
@@ -1092,11 +1223,13 @@
         '',
         '📍 RUTA',
         `📌 Origen: ${originSelection?.label || '-'}`,
+        `🏠 Dirección exacta / referencia origen: ${origenExacto}`,
         `📍 Coordenadas origen: ${routeData?.origenCoords || '-'}`,
         `🗺️ Google Maps origen: ${getGoogleLink(originSelection)}`,
         `🚦 Waze origen: ${getWazeLink(originSelection)}`,
         '',
         `🏁 Destino: ${destinationSelection?.label || '-'}`,
+        `🏠 Dirección exacta / referencia destino: ${destinoExacto}`,
         `📍 Coordenadas destino: ${routeData?.destinoCoords || '-'}`,
         `🗺️ Google Maps destino: ${getGoogleLink(destinationSelection)}`,
         `🚦 Waze destino: ${getWazeLink(destinationSelection)}`,
@@ -1156,8 +1289,15 @@
       card.addEventListener('click', ()=>{
         document.querySelectorAll('#vehicleGrid .vehicle').forEach(v=>v.classList.remove('active'));
         card.classList.add('active');
+
         currentVehicle = card.dataset.key;
         $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
+
+        routeData = null;
+        $('sumDistance').textContent = '—';
+        $('sumTime').textContent = '—';
+        $('sumFare').textContent = '—';
+        $('fareBig').textContent = 'S/ 0.00';
       });
     });
 
@@ -1165,7 +1305,9 @@
       card.addEventListener('click', ()=>{
         document.querySelectorAll('#messageModeGrid .mode-card').forEach(c=>c.classList.remove('active'));
         card.classList.add('active');
+
         messageMode = card.dataset.mode;
+        updateDynamicTexts();
       });
     });
 
@@ -1173,27 +1315,42 @@
       card.addEventListener('click', ()=>{
         document.querySelectorAll('#serviceTypeGrid .service-card').forEach(c=>c.classList.remove('active'));
         card.classList.add('active');
+
         serviceType = card.dataset.service;
+        updateDynamicTexts();
       });
     });
 
     $('btnUseCurrentLocation').addEventListener('click', useCurrentLocation);
+
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
       showPinSelection(true);
+      $('mapModeLabel').textContent = 'Confirma origen';
       showOk('Mueve el mapa hasta tu origen y confirma.');
     });
+
     $('btnMapDestination').addEventListener('click', ()=>{
       selectingPoint = 'destination';
       showPinSelection(true);
+      $('mapModeLabel').textContent = 'Confirma destino';
       showOk('Mueve el mapa hasta tu destino y confirma.');
     });
+
     $('btnSearchDestMap').addEventListener('click', searchDestinationOnMap);
 
     $('btnConfirmOriginPin').addEventListener('click', ()=>confirmCenterPoint('origin'));
     $('btnConfirmDestinationPin').addEventListener('click', ()=>confirmCenterPoint('destination'));
-    $('btnCancelOriginPin').addEventListener('click', ()=>{ hidePinMode(); showWarn('Selección de origen cancelada.'); });
-    $('btnCancelDestinationPin').addEventListener('click', ()=>{ hidePinMode(); showWarn('Selección de destino cancelada.'); });
+
+    $('btnCancelOriginPin').addEventListener('click', ()=>{
+      hidePinMode();
+      showWarn('Selección de origen cancelada.');
+    });
+
+    $('btnCancelDestinationPin').addEventListener('click', ()=>{
+      hidePinMode();
+      showWarn('Selección de destino cancelada.');
+    });
 
     $('btnClearOrigin').addEventListener('click', clearOrigin);
     $('btnClearDestination').addEventListener('click', clearDestination);
@@ -1203,6 +1360,7 @@
         showWarn('Primero confirma tu origen.');
         return;
       }
+
       setStep(2);
       clearMessages();
     });
@@ -1217,6 +1375,7 @@
         showWarn('Primero confirma tu destino.');
         return;
       }
+
       setStep(3);
       clearMessages();
     });
@@ -1233,6 +1392,7 @@
     setOriginValue('Aún no confirmado');
     setDestinationValue('Aún no confirmado');
     $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
+    updateDynamicTexts();
   </script>
 </body>
 </html>
