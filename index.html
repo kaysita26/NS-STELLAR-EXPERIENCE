@@ -461,7 +461,46 @@ textarea::placeholder{
   input::placeholder,textarea::placeholder{font-size:.84rem !important;}
 }
 
-  </style>
+  
+/* ===== CAMPOS MUY VISIBLES: DIRECCIÓN OBLIGATORIA / REFERENCIA OPCIONAL ===== */
+.campo-obligatorio{
+  background:#2b2110 !important;
+  border:2px solid #d9b36a !important;
+  color:#ffffff !important;
+  box-shadow:0 0 0 4px rgba(217,179,106,0.15) !important;
+}
+
+.campo-obligatorio::placeholder{
+  color:#f3d8a3 !important;
+  font-weight:700 !important;
+  opacity:1 !important;
+}
+
+.campo-opcional{
+  background:rgba(255,255,255,0.05) !important;
+  border:1px solid rgba(255,255,255,0.15) !important;
+  color:#ffffff !important;
+}
+
+.campo-opcional::placeholder{
+  color:rgba(255,255,255,0.55) !important;
+}
+
+.texto-obligatorio{
+  color:#ffd98a !important;
+  font-weight:900 !important;
+  font-size:15px !important;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+
+.texto-opcional{
+  color:#b8c4d6 !important;
+  font-weight:700 !important;
+  font-size:14px !important;
+}
+
+</style>
 </head>
 
 <body>
@@ -504,8 +543,23 @@ textarea::placeholder{
         </div>
 
         <div style="margin-top:10px">
-          <label class="label required-label">Referencia de recojo para el conductor</label>
-          <input id="origenExacto" placeholder="Ej: puerta negra, frente a Inkafarma" />
+          <label class="label texto-obligatorio">📍 DIRECCIÓN EXACTA DE RECOJO * (OBLIGATORIO)</label>
+          <input
+            id="direccionExactaRecojo"
+            class="campo-obligatorio"
+            placeholder="Ej: Av. Angélica Gamarra 470"
+            autocomplete="off"
+          />
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-opcional">🏠 Referencia para el conductor (Opcional)</label>
+          <input
+            id="origenExacto"
+            class="campo-opcional"
+            placeholder="Ej: puerta negra, frente a Inkafarma"
+            autocomplete="off"
+          />
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">Confirmar origen en el pin</button>
@@ -535,8 +589,23 @@ textarea::placeholder{
         </div>
 
         <div style="margin-top:10px">
-          <label class="label required-label">Referencia de destino para el conductor</label>
-          <input id="destinoExacto" placeholder="Ej: puerta principal, recepción, torre A" />
+          <label class="label texto-obligatorio">🏁 DIRECCIÓN EXACTA DE DESTINO * (OBLIGATORIO)</label>
+          <input
+            id="direccionExactaDestino"
+            class="campo-obligatorio"
+            placeholder="Ej: Aeropuerto Jorge Chávez"
+            autocomplete="off"
+          />
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-opcional">🏢 Referencia de destino (Opcional)</label>
+          <input
+            id="destinoExacto"
+            class="campo-opcional"
+            placeholder="Ej: puerta principal, recepción, torre A"
+            autocomplete="off"
+          />
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">Confirmar destino en el pin</button>
@@ -1319,8 +1388,10 @@ textarea::placeholder{
       const observaciones = $('observaciones').value.trim() || 'Ninguna';
       const adicionalTexto = $('adicionalPeaje') ? $('adicionalPeaje').selectedOptions[0].textContent : 'Sin adicional';
 
-      const origenExacto = $('origenExacto').value.trim() || '-';
-      const destinoExacto = $('destinoExacto').value.trim() || '-';
+      const direccionExactaRecojo = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
+      const origenExacto = $('origenExacto').value.trim() || 'Sin referencia';
+      const direccionExactaDestino = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
+      const destinoExacto = $('destinoExacto').value.trim() || 'Sin referencia';
 
       const titulo = messageMode === 'cotizacion'
         ? '💼 COTIZACIÓN DE SERVICIO - NS EXECUTIVE'
@@ -1349,13 +1420,15 @@ textarea::placeholder{
         '',
         '📍 RUTA',
         `📌 Origen: ${originSelection?.label || '-'}`,
-        `🏠 Dirección exacta / referencia origen: ${origenExacto}`,
+        `🏠 Dirección exacta de recojo: ${direccionExactaRecojo || '-'}`,
+        `📝 Referencia de recojo: ${origenExacto}`,
         `📍 Coordenadas origen: ${routeData?.origenCoords || '-'}`,
         `🗺️ Google Maps origen: ${getGoogleLink(originSelection)}`,
         `🚦 Waze origen: ${getWazeLink(originSelection)}`,
         '',
         `🏁 Destino: ${destinationSelection?.label || '-'}`,
-        `🏠 Dirección exacta / referencia destino: ${destinoExacto}`,
+        `🏁 Dirección exacta de destino: ${direccionExactaDestino || '-'}`,
+        `📝 Referencia de destino: ${destinoExacto}`,
         `📍 Coordenadas destino: ${routeData?.destinoCoords || '-'}`,
         `🗺️ Google Maps destino: ${getGoogleLink(destinationSelection)}`,
         `🚦 Waze destino: ${getWazeLink(destinationSelection)}`,
@@ -1399,13 +1472,13 @@ textarea::placeholder{
         return;
       }
 
-      if (!hasMinText($('origenExacto').value, 5)){
-        showWarn('Agrega una referencia de recojo.');
+      if (!hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Escribe la dirección exacta de recojo. Ej: Av. Angélica Gamarra 470.');
         return;
       }
 
-      if (!hasMinText($('destinoExacto').value, 5)){
-        showWarn('Agrega una referencia de destino.');
+      if (!hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
         return;
       }
 
@@ -1495,8 +1568,8 @@ textarea::placeholder{
         return;
       }
 
-      if (!hasMinText($('origenExacto').value, 5)){
-        showWarn('Agrega una referencia de recojo. Ej: puerta negra, frente a Inkafarma.');
+      if (!hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Escribe la dirección exacta de recojo. Ej: Av. Angélica Gamarra 470.');
         return;
       }
 
@@ -1520,8 +1593,8 @@ textarea::placeholder{
         return;
       }
 
-      if (!hasMinText($('destinoExacto').value, 5)){
-        showWarn('Agrega una referencia del destino. Ej: puerta principal, recepción o torre.');
+      if (!hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
         return;
       }
 
