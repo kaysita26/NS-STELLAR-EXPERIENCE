@@ -491,7 +491,7 @@ textarea::placeholder{
         </div>
 
         <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 GPS</button>
+          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
           <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
           <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
         </div>
@@ -1117,7 +1117,7 @@ textarea::placeholder{
           else showWarn('Error de ubicación.');
 
           $('btnUseCurrentLocation').disabled = false;
-          $('btnUseCurrentLocation').textContent = '📍 GPS';
+          $('btnUseCurrentLocation').textContent = '📍 Mi ubicación';
         },
         { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
       );
