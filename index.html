@@ -345,14 +345,41 @@
     .hidden{display:none !important}
 
     @media (max-width:520px){
-      .btn-row,
-      .btn-row-3,
-      .grid-2,
-      .vehicle-grid,
-      .option-grid{
-        grid-template-columns:1fr;
-      }
-    }
+
+  /* mantener botones en una sola fila */
+  .btn-row-3{
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+
+  .btn-row{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+
+  /* estos sí pueden ir en columna */
+  .grid-2,
+  .vehicle-grid,
+  .option-grid{
+    grid-template-columns:1fr;
+  }
+
+  /* botones más compactos para celular */
+  .btn{
+    min-height:44px;
+    padding:10px 8px;
+    font-size:.88rem;
+    border-radius:14px;
+  }
+
+  /* texto más pequeño dentro */
+  .btn-row-3 .btn,
+  .btn-row .btn{
+    font-size:.82rem;
+    font-weight:800;
+  }
+
+}
   </style>
 </head>
 
