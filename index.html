@@ -289,17 +289,25 @@
     }
 
     input,
-    select,
-    textarea{
-      width:100%;
-      padding:14px 14px;
-      border-radius:16px;
-      background:#0b1320;
-      color:#fff;
-      border:1px solid rgba(255,255,255,.08);
-      font:inherit;
-      outline:none;
-    }
+select,
+textarea{
+  width:100%;
+  min-height:52px;
+  padding:14px 14px;
+  border-radius:16px;
+
+  /* NUEVO DISEÑO MÁS CLARO */
+  background:rgba(255,255,255,0.06);
+
+  color:#ffffff;
+
+  border:1px solid rgba(217,179,106,0.25);
+
+  font:inherit;
+  outline:none;
+
+  transition:all .2s ease;
+}
 
     textarea{
       min-height:90px;
@@ -380,6 +388,79 @@
   }
 
 }
+  
+/* ===== CORRECCIONES FINALES: CELULAR + INPUTS VISIBLES ===== */
+input:focus,
+select:focus,
+textarea:focus{
+  background:rgba(255,255,255,0.09);
+  border-color:#d9b36a;
+  box-shadow:0 0 0 4px rgba(217,179,106,.10), 0 8px 20px rgba(0,0,0,.15);
+  transform:translateY(-1px);
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:rgba(255,255,255,0.48);
+  font-weight:500;
+}
+
+.required-label::after{
+  content:' *';
+  color:#f3d8a3;
+  font-weight:800;
+}
+
+@media (max-width:760px){
+  .app{padding:8px 8px 24px !important;}
+  .panel{border-radius:22px !important;padding:12px !important;}
+  #map{height:245px !important;}
+  .title{font-size:1.12rem !important;}
+  .sub{font-size:.84rem !important;}
+  .input-box{padding:10px 12px !important;border-radius:16px !important;}
+  .input-box input{font-size:.92rem !important;}
+
+  .btn-row-3{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+    gap:6px !important;
+    margin-top:10px !important;
+  }
+
+  .btn-row{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    gap:8px !important;
+    margin-top:10px !important;
+  }
+
+  .grid-2,
+  .vehicle-grid,
+  .option-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .btn{
+    width:100% !important;
+    min-height:42px !important;
+    padding:10px 5px !important;
+    font-size:12px !important;
+    border-radius:14px !important;
+    white-space:nowrap !important;
+  }
+
+  .btn-row-3 .btn{font-size:11px !important;font-weight:800 !important;}
+  .btn-row .btn{font-size:12px !important;font-weight:800 !important;}
+
+  input,select,textarea{
+    min-height:48px !important;
+    padding:12px 12px !important;
+    font-size:.92rem !important;
+  }
+
+  input::placeholder,textarea::placeholder{font-size:.84rem !important;}
+}
+
   </style>
 </head>
 
@@ -406,12 +487,12 @@
       <div id="panelStep1">
         <div class="input-box" style="margin-top:12px" id="originField">
           <div class="input-icon">📍</div>
-          <input id="origen" placeholder="Escribe tu origen" autocomplete="off" />
+          <input id="origen" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
         </div>
 
         <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnUseCurrentLocation">Mi ubicación</button>
-          <button class="btn btn-blue" id="btnMapOrigin">Pin en mapa</button>
+          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 GPS</button>
+          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
           <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
         </div>
 
@@ -423,8 +504,8 @@
         </div>
 
         <div style="margin-top:10px">
-          <label class="label">Dirección exacta / referencia de recojo</label>
-          <input id="origenExacto" placeholder="Ejemplo: Av. Angélica Gamarra 470, puerta negra, frente a..." />
+          <label class="label required-label">Referencia de recojo para el conductor</label>
+          <input id="origenExacto" placeholder="Ej: puerta negra, frente a Inkafarma" />
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">Confirmar origen en el pin</button>
@@ -437,12 +518,12 @@
       <div id="panelStep2" class="hidden">
         <div class="input-box" style="margin-top:12px" id="destinationField">
           <div class="input-icon">🔎</div>
-          <input id="destino" placeholder="¿A dónde vas?" autocomplete="off" />
+          <input id="destino" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
         </div>
 
         <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnSearchDestMap">Buscar y ver</button>
-          <button class="btn btn-blue" id="btnMapDestination">Pin en mapa</button>
+          <button class="btn btn-dark" id="btnSearchDestMap">Buscar</button>
+          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
           <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
         </div>
 
@@ -454,8 +535,8 @@
         </div>
 
         <div style="margin-top:10px">
-          <label class="label">Dirección exacta / referencia de destino</label>
-          <input id="destinoExacto" placeholder="Ejemplo: Terminal nacional, puerta 2, entrada principal..." />
+          <label class="label required-label">Referencia de destino para el conductor</label>
+          <input id="destinoExacto" placeholder="Ej: puerta principal, recepción, torre A" />
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">Confirmar destino en el pin</button>
@@ -474,7 +555,7 @@
             <strong>💼 Cotización</strong>
             <span>Solo consulta de precio</span>
           </div>
-          <div class="option-card" data-mode="pedido">
+          <div class="option-card active" data-mode="pedido">
             <strong>✅ Pedido</strong>
             <span>Reserva o solicitud directa</span>
           </div>
@@ -482,14 +563,14 @@
 
         <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-ghost" id="btnBackStep2A">Volver</button>
-          <button class="btn btn-gold hidden" id="btnGoStep4">Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep4">Continuar</button>
         </div>
       </div>
 
       <!-- PASO 4: INMEDIATO O PROGRAMADO -->
       <div id="panelStep4" class="hidden">
         <div class="option-grid" id="serviceTypeGrid">
-          <div class="option-card" data-service="Inmediato">
+          <div class="option-card active" data-service="Inmediato">
             <strong>⚡ Servicio inmediato</strong>
             <span>Salida lo antes posible</span>
           </div>
@@ -501,7 +582,7 @@
 
         <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-ghost" id="btnBackStep3A">Volver</button>
-          <button class="btn btn-gold hidden" id="btnGoStep5">Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep5">Continuar</button>
         </div>
       </div>
 
@@ -557,12 +638,23 @@
           <div class="value" id="vehicleSuggestion">🚗 Se recomienda AUTO</div>
         </div>
 
-        <div>
-          <label class="label">Tipo de viaje</label>
-          <select id="tipoViaje">
-            <option value="Solo ida">Solo ida</option>
-            <option value="Ida y vuelta">Ida y vuelta</option>
-          </select>
+        <div class="grid-2">
+          <div>
+            <label class="label">Tipo de viaje</label>
+            <select id="tipoViaje">
+              <option value="Solo ida">Solo ida</option>
+              <option value="Ida y vuelta">Ida y vuelta</option>
+            </select>
+          </div>
+          <div>
+            <label class="label">Peaje / adicional</label>
+            <select id="adicionalPeaje">
+              <option value="0">Sin adicional</option>
+              <option value="6.50">Peaje simple / Línea Amarilla S/ 6.50</option>
+              <option value="13.00">Peaje doble S/ 13.00</option>
+              <option value="20.00">Adicional especial S/ 20.00</option>
+            </select>
+          </div>
         </div>
 
         <div class="grid-2" id="programacionBox">
@@ -624,6 +716,7 @@
           <div class="summary-row"><span>Vehículo</span><strong id="sumVehicle">Auto</strong></div>
           <div class="summary-row"><span>Distancia</span><strong id="sumDistance">—</strong></div>
           <div class="summary-row"><span>Tiempo</span><strong id="sumTime">—</strong></div>
+          <div class="summary-row"><span>Peaje/adicional</span><strong id="sumPeaje">S/ 0.00</strong></div>
           <div class="summary-row"><span>Monto</span><strong id="sumFare">—</strong></div>
         </div>
 
@@ -657,8 +750,8 @@
 
     let currentVehicle = 'auto';
     let currentStep = 1;
-    let messageMode = '';
-    let serviceType = '';
+    let messageMode = 'pedido';
+    let serviceType = 'Inmediato';
     let originSelection = null;
     let destinationSelection = null;
     let selectingPoint = null;
@@ -690,6 +783,10 @@
     function clearMessages(){
       showOk('');
       showWarn('');
+    }
+
+    function hasMinText(value, min=5){
+      return String(value || '').trim().length >= min;
     }
 
     function updateDynamicTexts(){
@@ -1008,7 +1105,7 @@
             showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
           }finally{
             $('btnUseCurrentLocation').disabled = false;
-            $('btnUseCurrentLocation').textContent = 'Mi ubicación';
+            $('btnUseCurrentLocation').textContent = '📍 GPS';
           }
         },
         (err)=>{
@@ -1020,7 +1117,7 @@
           else showWarn('Error de ubicación.');
 
           $('btnUseCurrentLocation').disabled = false;
-          $('btnUseCurrentLocation').textContent = 'Mi ubicación';
+          $('btnUseCurrentLocation').textContent = '📍 GPS';
         },
         { enableHighAccuracy:true, timeout:15000, maximumAge:0 }
       );
@@ -1078,6 +1175,9 @@
 
       let fare = v.base + (distanceKm * v.perKm);
 
+      const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
+      fare += adicional;
+
       if (serviceType === 'Programado') fare += 5;
 
       const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
@@ -1118,11 +1218,13 @@
         const km = route.summary.distance / 1000;
         const min = Math.ceil(route.summary.duration / 60);
         const fare = calculateFare(km, currentVehicle);
+        const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
 
         routeData = {
           km: km.toFixed(1),
           minutos: min,
           tarifa: fare.toFixed(2),
+          adicional: adicional.toFixed(2),
           origen: originSelection.label,
           destino: destinationSelection.label,
           origenCoords: `${originSelection.lat}, ${originSelection.lon}`,
@@ -1131,6 +1233,7 @@
 
         $('sumDistance').textContent = routeData.km + ' km';
         $('sumTime').textContent = routeData.minutos + ' min';
+        if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ ' + routeData.adicional;
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
@@ -1149,6 +1252,7 @@
       routeData = null;
       $('sumDistance').textContent = '—';
       $('sumTime').textContent = '—';
+      if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ 0.00';
       $('sumFare').textContent = '—';
       $('fareBig').textContent = 'S/ 0.00';
     }
@@ -1188,7 +1292,6 @@
 
       currentVehicle = vehicleKey;
       $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
-    updateVehicleSuggestion();
       resetRouteData();
     }
 
@@ -1214,6 +1317,7 @@
       const equipaje = $('equipaje').value || '-';
       const vueloRef = $('vueloReferencia').value.trim() || '-';
       const observaciones = $('observaciones').value.trim() || 'Ninguna';
+      const adicionalTexto = $('adicionalPeaje') ? $('adicionalPeaje').selectedOptions[0].textContent : 'Sin adicional';
 
       const origenExacto = $('origenExacto').value.trim() || '-';
       const destinoExacto = $('destinoExacto').value.trim() || '-';
@@ -1241,6 +1345,7 @@
         `🚙 Vehículo: ${vehiculo}`,
         `🔁 Tipo de viaje: ${tipoViaje}`,
         `${lineaServicio}`,
+        `🛣️ Peaje / adicional: ${adicionalTexto}`,
         '',
         '📍 RUTA',
         `📌 Origen: ${originSelection?.label || '-'}`,
@@ -1267,6 +1372,7 @@
         lineaMonto,
         routeData ? `📏 Distancia estimada: ${routeData.km} km` : '📏 Distancia estimada: -',
         routeData ? `⏱️ Tiempo estimado: ${routeData.minutos} min` : '⏱️ Tiempo estimado: -',
+        routeData ? `🛣️ Peaje/adicional: S/ ${routeData.adicional || '0.00'}` : '🛣️ Peaje/adicional: -',
         '',
       
       ].join('\n');
@@ -1290,6 +1396,16 @@
 
       if (!nombre || !telefono){
         showWarn('Completa cliente y celular.');
+        return;
+      }
+
+      if (!hasMinText($('origenExacto').value, 5)){
+        showWarn('Agrega una referencia de recojo.');
+        return;
+      }
+
+      if (!hasMinText($('destinoExacto').value, 5)){
+        showWarn('Agrega una referencia de destino.');
         return;
       }
 
@@ -1370,10 +1486,22 @@
     $('btnClearDestination').addEventListener('click', clearDestination);
 
     $('pasajeros').addEventListener('input', updateVehicleSuggestion);
+    if ($('tipoViaje')) $('tipoViaje').addEventListener('change', resetRouteData);
+    if ($('adicionalPeaje')) $('adicionalPeaje').addEventListener('change', resetRouteData);
 
     $('btnGoStep2').addEventListener('click', ()=>{
+      if (!hasMinText($('origen').value, 5)){
+        showWarn('Escribe la dirección exacta de recojo. Ej: Av. Angélica Gamarra 470.');
+        return;
+      }
+
+      if (!hasMinText($('origenExacto').value, 5)){
+        showWarn('Agrega una referencia de recojo. Ej: puerta negra, frente a Inkafarma.');
+        return;
+      }
+
       if (!originSelection){
-        showWarn('Primero confirma tu origen.');
+        showWarn('Confirma el pin exacto del recojo en el mapa.');
         return;
       }
 
@@ -1387,8 +1515,18 @@
     });
 
     $('btnGoStep3').addEventListener('click', ()=>{
+      if (!hasMinText($('destino').value, 5)){
+        showWarn('Escribe la dirección exacta del destino.');
+        return;
+      }
+
+      if (!hasMinText($('destinoExacto').value, 5)){
+        showWarn('Agrega una referencia del destino. Ej: puerta principal, recepción o torre.');
+        return;
+      }
+
       if (!destinationSelection){
-        showWarn('Primero confirma tu destino.');
+        showWarn('Confirma el pin exacto del destino en el mapa.');
         return;
       }
 
