@@ -568,6 +568,35 @@ textarea::placeholder{
   min-height:52px !important;
 }
 
+
+/* ===== LUGAR FRECUENTE DESTACADO ===== */
+.lugar-frecuente-label{
+  color:#7cc4ff !important;
+  font-weight:900 !important;
+  font-size:15px !important;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+
+.lugar-frecuente-select{
+  background:#102842 !important;
+  border:2px solid #4da6ff !important;
+  color:#ffffff !important;
+  box-shadow:0 0 0 4px rgba(77,166,255,.12) !important;
+}
+
+.lugar-frecuente-select:focus{
+  border-color:#7cc4ff !important;
+  box-shadow:0 0 0 4px rgba(77,166,255,.18) !important;
+}
+
+.frequent-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:18px;
+  background:rgba(77,166,255,.08) !important;
+  border:1px solid rgba(77,166,255,.24) !important;
+}
 </style>
 </head>
 
@@ -594,8 +623,8 @@ textarea::placeholder{
       <div id="panelStep1">
 
         <div class="frequent-box">
-          <label class="label texto-obligatorio">⭐ Lugar frecuente de recojo</label>
-          <select id="frecuenteOrigen" class="campo-obligatorio">
+          <label class="label lugar-frecuente-label">⭐ Lugar frecuente de recojo</label>
+          <select id="frecuenteOrigen" class="lugar-frecuente-select">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -604,8 +633,21 @@ textarea::placeholder{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
-          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y se acerca el mapa.</div>
+          <div class="help-required">Opcional: si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
         </div>
+
+        <div class="btn-row-3">
+          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
+          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
+          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
+        </div>
+
+        <div class="input-box" style="margin-top:12px" id="originField">
+          <div class="input-icon">🔎</div>
+          <input id="origen" placeholder="Buscar recojo en el mapa" autocomplete="off" />
+        </div>
+
+        <div class="suggestions" id="originSuggestions"></div>
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
@@ -632,25 +674,12 @@ textarea::placeholder{
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">📍 Dirección exacta de recojo * (OBLIGATORIO)</label>
           <input id="direccionExactaRecojo" class="campo-obligatorio" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
-          <div class="help-required">La ubicación GPS acerca el mapa, pero la dirección escrita es obligatoria.</div>
+          <div class="help-required">Si el mapa no reconoce el número, igual escribe aquí la dirección exacta.</div>
         </div>
-
-        <div class="input-box" style="margin-top:12px" id="originField">
-          <div class="input-icon">🔎</div>
-          <input id="origen" placeholder="Buscar recojo en el mapa" autocomplete="off" />
-        </div>
-
-        <div class="suggestions" id="originSuggestions"></div>
 
         <div style="margin-top:10px">
           <label class="label texto-opcional">🏠 Referencia para el conductor (Opcional)</label>
           <input id="origenExacto" class="campo-opcional" placeholder="Ej: puerta negra, frente a Inkafarma" autocomplete="off" />
-        </div>
-
-        <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
-          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
-          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
         </div>
 
         <div class="card">
@@ -668,8 +697,8 @@ textarea::placeholder{
       <div id="panelStep2" class="hidden">
 
         <div class="frequent-box">
-          <label class="label texto-obligatorio">⭐ Lugar frecuente de destino</label>
-          <select id="frecuenteDestino" class="campo-obligatorio">
+          <label class="label lugar-frecuente-label">⭐ Lugar frecuente de destino</label>
+          <select id="frecuenteDestino" class="lugar-frecuente-select">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -678,8 +707,21 @@ textarea::placeholder{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
-          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y se acerca el mapa.</div>
+          <div class="help-required">Opcional: si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
         </div>
+
+        <div class="btn-row-3">
+          <button class="btn btn-dark" id="btnSearchDestMap">Buscar</button>
+          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
+          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
+        </div>
+
+        <div class="input-box" style="margin-top:12px" id="destinationField">
+          <div class="input-icon">🔎</div>
+          <input id="destino" placeholder="Buscar destino en el mapa" autocomplete="off" />
+        </div>
+
+        <div class="suggestions" id="destinationSuggestions"></div>
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
@@ -706,25 +748,12 @@ textarea::placeholder{
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">🏁 Dirección exacta de destino * (OBLIGATORIO)</label>
           <input id="direccionExactaDestino" class="campo-obligatorio" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
-          <div class="help-required">El pin confirma el punto exacto, pero la dirección escrita es obligatoria.</div>
+          <div class="help-required">Si el mapa no reconoce el número, igual escribe aquí la dirección exacta.</div>
         </div>
-
-        <div class="input-box" style="margin-top:12px" id="destinationField">
-          <div class="input-icon">🔎</div>
-          <input id="destino" placeholder="Buscar destino en el mapa" autocomplete="off" />
-        </div>
-
-        <div class="suggestions" id="destinationSuggestions"></div>
 
         <div style="margin-top:10px">
           <label class="label texto-opcional">🏢 Referencia de destino (Opcional)</label>
           <input id="destinoExacto" class="campo-opcional" placeholder="Ej: puerta principal, recepción, torre A" autocomplete="off" />
-        </div>
-
-        <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnSearchDestMap">Buscar</button>
-          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
-          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
         </div>
 
         <div class="card">
