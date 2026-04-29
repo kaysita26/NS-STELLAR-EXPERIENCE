@@ -1201,27 +1201,58 @@ textarea::placeholder{
       if (!key || !FREQUENT_PLACES[key]) return;
 
       const place = FREQUENT_PLACES[key];
+      const point = {
+        label: place.label,
+        lat: place.lat,
+        lon: place.lon
+      };
 
       if (type === 'origin'){
         $('origen').value = place.label;
-        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.address;
-        if ($('distritoRecojo')) $('distritoRecojo').value = place.district;
-        originSelection = null;
+
+        if ($('distritoRecojo')) {
+          $('distritoRecojo').value = place.district;
+        }
+
+        if ($('direccionExactaRecojo')) {
+          $('direccionExactaRecojo').value = place.address;
+        }
+
+        originSelection = point;
         selectingPoint = 'origin';
+
+        drawMarker('origin', point);
+        setOriginValue('Lugar frecuente cargado: ' + place.label);
+
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
-        $('mapModeLabel').textContent = 'Confirma origen';
-        showOk('Se cargó el lugar frecuente. Ajusta el pin si hace falta y confirma.');
-      } else {
+
+        $('mapModeLabel').textContent = 'Confirma recojo';
+        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar recojo exacto”.');
+      }
+
+      if (type === 'destination'){
         $('destino').value = place.label;
-        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = place.address;
-        if ($('distritoDestino')) $('distritoDestino').value = place.district;
-        destinationSelection = null;
+
+        if ($('distritoDestino')) {
+          $('distritoDestino').value = place.district;
+        }
+
+        if ($('direccionExactaDestino')) {
+          $('direccionExactaDestino').value = place.address;
+        }
+
+        destinationSelection = point;
         selectingPoint = 'destination';
+
+        drawMarker('destination', point);
+        setDestinationValue('Lugar frecuente cargado: ' + place.label);
+
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
+
         $('mapModeLabel').textContent = 'Confirma destino';
-        showOk('Se cargó el lugar frecuente. Ajusta el pin si hace falta y confirma.');
+        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar destino exacto”.');
       }
 
       resetRouteData();
@@ -1782,14 +1813,6 @@ textarea::placeholder{
 
     $('btnBackStep1').addEventListener('click', ()=>{
   
-    if ($('frecuenteOrigen')) {
-      $('frecuenteOrigen').addEventListener('change', e => applyFrequentPlace('origin', e.target.value));
-    }
-
-    if ($('frecuenteDestino')) {
-      $('frecuenteDestino').addEventListener('change', e => applyFrequentPlace('destination', e.target.value));
-    }
-
     setStep(1);
       clearMessages();
     });
@@ -1868,6 +1891,18 @@ textarea::placeholder{
 
     $('btnCalculate').addEventListener('click', calculateTrip);
     $('btnWhatsapp').addEventListener('click', openWhatsapp);
+
+    if ($('frecuenteOrigen')) {
+      $('frecuenteOrigen').addEventListener('change', function(){
+        applyFrequentPlace('origin', this.value);
+      });
+    }
+
+    if ($('frecuenteDestino')) {
+      $('frecuenteDestino').addEventListener('change', function(){
+        applyFrequentPlace('destination', this.value);
+      });
+    }
 
     setStep(1);
     setOriginValue('Aún no confirmado');
