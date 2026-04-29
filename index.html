@@ -540,6 +540,34 @@ textarea::placeholder{
   .sub{font-size:.84rem !important;}
 }
 
+
+/* ===== ORDEN VISUAL PRO PARA LUGARES FRECUENTES ===== */
+.frequent-box{
+  margin-top:12px;
+  padding:12px;
+  border-radius:18px;
+  background:rgba(217,179,106,.08) !important;
+  border:1px solid rgba(217,179,106,.28) !important;
+}
+
+.frequent-box select{
+  margin-top:6px;
+}
+
+.help-required{
+  margin-top:6px;
+  font-size:.76rem;
+  color:#f3d8a3;
+  line-height:1.35;
+  font-weight:700;
+}
+
+#btnConfirmOriginPin,
+#btnConfirmDestinationPin{
+  font-size:15px !important;
+  min-height:52px !important;
+}
+
 </style>
 </head>
 
@@ -564,48 +592,11 @@ textarea::placeholder{
 
       <!-- PASO 1: ORIGEN -->
       <div id="panelStep1">
-        <div class="input-box" style="margin-top:12px" id="originField">
-          <div class="input-icon">📍</div>
-          <input id="origen" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
-          <select id="distritoRecojo" class="campo-obligatorio">
-            <option value="">Selecciona distrito</option>
-              <option>Miraflores</option>
-              <option>San Isidro</option>
-              <option>Los Olivos</option>
-              <option>San Martín de Porres</option>
-              <option>San Miguel</option>
-              <option>Callao</option>
-              <option>Cercado de Lima</option>
-              <option>Santiago de Surco</option>
-              <option>Barranco</option>
-              <option>La Molina</option>
-              <option>San Borja</option>
-              <option>Lince</option>
-              <option>Jesús María</option>
-              <option>Magdalena</option>
-              <option>Pueblo Libre</option>
-          </select>
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Dirección exacta de recojo * (OBLIGATORIO)</label>
-          <input id="direccionExactaRecojo" class="campo-obligatorio" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
-          <div class="help-required">La ubicación GPS acerca el mapa, pero la dirección escrita es obligatoria.</div>
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-opcional">Referencia para el conductor (Opcional)</label>
-          <input id="origenExacto" class="campo-opcional" placeholder="Ej: puerta negra, frente a Inkafarma" autocomplete="off" />
-        </div>
 
         <div class="frequent-box">
-          <label class="label texto-opcional">Lugar frecuente para recojo</label>
-          <select id="frecuenteOrigen">
-            <option value="">Elegir lugar frecuente</option>
+          <label class="label texto-obligatorio">⭐ Lugar frecuente de recojo</label>
+          <select id="frecuenteOrigen" class="campo-obligatorio">
+            <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez</option>
             <option value="melia">Hotel Meliá Lima</option>
             <option value="innside">INNSiDE Lima Miraflores</option>
@@ -613,6 +604,47 @@ textarea::placeholder{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
+          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y se acerca el mapa.</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
+          <select id="distritoRecojo" class="campo-obligatorio">
+            <option value="">Selecciona distrito</option>
+            <option>Miraflores</option>
+            <option>San Isidro</option>
+            <option>Los Olivos</option>
+            <option>San Martín de Porres</option>
+            <option>San Miguel</option>
+            <option>Callao</option>
+            <option>Cercado de Lima</option>
+            <option>Santiago de Surco</option>
+            <option>Barranco</option>
+            <option>La Molina</option>
+            <option>San Borja</option>
+            <option>Lince</option>
+            <option>Jesús María</option>
+            <option>Magdalena</option>
+            <option>Pueblo Libre</option>
+          </select>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">📍 Dirección exacta de recojo * (OBLIGATORIO)</label>
+          <input id="direccionExactaRecojo" class="campo-obligatorio" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
+          <div class="help-required">La ubicación GPS acerca el mapa, pero la dirección escrita es obligatoria.</div>
+        </div>
+
+        <div class="input-box" style="margin-top:12px" id="originField">
+          <div class="input-icon">🔎</div>
+          <input id="origen" placeholder="Buscar recojo en el mapa" autocomplete="off" />
+        </div>
+
+        <div class="suggestions" id="originSuggestions"></div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-opcional">🏠 Referencia para el conductor (Opcional)</label>
+          <input id="origenExacto" class="campo-opcional" placeholder="Ej: puerta negra, frente a Inkafarma" autocomplete="off" />
         </div>
 
         <div class="btn-row-3">
@@ -621,14 +653,12 @@ textarea::placeholder{
           <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
         </div>
 
-        <div class="suggestions" id="originSuggestions"></div>
-
         <div class="card">
-          <div class="label">Origen actual</div>
+          <div class="label">Recojo actual</div>
           <div class="value" id="originValue">Aún no confirmado</div>
         </div>
 
-        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">Confirmar origen en el pin</button>
+        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">✅ Confirmar recojo exacto</button>
         <button class="btn btn-red hidden" style="margin-top:10px" id="btnCancelOriginPin">Cancelar selección</button>
 
         <button class="btn btn-gold" style="margin-top:10px" id="btnGoStep2">Continuar con destino</button>
@@ -636,48 +666,11 @@ textarea::placeholder{
 
       <!-- PASO 2: DESTINO -->
       <div id="panelStep2" class="hidden">
-        <div class="input-box" style="margin-top:12px" id="destinationField">
-          <div class="input-icon">🔎</div>
-          <input id="destino" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
-          <select id="distritoDestino" class="campo-obligatorio">
-            <option value="">Selecciona distrito</option>
-              <option>Miraflores</option>
-              <option>San Isidro</option>
-              <option>Los Olivos</option>
-              <option>San Martín de Porres</option>
-              <option>San Miguel</option>
-              <option>Callao</option>
-              <option>Cercado de Lima</option>
-              <option>Santiago de Surco</option>
-              <option>Barranco</option>
-              <option>La Molina</option>
-              <option>San Borja</option>
-              <option>Lince</option>
-              <option>Jesús María</option>
-              <option>Magdalena</option>
-              <option>Pueblo Libre</option>
-          </select>
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Dirección exacta de destino * (OBLIGATORIO)</label>
-          <input id="direccionExactaDestino" class="campo-obligatorio" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
-          <div class="help-required">El pin confirma el punto exacto, pero la dirección escrita es obligatoria.</div>
-        </div>
-
-        <div style="margin-top:10px">
-          <label class="label texto-opcional">Referencia de destino (Opcional)</label>
-          <input id="destinoExacto" class="campo-opcional" placeholder="Ej: puerta principal, recepción, torre A" autocomplete="off" />
-        </div>
 
         <div class="frequent-box">
-          <label class="label texto-opcional">Lugar frecuente para destino</label>
-          <select id="frecuenteDestino">
-            <option value="">Elegir lugar frecuente</option>
+          <label class="label texto-obligatorio">⭐ Lugar frecuente de destino</label>
+          <select id="frecuenteDestino" class="campo-obligatorio">
+            <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez</option>
             <option value="melia">Hotel Meliá Lima</option>
             <option value="innside">INNSiDE Lima Miraflores</option>
@@ -685,6 +678,47 @@ textarea::placeholder{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
+          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y se acerca el mapa.</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
+          <select id="distritoDestino" class="campo-obligatorio">
+            <option value="">Selecciona distrito</option>
+            <option>Miraflores</option>
+            <option>San Isidro</option>
+            <option>Los Olivos</option>
+            <option>San Martín de Porres</option>
+            <option>San Miguel</option>
+            <option>Callao</option>
+            <option>Cercado de Lima</option>
+            <option>Santiago de Surco</option>
+            <option>Barranco</option>
+            <option>La Molina</option>
+            <option>San Borja</option>
+            <option>Lince</option>
+            <option>Jesús María</option>
+            <option>Magdalena</option>
+            <option>Pueblo Libre</option>
+          </select>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">🏁 Dirección exacta de destino * (OBLIGATORIO)</label>
+          <input id="direccionExactaDestino" class="campo-obligatorio" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
+          <div class="help-required">El pin confirma el punto exacto, pero la dirección escrita es obligatoria.</div>
+        </div>
+
+        <div class="input-box" style="margin-top:12px" id="destinationField">
+          <div class="input-icon">🔎</div>
+          <input id="destino" placeholder="Buscar destino en el mapa" autocomplete="off" />
+        </div>
+
+        <div class="suggestions" id="destinationSuggestions"></div>
+
+        <div style="margin-top:10px">
+          <label class="label texto-opcional">🏢 Referencia de destino (Opcional)</label>
+          <input id="destinoExacto" class="campo-opcional" placeholder="Ej: puerta principal, recepción, torre A" autocomplete="off" />
         </div>
 
         <div class="btn-row-3">
@@ -693,14 +727,12 @@ textarea::placeholder{
           <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
         </div>
 
-        <div class="suggestions" id="destinationSuggestions"></div>
-
         <div class="card">
           <div class="label">Destino actual</div>
           <div class="value" id="destinationValue">Aún no confirmado</div>
         </div>
 
-        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">Confirmar destino en el pin</button>
+        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
         <button class="btn btn-red hidden" style="margin-top:10px" id="btnCancelDestinationPin">Cancelar selección</button>
 
         <div class="btn-row" style="margin-top:10px">
