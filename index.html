@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NS STELLAR EXPERIENCE</title>
+  <title>NS EXECUTIVE</title>
   <meta name="theme-color" content="#0c1118" />
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -661,6 +661,22 @@ textarea::placeholder{
   display:block;
 }
 
+
+.header-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.logo-app{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.3);
+}
+
 </style>
 </head>
 
@@ -672,6 +688,15 @@ textarea::placeholder{
     </div>
 
     <div class="panel" id="mainPanel">
+
+<div class="header-box">
+  <img src="logo.png" class="logo-app" />
+  <div>
+    <div class="title">NS STELLAR EXPERIENCE</div>
+    <div class="sub">Traslados ejecutivos y turísticos</div>
+  </div>
+</div>
+
       <div class="step" id="stepBadge">Paso 1 • Confirmar origen</div>
       <div class="title" id="sheetTitle">Confirma tu punto de recojo</div>
       <div class="sub" id="sheetSub">Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.</div>
