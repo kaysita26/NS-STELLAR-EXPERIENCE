@@ -1779,6 +1779,47 @@ body{
       return fare;
     }
 
+
+    function distanceKmFallback(from, to){
+      const R = 6371;
+      const lat1 = Number(from.lat);
+      const lon1 = Number(from.lon);
+      const lat2 = Number(to.lat);
+      const lon2 = Number(to.lon);
+
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function drawSimpleLineFallback(from, to){
+      if (routeLayer) map.removeLayer(routeLayer);
+
+      routeLayer = L.polyline(
+        [
+          [from.lat, from.lon],
+          [to.lat, to.lon]
+        ],
+        {
+          color:'#d9b36a',
+          weight:5,
+          opacity:.9,
+          dashArray:'8,8'
+        }
+      ).addTo(map);
+
+      map.fitBounds(routeLayer.getBounds(), { padding:[20,20] });
+    }
+
+
     async function calculateTrip(){
       clearMessages();
 
@@ -1791,25 +1832,43 @@ body{
         $('btnCalculate').disabled = true;
         $('btnCalculate').textContent = 'Calculando...';
 
-        const route = await apiPost('/route', {
-          from: originSelection,
-          to: destinationSelection
-        });
+        let km = 0;
+        let min = 0;
+        let rutaCalculadaPorAPI = false;
 
-        const feature = route.feature;
+        try{
+          const route = await apiPost('/route', {
+            from: originSelection,
+            to: destinationSelection
+          });
 
-        if (!feature) throw new Error('No se encontró ruta');
+          const feature = route.feature;
 
-        if (routeLayer) map.removeLayer(routeLayer);
+          if (!feature) throw new Error('No se encontró ruta');
 
-        routeLayer = L.geoJSON(feature, {
-          style:{ color:'#d9b36a', weight:5, opacity:.9 }
-        }).addTo(map);
+          if (routeLayer) map.removeLayer(routeLayer);
 
-        map.fitBounds(routeLayer.getBounds(), { padding:[20,20] });
+          routeLayer = L.geoJSON(feature, {
+            style:{ color:'#d9b36a', weight:5, opacity:.9 }
+          }).addTo(map);
 
-        const km = route.summary.distance / 1000;
-        const min = Math.ceil(route.summary.duration / 60);
+          map.fitBounds(routeLayer.getBounds(), { padding:[20,20] });
+
+          km = route.summary.distance / 1000;
+          min = Math.ceil(route.summary.duration / 60);
+          rutaCalculadaPorAPI = true;
+        }
+        catch(routeErr){
+          console.warn('Ruta API falló, usando cálculo de respaldo:', routeErr);
+
+          km = distanceKmFallback(originSelection, destinationSelection);
+
+          // Aproximación urbana: 25 km/h promedio
+          min = Math.ceil((km / 25) * 60);
+
+          drawSimpleLineFallback(originSelection, destinationSelection);
+        }
+
         const fare = calculateFare(km, currentVehicle);
         const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
 
@@ -1826,7 +1885,8 @@ body{
           origen: originSelection.label,
           destino: destinationSelection.label,
           origenCoords: `${originSelection.lat}, ${originSelection.lon}`,
-          destinoCoords: `${destinationSelection.lat}, ${destinationSelection.lon}`
+          destinoCoords: `${destinationSelection.lat}, ${destinationSelection.lon}`,
+          rutaMetodo: rutaCalculadaPorAPI ? 'Ruta real' : 'Ruta aproximada por coordenadas'
         };
 
         $('sumDistance').textContent = routeData.km + ' km';
@@ -1835,12 +1895,14 @@ body{
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
-        $('mapModeLabel').textContent = 'Ruta calculada';
-        showOk('Monto calculado correctamente.');
-      }catch(err){
+        $('mapModeLabel').textContent = rutaCalculadaPorAPI ? 'Ruta calculada' : 'Ruta aproximada';
+        showOk(rutaCalculadaPorAPI ? 'Monto calculado correctamente.' : 'Monto calculado con ruta aproximada por coordenadas.');
+      }
+      catch(err){
         console.error(err);
-        showWarn('No se pudo calcular el monto.');
-      }finally{
+        showWarn('No se pudo calcular el monto. Revisa que origen y destino tengan pin confirmado.');
+      }
+      finally{
         $('btnCalculate').disabled = false;
         $('btnCalculate').textContent = 'Calcular monto';
       }
@@ -1980,6 +2042,7 @@ body{
         routeData ? `⏱️ Tiempo estimado: ${routeData.minutos} min` : '⏱️ Tiempo estimado: -',
         routeData ? `🛣️ Peaje/adicional: S/ ${routeData.adicional || '0.00'}` : '🛣️ Peaje/adicional: -',
         routeData ? `🧮 Tipo de cálculo: ${routeData.tipoCalculo}` : '🧮 Tipo de cálculo: -',
+        routeData ? `🗺️ Método de ruta: ${routeData.rutaMetodo}` : '🗺️ Método de ruta: -',
         '',
       
       ].join('\n');
