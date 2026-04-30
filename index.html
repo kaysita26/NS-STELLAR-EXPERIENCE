@@ -597,6 +597,70 @@ textarea::placeholder{
   background:rgba(77,166,255,.08) !important;
   border:1px solid rgba(77,166,255,.24) !important;
 }
+
+/* ===== MODO DESTINO: CAMBIA COLOR PARA NO CONFUNDIR CON RECOJO ===== */
+.panel.modo-destino{
+  border:2px solid rgba(255,120,120,.45) !important;
+  background:linear-gradient(180deg, rgba(70,20,28,.96), rgba(15,23,34,.98)) !important;
+}
+
+.panel.modo-destino .step{
+  background:rgba(255,120,120,.16) !important;
+  border-color:rgba(255,120,120,.45) !important;
+  color:#ffd6d6 !important;
+}
+
+.panel.modo-destino .title{
+  color:#ffd6d6 !important;
+}
+
+.panel.modo-destino .map-badge{
+  background:rgba(255,120,120,.12) !important;
+  border-color:rgba(255,120,120,.35) !important;
+  color:#ffe1e1 !important;
+}
+
+.frequent-box-destino{
+  background:rgba(255,120,120,.10) !important;
+  border:2px solid rgba(255,120,120,.42) !important;
+}
+
+.lugar-destino-label{
+  color:#ffb3b3 !important;
+  font-weight:900 !important;
+  font-size:15px !important;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+
+.lugar-destino-select{
+  background:#3a1620 !important;
+  border:2px solid #ff7878 !important;
+  color:#ffffff !important;
+  box-shadow:0 0 0 4px rgba(255,120,120,.12) !important;
+}
+
+.lugar-destino-select:focus{
+  border-color:#ffb3b3 !important;
+  box-shadow:0 0 0 4px rgba(255,120,120,.18) !important;
+}
+
+.destino-alerta{
+  display:none;
+  margin:10px 0;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(255,120,120,.12);
+  border:1px solid rgba(255,120,120,.32);
+  color:#ffe1e1;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.panel.modo-destino .destino-alerta{
+  display:block;
+}
+
 </style>
 </head>
 
@@ -607,12 +671,14 @@ textarea::placeholder{
       <span>Traslados ejecutivos y turísticos</span>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="mainPanel">
       <div class="step" id="stepBadge">Paso 1 • Confirmar origen</div>
       <div class="title" id="sheetTitle">Confirma tu punto de recojo</div>
       <div class="sub" id="sheetSub">Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.</div>
 
       <div class="map-badge" id="mapModeLabel">Mapa listo</div>
+
+      <div class="destino-alerta">🏁 Ahora estás configurando el DESTINO. El color cambia para que no se confunda con el recojo.</div>
 
       <div class="map-wrap">
         <div id="map"></div>
@@ -696,11 +762,11 @@ textarea::placeholder{
       <!-- PASO 2: DESTINO -->
       <div id="panelStep2" class="hidden">
 
-        <div class="frequent-box">
-          <label class="label lugar-frecuente-label">⭐ Lugar frecuente de destino</label>
-          <select id="frecuenteDestino" class="lugar-frecuente-select">
+        <div class="frequent-box frequent-box-destino">
+          <label class="label lugar-destino-label">🏁 Lugar frecuente de destino</label>
+          <select id="frecuenteDestino" class="lugar-destino-select">
             <option value="">Selecciona un lugar frecuente</option>
-            <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez</option>
+            <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
             <option value="melia">Hotel Meliá Lima</option>
             <option value="innside">INNSiDE Lima Miraflores</option>
             <option value="westin">The Westin Lima</option>
@@ -892,12 +958,12 @@ textarea::placeholder{
 
         <div class="grid-2">
           <div>
-            <label class="label">Cliente</label>
-            <input id="nombre" placeholder="Nombre del cliente" />
+            <label class="label texto-obligatorio">👤 Nombre del cliente * (OBLIGATORIO)</label>
+            <input id="nombre" class="campo-obligatorio" placeholder="Nombre del cliente" />
           </div>
           <div>
-            <label class="label">Celular</label>
-            <input id="telefono" placeholder="901254466" />
+            <label class="label texto-obligatorio">📱 Celular * (OBLIGATORIO)</label>
+            <input id="telefono" class="campo-obligatorio" inputmode="numeric" pattern="[0-9]*" maxlength="9" placeholder="901254466" />
           </div>
         </div>
 
@@ -1044,6 +1110,10 @@ textarea::placeholder{
     function setStep(step){
       currentStep = step;
 
+      if ($('mainPanel')) {
+        $('mainPanel').classList.toggle('modo-destino', step === 2);
+      }
+
       ['panelStep1','panelStep2','panelStep3','panelStep4','panelStep5','panelStep6'].forEach(id=>{
         $(id).classList.add('hidden');
       });
@@ -1057,9 +1127,9 @@ textarea::placeholder{
       }
 
       if (step === 2){
-        $('stepBadge').textContent = 'Paso 2 • Confirmar destino';
-        $('sheetTitle').textContent = 'Confirma tu destino';
-        $('sheetSub').textContent = 'Escribe el destino, elige una sugerencia o mueve el mapa y confirma el pin.';
+        $('stepBadge').textContent = 'Paso 2 • DESTINO';
+        $('sheetTitle').textContent = '🏁 Ahora confirma tu DESTINO';
+        $('sheetSub').textContent = 'Estás en DESTINO. Elige un lugar frecuente, busca una dirección o ajusta el pin exacto.';
       }
 
       if (step === 3){
@@ -1696,7 +1766,17 @@ textarea::placeholder{
       const nombre = $('nombre').value.trim();
       const telefono = $('telefono').value.trim();
 
-      if (!nombre || !telefono){
+      if (!nombre){
+        showWarn('Ingresa el nombre del cliente.');
+        return;
+      }
+
+      if (!telefono || telefono.length < 9){
+        showWarn('Ingresa un celular válido.');
+        return;
+      }
+
+      //
         showWarn('Completa cliente y celular.');
         return;
       }
