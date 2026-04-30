@@ -963,7 +963,7 @@ textarea::placeholder{
           </div>
           <div>
             <label class="label texto-obligatorio">📱 Celular * (OBLIGATORIO)</label>
-            <input id="telefono" class="campo-obligatorio" inputmode="numeric" pattern="[0-9]*" maxlength="9" placeholder="901254466" />
+            <input id="telefono" class="campo-obligatorio" inputmode="tel" placeholder="Ej: +51 901254466 / +1 305 1234567" />
           </div>
         </div>
 
@@ -1771,8 +1771,10 @@ textarea::placeholder{
         return;
       }
 
-      if (!telefono || telefono.length < 9){
-        showWarn('Ingresa un celular válido.');
+      const telefonoDigits = telefono.replace(/\D/g, '');
+
+      if (!telefono || telefonoDigits.length < 7){
+        showWarn('Ingresa un celular válido con código de país si corresponde. Ej: +51 901254466.');
         return;
       }
 
