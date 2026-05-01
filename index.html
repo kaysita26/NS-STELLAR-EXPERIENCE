@@ -854,6 +854,25 @@ body{
   box-shadow:0 0 0 4px rgba(255,120,120,.18) !important;
 }
 
+
+/* ===== BOTONES PRINCIPALES: TEXTO COMPLETO EN CELULAR ===== */
+#btnGoStep2,
+#btnGoStep3{
+  white-space:normal !important;
+  line-height:1.15 !important;
+  text-align:center !important;
+  min-height:52px !important;
+  padding:10px 8px !important;
+}
+
+@media (max-width:480px){
+  #btnGoStep2,
+  #btnGoStep3{
+    font-size:12px !important;
+    min-height:50px !important;
+  }
+}
+
 </style>
   
 </head>
@@ -1381,12 +1400,15 @@ body{
         return false;
       }
 
-      // Si el usuario escribió la dirección, pero no confirmó pin,
-      // usamos el punto actual cargado en el mapa/ubicación como respaldo.
       if (!originSelection){
-        showWarn('Confirma el recojo con Mi ubicación, Pin o una búsqueda en el mapa.');
-        markInvalidField('origen');
-        return false;
+        const c = map.getCenter();
+        originSelection = {
+          label: direccion + ', ' + distrito,
+          lat: c.lat,
+          lon: c.lng,
+          type:'manual'
+        };
+        setOriginValue(originSelection.label);
       }
 
       return true;
@@ -2339,25 +2361,26 @@ body{
     if ($('tipoViaje')) $('tipoViaje').addEventListener('change', resetRouteData);
     if ($('adicionalPeaje')) $('adicionalPeaje').addEventListener('change', resetRouteData);
 
-    $('btnGoStep2').addEventListener('click', ()=>{
-      if (!validateOriginBeforeContinue()) return;
-      setStep(2);
-    });
-
     if ($('btnBackStep1')) $('btnBackStep1').addEventListener('click', ()=>{
   
     setStep(1);
       clearMessages();
     });
 
-    $('btnGoStep3').addEventListener('click', ()=>{
-      if (!validateDestinationBeforeContinue()) return;
-      setStep(3);
-    });
-
     $('btnBackStep2A').addEventListener('click', ()=>{
       setStep(2);
       clearMessages();
+    });
+
+    
+    $('btnGoStep2').addEventListener('click', ()=>{
+      if (!validateOriginBeforeContinue()) return;
+      setStep(2);
+    });
+
+    $('btnGoStep3').addEventListener('click', ()=>{
+      if (!validateDestinationBeforeContinue()) return;
+      setStep(3);
     });
 
     $('btnGoStep4').addEventListener('click', ()=>{
