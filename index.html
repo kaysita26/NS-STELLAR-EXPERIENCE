@@ -847,6 +847,13 @@ body{
     opacity:0.5 !important;
   }
 
+
+/* ===== VALIDACIÓN VISUAL DE CAMPOS OBLIGATORIOS ===== */
+.campo-error{
+  border-color:#ff7878 !important;
+  box-shadow:0 0 0 4px rgba(255,120,120,.18) !important;
+}
+
 </style>
   
 </head>
@@ -947,7 +954,7 @@ body{
         </div>
 
            <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep2">Recojo confirmado • Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
           <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1022,7 +1029,7 @@ body{
         </div>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep3">Destino confirmado • Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep3">Continuar con servicio</button>
           <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1343,6 +1350,76 @@ body{
       }
     }
 
+
+    function markInvalidField(id){
+      const el = $(id);
+      if (!el) return;
+      el.style.borderColor = '#ff7878';
+      el.style.boxShadow = '0 0 0 4px rgba(255,120,120,.18)';
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      setTimeout(()=>{
+        el.style.borderColor = '';
+        el.style.boxShadow = '';
+      }, 1800);
+    }
+
+    function validateOriginBeforeContinue(){
+      clearMessages();
+
+      const distrito = ($('distritoRecojo')?.value || '').trim();
+      const direccion = ($('direccionExactaRecojo')?.value || '').trim();
+
+      if (!distrito){
+        showWarn('Selecciona el distrito de recojo. Es obligatorio.');
+        markInvalidField('distritoRecojo');
+        return false;
+      }
+
+      if (!direccion || direccion.length < 4){
+        showWarn('Escribe la dirección exacta de recojo. Es obligatorio.');
+        markInvalidField('direccionExactaRecojo');
+        return false;
+      }
+
+      // Si el usuario escribió la dirección, pero no confirmó pin,
+      // usamos el punto actual cargado en el mapa/ubicación como respaldo.
+      if (!originSelection){
+        showWarn('Confirma el recojo con Mi ubicación, Pin o una búsqueda en el mapa.');
+        markInvalidField('origen');
+        return false;
+      }
+
+      return true;
+    }
+
+    function validateDestinationBeforeContinue(){
+      clearMessages();
+
+      const distrito = ($('distritoDestino')?.value || '').trim();
+      const direccion = ($('direccionExactaDestino')?.value || '').trim();
+
+      if (!distrito){
+        showWarn('Selecciona el distrito de destino. Es obligatorio.');
+        markInvalidField('distritoDestino');
+        return false;
+      }
+
+      if (!direccion || direccion.length < 4){
+        showWarn('Escribe la dirección exacta de destino. Es obligatorio.');
+        markInvalidField('direccionExactaDestino');
+        return false;
+      }
+
+      if (!destinationSelection){
+        showWarn('Confirma el destino con Pin, lugar frecuente o búsqueda en el mapa.');
+        markInvalidField('destino');
+        return false;
+      }
+
+      return true;
+    }
+
+
     function setStep(step){
       currentStep = step;
 
@@ -1359,13 +1436,13 @@ body{
       if (step === 1){
         $('stepBadge').textContent = 'Paso 1 • Confirmar origen';
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
-        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
+        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego revisa distrito y dirección exacta antes de continuar.';
       }
 
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • DESTINO';
         $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
-        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego confirma el punto exacto.';
+        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego revisa distrito y dirección exacta antes de continuar.';
       }
 
       if (step === 3){
@@ -1437,22 +1514,22 @@ body{
     function showPinSelection(show){
       $('centerPin').classList.toggle('show', show);
 
-      $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
-      $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
+      if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
+      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.toggle('hidden', false);
 
-      $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
-      $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
+      if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
+      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.toggle('hidden', false);
     }
 
     function hidePinMode(){
       selectingPoint = null;
       $('centerPin').classList.remove('show');
 
-      $('btnConfirmOriginPin').classList.add('hidden');
-      $('btnCancelOriginPin').classList.add('hidden');
+      if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.add('hidden');
+      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.remove('hidden');
 
-      $('btnConfirmDestinationPin').classList.add('hidden');
-      $('btnCancelDestinationPin').classList.add('hidden');
+      if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.add('hidden');
+      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.remove('hidden');
 
       $('mapModeLabel').textContent = 'Mapa listo';
     }
@@ -1542,7 +1619,7 @@ body{
         showPinSelection(true);
 
         $('mapModeLabel').textContent = 'Confirma recojo';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar recojo exacto”.');
+        showOk('Lugar frecuente cargado. Si el pin está correcto, verifica la dirección obligatoria y toca “Continuar con destino”.');
       }
 
       if (type === 'destination'){
@@ -1566,7 +1643,7 @@ body{
         showPinSelection(true);
 
         $('mapModeLabel').textContent = 'Confirma destino';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar destino exacto”.');
+        showOk('Lugar frecuente cargado. Si el pin está correcto, verifica la dirección obligatoria y toca “Continuar con servicio”.');
       }
 
       resetRouteData();
@@ -2263,23 +2340,8 @@ body{
     if ($('adicionalPeaje')) $('adicionalPeaje').addEventListener('change', resetRouteData);
 
     $('btnGoStep2').addEventListener('click', ()=>{
-      if (!$('distritoRecojo').value){
-        showWarn('Selecciona el distrito de recojo.');
-        return;
-      }
-
-      if (!hasMinText($('direccionExactaRecojo').value, 5)){
-        showWarn('Escribe la dirección exacta de recojo. Ej: Jr. Ica 540.');
-        return;
-      }
-
-      if (!originSelection){
-        showWarn('Confirma el pin exacto del recojo en el mapa.');
-        return;
-      }
-
+      if (!validateOriginBeforeContinue()) return;
       setStep(2);
-      clearMessages();
     });
 
     if ($('btnBackStep1')) $('btnBackStep1').addEventListener('click', ()=>{
@@ -2289,23 +2351,8 @@ body{
     });
 
     $('btnGoStep3').addEventListener('click', ()=>{
-      if (!$('distritoDestino').value){
-        showWarn('Selecciona el distrito de destino.');
-        return;
-      }
-
-      if (!hasMinText($('direccionExactaDestino').value, 5)){
-        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
-        return;
-      }
-
-      if (!destinationSelection){
-        showWarn('Confirma el pin exacto del destino en el mapa.');
-        return;
-      }
-
+      if (!validateDestinationBeforeContinue()) return;
       setStep(3);
-      clearMessages();
     });
 
     $('btnBackStep2A').addEventListener('click', ()=>{
