@@ -973,7 +973,7 @@ body{
         </div>
 
            <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
+          <button class="btn btn-gold" id="btnGoStep2" onclick="goDestinationStep()">Continuar con destino</button>
           <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1048,7 +1048,7 @@ body{
         </div>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep3">Continuar con servicio</button>
+          <button class="btn btn-gold" id="btnGoStep3" onclick="goServiceStep()">Continuar con servicio</button>
           <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1373,20 +1373,23 @@ body{
     function markInvalidField(id){
       const el = $(id);
       if (!el) return;
-      el.style.borderColor = '#ff7878';
-      el.style.boxShadow = '0 0 0 4px rgba(255,120,120,.18)';
-      el.scrollIntoView({behavior:'smooth', block:'center'});
+      el.classList.add('campo-error');
+      try{
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+      }catch(e){}
       setTimeout(()=>{
-        el.style.borderColor = '';
-        el.style.boxShadow = '';
+        el.classList.remove('campo-error');
       }, 1800);
     }
 
     function validateOriginBeforeContinue(){
       clearMessages();
 
-      const distrito = ($('distritoRecojo')?.value || '').trim();
-      const direccion = ($('direccionExactaRecojo')?.value || '').trim();
+      const distritoEl = $('distritoRecojo');
+      const direccionEl = $('direccionExactaRecojo');
+
+      const distrito = distritoEl ? distritoEl.value.trim() : '';
+      const direccion = direccionEl ? direccionEl.value.trim() : '';
 
       if (!distrito){
         showWarn('Selecciona el distrito de recojo. Es obligatorio.');
@@ -1440,6 +1443,33 @@ body{
 
       return true;
     }
+
+
+
+    function goDestinationStep(){
+      try{
+        if (!validateOriginBeforeContinue()) return;
+        setStep(2);
+        clearMessages();
+      }catch(err){
+        console.error('Error al continuar con destino:', err);
+        showWarn('No se pudo continuar. Revisa distrito y dirección de recojo.');
+      }
+    }
+
+    function goServiceStep(){
+      try{
+        if (!validateDestinationBeforeContinue()) return;
+        setStep(3);
+        clearMessages();
+      }catch(err){
+        console.error('Error al continuar con servicio:', err);
+        showWarn('No se pudo continuar. Revisa distrito y dirección de destino.');
+      }
+    }
+
+    window.goDestinationStep = goDestinationStep;
+    window.goServiceStep = goServiceStep;
 
 
     function setStep(step){
@@ -2371,17 +2401,8 @@ body{
       setStep(2);
       clearMessages();
     });
-
-    
-    $('btnGoStep2').addEventListener('click', ()=>{
-      if (!validateOriginBeforeContinue()) return;
-      setStep(2);
-    });
-
-    $('btnGoStep3').addEventListener('click', ()=>{
-      if (!validateDestinationBeforeContinue()) return;
-      setStep(3);
-    });
+    if ($('btnGoStep2')) $('btnGoStep2').addEventListener('click', goDestinationStep);
+    if ($('btnGoStep3')) $('btnGoStep3').addEventListener('click', goServiceStep);
 
     $('btnGoStep4').addEventListener('click', ()=>{
       if (!messageMode){
