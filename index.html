@@ -851,6 +851,18 @@ body{
       <div class="title" id="sheetTitle">Confirma tu punto de recojo</div>
       <div class="sub" id="sheetSub">Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.</div>
 
+      <div class="map-section-inline">
+        <div class="map-badge" id="mapModeLabel">Mapa listo</div>
+
+        <div class="destino-alerta">🏁 Ahora estás configurando el DESTINO. El color cambia para que no se confunda con el recojo.</div>
+
+        <div class="map-wrap">
+          <div id="map"></div>
+          <div class="center-pin" id="centerPin">📍</div>
+        </div>
+      </div>
+
+
       <!-- PASO 1: ORIGEN -->
       <div id="panelStep1">
 
@@ -882,17 +894,6 @@ body{
 
         <div class="suggestions" id="originSuggestions"></div>
 
-        <div class="map-section-inline">
-          <div class="map-badge" id="mapModeLabel">Mapa listo</div>
-
-          <div class="destino-alerta">🏁 Ahora estás configurando el DESTINO. El color cambia para que no se confunda con el recojo.</div>
-
-          <div class="map-wrap">
-            <div id="map"></div>
-            <div class="center-pin" id="centerPin">📍</div>
-          </div>
-        </div>
-
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
@@ -918,7 +919,7 @@ body{
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">📍 Dirección exacta de recojo * (OBLIGATORIO)</label>
-          <input id="direccionExactaRecojo" class="campo-obligatorio" placeholder="Escribe tu dirección Ej: Jr. Ica 540" autocomplete="off" />
+          <input id="direccionExactaRecojo" class="campo-obligatorio" placeholder="Ej: Av. Angélica Gamarra 470" autocomplete="off" />
           <div class="help-required">Si el mapa no reconoce el número, igual escribe aquí la dirección exacta.</div>
         </div>
 
@@ -943,9 +944,10 @@ body{
       <!-- PASO 2: DESTINO -->
       <div id="panelStep2" class="hidden">
 
-        <div class="btn-row-3">
-          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
+        <div class="btn-row-4">
+          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin destino</button>
           <button class="btn btn-dark" id="btnToggleFrequentDestination">⭐ Frecuentes</button>
+          <button class="btn btn-dark" id="btnSearchDestMap">Buscar mapa</button>
           <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
         </div>
 
@@ -960,7 +962,7 @@ body{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
-          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
+          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección de destino y el mapa se acerca.</div>
         </div>
 
         <div class="input-box" style="margin-top:12px" id="destinationField">
@@ -969,8 +971,6 @@ body{
         </div>
 
         <div class="suggestions" id="destinationSuggestions"></div>
-
-        <button class="btn btn-dark" style="margin-top:10px" id="btnSearchDestMap">Buscar destino en mapa</button>
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
@@ -997,7 +997,7 @@ body{
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">🏁 Dirección exacta de destino * (OBLIGATORIO)</label>
           <input id="direccionExactaDestino" class="campo-obligatorio" placeholder="Ej: Aeropuerto Jorge Chávez" autocomplete="off" />
-          <div class="help-required">Si el mapa no reconoce el número, igual escribe aquí la dirección exacta.</div>
+          <div class="help-required">Si el mapa no reconoce el número, igual escribe aquí la dirección exacta de destino.</div>
         </div>
 
         <div style="margin-top:10px">
@@ -1357,7 +1357,7 @@ body{
 
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • DESTINO';
-        $('sheetTitle').textContent = '🏁 Ahora confirma tu DESTINO';
+        $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
         $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego confirma el punto exacto.';
       }
 
@@ -1388,6 +1388,10 @@ body{
       }
 
       updateDynamicTexts();
+
+      setTimeout(()=>{
+        if (map) map.invalidateSize();
+      }, 120);
     }
 
     function debounce(fn, wait=350){
