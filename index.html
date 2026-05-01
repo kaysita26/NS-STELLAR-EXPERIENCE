@@ -792,6 +792,47 @@ body{
   }
 }
 
+
+/* ===== FLUJO ORDENADO MOBILE: BOTONES ARRIBA + FRECUENTES DESPLEGABLE ===== */
+.btn-row-4{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:8px;
+  margin-top:10px;
+}
+
+.frequent-box.hidden-frequent{
+  display:none !important;
+}
+
+.btn-cancel-wide{
+  margin-top:10px;
+  background:rgba(255,255,255,.03) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+}
+
+.map-section-inline{
+  margin-top:12px;
+}
+
+@media (max-width:760px){
+  .btn-row-4{
+    display:grid !important;
+    grid-template-columns:repeat(4, minmax(0,1fr)) !important;
+    gap:6px !important;
+  }
+
+  .btn-row-4 .btn{
+    min-height:40px !important;
+    padding:8px 3px !important;
+    font-size:10.5px !important;
+    border-radius:12px !important;
+    white-space:normal !important;
+    line-height:1.15 !important;
+  }
+}
+
 </style>
 </head>
 
@@ -810,19 +851,17 @@ body{
       <div class="title" id="sheetTitle">Confirma tu punto de recojo</div>
       <div class="sub" id="sheetSub">Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.</div>
 
-      <div class="map-badge" id="mapModeLabel">Mapa listo</div>
-
-      <div class="destino-alerta">🏁 Ahora estás configurando el DESTINO. El color cambia para que no se confunda con el recojo.</div>
-
-      <div class="map-wrap">
-        <div id="map"></div>
-        <div class="center-pin" id="centerPin">📍</div>
-      </div>
-
       <!-- PASO 1: ORIGEN -->
       <div id="panelStep1">
 
-        <div class="frequent-box">
+        <div class="btn-row-4">
+          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
+          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
+          <button class="btn btn-dark" id="btnToggleFrequentOrigin">⭐ Frecuentes</button>
+          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
+        </div>
+
+        <div class="frequent-box hidden-frequent" id="frequentOriginBox">
           <label class="label lugar-frecuente-label">⭐ Lugar frecuente de recojo</label>
           <select id="frecuenteOrigen" class="lugar-frecuente-select">
             <option value="">Selecciona un lugar frecuente</option>
@@ -833,13 +872,7 @@ body{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
-          <div class="help-required">Opcional: si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
-        </div>
-
-        <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
-          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
-          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
+          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
         </div>
 
         <div class="input-box" style="margin-top:12px" id="originField">
@@ -848,6 +881,18 @@ body{
         </div>
 
         <div class="suggestions" id="originSuggestions"></div>
+
+        <div class="map-section-inline">
+          <div class="map-badge" id="mapModeLabel">Mapa listo</div>
+
+          <div class="destino-alerta">🏁 Ahora estás configurando el DESTINO. El color cambia para que no se confunda con el recojo.</div>
+
+          <div class="map-wrap">
+            <div id="map"></div>
+            <div class="center-pin" id="centerPin">📍</div>
+          </div>
+        </div>
+
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
@@ -888,15 +933,23 @@ body{
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">✅ Confirmar recojo exacto</button>
-        <button class="btn btn-red hidden" style="margin-top:10px" id="btnCancelOriginPin">Cancelar selección</button>
 
-        <button class="btn btn-gold" style="margin-top:10px" id="btnGoStep2">Continuar con destino</button>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
+          <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
+        </div>
       </div>
 
       <!-- PASO 2: DESTINO -->
       <div id="panelStep2" class="hidden">
 
-        <div class="frequent-box frequent-box-destino">
+        <div class="btn-row-3">
+          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
+          <button class="btn btn-dark" id="btnToggleFrequentDestination">⭐ Frecuentes</button>
+          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
+        </div>
+
+        <div class="frequent-box frequent-box-destino hidden-frequent" id="frequentDestinationBox">
           <label class="label lugar-destino-label">🏁 Lugar frecuente de destino</label>
           <select id="frecuenteDestino" class="lugar-destino-select">
             <option value="">Selecciona un lugar frecuente</option>
@@ -907,13 +960,7 @@ body{
             <option value="swissotel">Swissôtel Lima</option>
             <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
           </select>
-          <div class="help-required">Opcional: si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
-        </div>
-
-        <div class="btn-row-3">
-          <button class="btn btn-dark" id="btnSearchDestMap">Buscar</button>
-          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin</button>
-          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
+          <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
         </div>
 
         <div class="input-box" style="margin-top:12px" id="destinationField">
@@ -922,6 +969,8 @@ body{
         </div>
 
         <div class="suggestions" id="destinationSuggestions"></div>
+
+        <button class="btn btn-dark" style="margin-top:10px" id="btnSearchDestMap">Buscar destino en mapa</button>
 
         <div style="margin-top:10px">
           <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
@@ -962,12 +1011,13 @@ body{
         </div>
 
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
-        <button class="btn btn-red hidden" style="margin-top:10px" id="btnCancelDestinationPin">Cancelar selección</button>
 
         <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-ghost" id="btnBackStep1">Volver</button>
           <button class="btn btn-gold" id="btnGoStep3">Continuar</button>
         </div>
+
+        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1302,13 +1352,13 @@ body{
       if (step === 1){
         $('stepBadge').textContent = 'Paso 1 • Confirmar origen';
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
-        $('sheetSub').textContent = 'Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.';
+        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
       }
 
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • DESTINO';
         $('sheetTitle').textContent = '🏁 Ahora confirma tu DESTINO';
-        $('sheetSub').textContent = 'Estás en DESTINO. Elige un lugar frecuente, busca una dirección o ajusta el pin exacto.';
+        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego confirma el punto exacto.';
       }
 
       if (step === 3){
@@ -1697,13 +1747,27 @@ body{
 
     function clearOrigin(){
       originSelection = null;
-      $('origen').value = '';
+      routeData = null;
+
+      if ($('origen')) $('origen').value = '';
+      if ($('distritoRecojo')) $('distritoRecojo').value = '';
+      if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = '';
+      if ($('origenExacto')) $('origenExacto').value = '';
+      if ($('frecuenteOrigen')) $('frecuenteOrigen').value = '';
+      if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
 
       if (markerOrigen) map.removeLayer(markerOrigen);
       markerOrigen = null;
 
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+
       setOriginValue('Aún no confirmado');
       hidePinMode();
+      resetRouteData();
+      showWarn('Recojo limpiado.');
     }
 
     function clearDestination(){
@@ -1910,11 +1974,11 @@ body{
 
     function resetRouteData(){
       routeData = null;
-      $('sumDistance').textContent = '—';
-      $('sumTime').textContent = '—';
+      if ($('sumDistance')) $('sumDistance').textContent = '—';
+      if ($('sumTime')) $('sumTime').textContent = '—';
       if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ 0.00';
-      $('sumFare').textContent = '—';
-      $('fareBig').textContent = 'S/ 0.00';
+      if ($('sumFare')) $('sumFare').textContent = '—';
+      if ($('fareBig')) $('fareBig').textContent = 'S/ 0.00';
     }
 
     function updateVehicleSuggestion(){
@@ -2091,7 +2155,7 @@ body{
         return;
       }
 
-      const url = `https://wa.me/${901254466}?text=${encodeURIComponent(buildWhatsappMessage())}`;
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsappMessage())}`;
       window.open(url, '_blank');
     }
 
@@ -2130,6 +2194,19 @@ body{
 
     $('btnUseCurrentLocation').addEventListener('click', useCurrentLocation);
 
+    if ($('btnToggleFrequentOrigin')) {
+      $('btnToggleFrequentOrigin').addEventListener('click', ()=>{
+        $('frequentOriginBox').classList.toggle('hidden-frequent');
+      });
+    }
+
+    if ($('btnToggleFrequentDestination')) {
+      $('btnToggleFrequentDestination').addEventListener('click', ()=>{
+        $('frequentDestinationBox').classList.toggle('hidden-frequent');
+      });
+    }
+
+
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
       showPinSelection(true);
@@ -2149,15 +2226,9 @@ body{
     $('btnConfirmOriginPin').addEventListener('click', ()=>confirmCenterPoint('origin'));
     $('btnConfirmDestinationPin').addEventListener('click', ()=>confirmCenterPoint('destination'));
 
-    $('btnCancelOriginPin').addEventListener('click', ()=>{
-      hidePinMode();
-      showWarn('Selección de origen cancelada.');
-    });
+    $('btnCancelOriginPin').addEventListener('click', clearOrigin);
 
-    $('btnCancelDestinationPin').addEventListener('click', ()=>{
-      hidePinMode();
-      showWarn('Selección de destino cancelada.');
-    });
+    $('btnCancelDestinationPin').addEventListener('click', clearDestination);
 
     $('btnClearOrigin').addEventListener('click', clearOrigin);
     $('btnClearDestination').addEventListener('click', clearDestination);
