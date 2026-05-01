@@ -847,49 +847,6 @@ body{
     opacity:0.5 !important;
   }
 
-
-/* ===== VALIDACIÓN VISUAL DE CAMPOS OBLIGATORIOS ===== */
-.campo-error{
-  border-color:#ff7878 !important;
-  box-shadow:0 0 0 4px rgba(255,120,120,.18) !important;
-}
-
-
-/* ===== BOTONES PRINCIPALES: TEXTO COMPLETO EN CELULAR ===== */
-#btnGoStep2,
-#btnGoStep3{
-  white-space:normal !important;
-  line-height:1.15 !important;
-  text-align:center !important;
-  min-height:52px !important;
-  padding:10px 8px !important;
-}
-
-@media (max-width:480px){
-  #btnGoStep2,
-  #btnGoStep3{
-    font-size:12px !important;
-    min-height:50px !important;
-  }
-}
-
-
-/* ===== BOTONES PROFESIONALES PASO 1 / PASO 2 ===== */
-#btnCancelDestinationPin{
-  margin-top:10px !important;
-}
-
-@media (max-width:480px){
-  #btnBackStep1,
-  #btnGoStep2,
-  #btnGoStep3,
-  #btnCancelOriginPin,
-  #btnCancelDestinationPin{
-    white-space:normal !important;
-    line-height:1.15 !important;
-  }
-}
-
 </style>
   
 </head>
@@ -923,15 +880,15 @@ body{
       <div id="panelStep1">
 
         <div class="btn-row-4">
-          <button class="btn btn-dark" id="btnUseCurrentLocation" onclick="useCurrentLocation()">📍 Mi ubicación</button>
-          <button class="btn btn-blue" id="btnMapOrigin" onclick="startPinMode('origin')">🎯 Pin</button>
-          <button class="btn btn-dark" id="btnToggleFrequentOrigin" onclick="toggleFrequent('origin')">⭐ Frecuentes</button>
-          <button class="btn btn-red" id="btnClearOrigin" onclick="clearOrigin()">Limpiar</button>
+          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
+          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
+          <button class="btn btn-dark" id="btnToggleFrequentOrigin">⭐ Frecuentes</button>
+          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
         </div>
 
         <div class="frequent-box hidden-frequent" id="frequentOriginBox">
           <label class="label lugar-frecuente-label">⭐ Lugar frecuente de recojo</label>
-          <select id="frecuenteOrigen" class="lugar-frecuente-select" onchange="applyFrequentPlace('origin', this.value)">
+          <select id="frecuenteOrigen" class="lugar-frecuente-select">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -989,9 +946,11 @@ body{
           <div class="value" id="originValue">Aún no confirmado</div>
         </div>
 
-           <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep2" onclick="goDestinationStep()">Continuar con destino</button>
-          <button class="btn btn-cancel-wide" id="btnCancelOriginPin" onclick="clearOrigin()">Limpiar recojo</button>
+        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">✅ Confirmar recojo exacto</button>
+
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn-gold" id="btnGoStep2">Recojo confirmado • Continuar</button>
+          <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
 
@@ -999,15 +958,15 @@ body{
       <div id="panelStep2" class="hidden">
 
         <div class="btn-row-4">
-          <button class="btn btn-blue" id="btnMapDestination" onclick="startPinMode('destination')">🎯 Pin destino</button>
-          <button class="btn btn-dark" id="btnToggleFrequentDestination" onclick="toggleFrequent('destination')">⭐ Frecuentes</button>
-          <button class="btn btn-dark" id="btnSearchDestMap" onclick="searchDestinationOnMap()">Buscar mapa</button>
-          <button class="btn btn-red" id="btnClearDestination" onclick="clearDestination()">Limpiar</button>
+          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin destino</button>
+          <button class="btn btn-dark" id="btnToggleFrequentDestination">⭐ Frecuentes</button>
+          <button class="btn btn-dark" id="btnSearchDestMap">Buscar mapa</button>
+          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
         </div>
 
         <div class="frequent-box frequent-box-destino hidden-frequent" id="frequentDestinationBox">
           <label class="label lugar-destino-label">🏁 Lugar frecuente de destino</label>
-          <select id="frecuenteDestino" class="lugar-destino-select" onchange="applyFrequentPlace('destination', this.value)">
+          <select id="frecuenteDestino" class="lugar-destino-select">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -1064,12 +1023,12 @@ body{
           <div class="value" id="destinationValue">Aún no confirmado</div>
         </div>
 
-        <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-ghost" id="btnBackStep1" onclick="setStep(1); clearMessages();">Volver</button>
-          <button class="btn btn-gold" id="btnGoStep3" onclick="goServiceStep()">Continuar con servicio</button>
-        </div>
+        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
 
-        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin" onclick="clearDestination()">Limpiar destino</button>
+        <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn-gold" id="btnGoStep3">Destino confirmado • Continuar</button>
+          <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
+        </div>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1388,117 +1347,6 @@ body{
       }
     }
 
-
-    function markInvalidField(id){
-      const el = $(id);
-      if (!el) return;
-      el.classList.add('campo-error');
-      try{
-        el.scrollIntoView({behavior:'smooth', block:'center'});
-      }catch(e){}
-      setTimeout(()=>{
-        el.classList.remove('campo-error');
-      }, 1800);
-    }
-
-    function validateOriginBeforeContinue(){
-      clearMessages();
-
-      const distritoEl = $('distritoRecojo');
-      const direccionEl = $('direccionExactaRecojo');
-
-      const distrito = distritoEl ? distritoEl.value.trim() : '';
-      const direccion = direccionEl ? direccionEl.value.trim() : '';
-
-      if (!distrito){
-        showWarn('Selecciona el distrito de recojo. Es obligatorio.');
-        markInvalidField('distritoRecojo');
-        return false;
-      }
-
-      if (!direccion || direccion.length < 4){
-        showWarn('Escribe la dirección exacta de recojo. Es obligatorio.');
-        markInvalidField('direccionExactaRecojo');
-        return false;
-      }
-
-      if (!originSelection){
-        const c = map.getCenter();
-        originSelection = {
-          label: direccion + ', ' + distrito,
-          lat: c.lat,
-          lon: c.lng,
-          type:'manual'
-        };
-        setOriginValue(originSelection.label);
-      }
-
-      return true;
-    }
-
-    function validateDestinationBeforeContinue(){
-      clearMessages();
-
-      const distritoEl = $('distritoDestino');
-      const direccionEl = $('direccionExactaDestino');
-
-      const distrito = distritoEl ? distritoEl.value.trim() : '';
-      const direccion = direccionEl ? direccionEl.value.trim() : '';
-
-      if (!distrito){
-        showWarn('Selecciona el distrito de destino. Es obligatorio.');
-        markInvalidField('distritoDestino');
-        return false;
-      }
-
-      if (!direccion || direccion.length < 4){
-        showWarn('Escribe la dirección exacta de destino. Es obligatorio.');
-        markInvalidField('direccionExactaDestino');
-        return false;
-      }
-
-      if (!destinationSelection){
-        const c = map.getCenter();
-        destinationSelection = {
-          label: direccion + ', ' + distrito,
-          lat: c.lat,
-          lon: c.lng,
-          type:'manual'
-        };
-        setDestinationValue(destinationSelection.label);
-      }
-
-      return true;
-    }
-
-
-
-    function goDestinationStep(){
-      try{
-        if (!validateOriginBeforeContinue()) return;
-        setStep(2);
-        clearMessages();
-      }catch(err){
-        console.error('Error al continuar con destino:', err);
-        showWarn('No se pudo continuar. Revisa distrito y dirección de recojo.');
-      }
-    }
-
-    function goServiceStep(){
-      try{
-        if (!validateDestinationBeforeContinue()) return;
-        setStep(3);
-        clearMessages();
-      }catch(err){
-        console.error('Error al continuar con servicio:', err);
-        showWarn('No se pudo continuar. Revisa distrito y dirección de destino.');
-      }
-    }
-
-    window.goDestinationStep = goDestinationStep;
-    window.goServiceStep = goServiceStep;
-
-
     function setStep(step){
       currentStep = step;
 
@@ -1515,13 +1363,13 @@ body{
       if (step === 1){
         $('stepBadge').textContent = 'Paso 1 • Confirmar origen';
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
-        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego revisa distrito y dirección exacta antes de continuar.';
+        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
       }
 
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • DESTINO';
         $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
-        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego revisa distrito y dirección exacta antes de continuar.';
+        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego confirma el punto exacto.';
       }
 
       if (step === 3){
@@ -1574,36 +1422,6 @@ body{
         .replaceAll("'",'&#039;');
     }
 
-
-    function toggleFrequent(type){
-      clearMessages();
-      if (type === 'origin' && $('frequentOriginBox')){
-        $('frequentOriginBox').classList.toggle('hidden-frequent');
-      }
-      if (type === 'destination' && $('frequentDestinationBox')){
-        $('frequentDestinationBox').classList.toggle('hidden-frequent');
-      }
-    }
-
-    function startPinMode(type){
-      clearMessages();
-      selectingPoint = type;
-
-      if (type === 'origin'){
-        $('mapModeLabel').textContent = 'Ajusta el pin para recojo';
-        showOk('Mueve el mapa hasta ubicar el recojo exacto. Luego escribe distrito y dirección obligatoria.');
-      } else {
-        $('mapModeLabel').textContent = 'Ajusta el pin para destino';
-        showOk('Mueve el mapa hasta ubicar el destino exacto. Luego escribe distrito y dirección obligatoria.');
-      }
-
-      showPinSelection(true);
-      setTimeout(()=>{
-        if (map) map.invalidateSize();
-      }, 100);
-    }
-
-
     async function apiGet(path){
       const res = await fetch(API_BASE + path);
       if (!res.ok) throw new Error('API ' + res.status);
@@ -1621,23 +1439,26 @@ body{
     }
 
     function showPinSelection(show){
-      if ($('centerPin')) $('centerPin').classList.toggle('show', show);
+      $('centerPin').classList.toggle('show', show);
 
-      if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
-      if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
+      $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
+      $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
 
-      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.remove('hidden');
-      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.remove('hidden');
+      $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
+      $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
     }
 
     function hidePinMode(){
       selectingPoint = null;
-      if ($('centerPin')) $('centerPin').classList.remove('show');
+      $('centerPin').classList.remove('show');
 
-      if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.add('hidden');
-      if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.add('hidden');
+      $('btnConfirmOriginPin').classList.add('hidden');
+      $('btnCancelOriginPin').classList.add('hidden');
 
-      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
+      $('btnConfirmDestinationPin').classList.add('hidden');
+      $('btnCancelDestinationPin').classList.add('hidden');
+
+      $('mapModeLabel').textContent = 'Mapa listo';
     }
 
     function setOriginValue(text){
@@ -1691,8 +1512,6 @@ body{
 
 
     function applyFrequentPlace(type, key){
-      clearMessages();
-
       if (!key || !FREQUENT_PLACES[key]) return;
 
       const place = FREQUENT_PLACES[key];
@@ -1707,44 +1526,54 @@ body{
       };
 
       if (type === 'origin'){
-        if ($('origen')) $('origen').value = place.label;
-        if ($('distritoRecojo')) $('distritoRecojo').value = place.district || '';
-        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.address || place.label;
-        if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
+        $('origen').value = place.label;
+
+        if ($('distritoRecojo')) {
+          $('distritoRecojo').value = place.district;
+        }
+
+        if ($('direccionExactaRecojo')) {
+          $('direccionExactaRecojo').value = place.address;
+        }
 
         originSelection = point;
-        selectingPoint = null;
+        selectingPoint = 'origin';
 
         drawMarker('origin', point);
-        setOriginValue(place.label);
+        setOriginValue('Lugar frecuente cargado: ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
-        hidePinMode();
-        resetRouteData();
+        showPinSelection(true);
 
-        $('mapModeLabel').textContent = 'Recojo cargado';
-        showOk('Recojo frecuente cargado. Revisa distrito y dirección, luego toca “Continuar con destino”.');
+        $('mapModeLabel').textContent = 'Confirma recojo';
+        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar recojo exacto”.');
       }
 
       if (type === 'destination'){
-        if ($('destino')) $('destino').value = place.label;
-        if ($('distritoDestino')) $('distritoDestino').value = place.district || '';
-        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = place.address || place.label;
-        if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
+        $('destino').value = place.label;
+
+        if ($('distritoDestino')) {
+          $('distritoDestino').value = place.district;
+        }
+
+        if ($('direccionExactaDestino')) {
+          $('direccionExactaDestino').value = place.address;
+        }
 
         destinationSelection = point;
-        selectingPoint = null;
+        selectingPoint = 'destination';
 
         drawMarker('destination', point);
-        setDestinationValue(place.label);
+        setDestinationValue('Lugar frecuente cargado: ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
-        hidePinMode();
-        resetRouteData();
+        showPinSelection(true);
 
-        $('mapModeLabel').textContent = 'Destino cargado';
-        showOk('Destino frecuente cargado. Revisa distrito y dirección, luego toca “Continuar con servicio”.');
+        $('mapModeLabel').textContent = 'Confirma destino';
+        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar destino exacto”.');
       }
+
+      resetRouteData();
     }
 
     const searchOrigin = debounce(async ()=>{
@@ -1932,10 +1761,8 @@ body{
     }
 
     function clearOrigin(){
-      clearMessages();
       originSelection = null;
       routeData = null;
-      selectingPoint = null;
 
       if ($('origen')) $('origen').value = '';
       if ($('distritoRecojo')) $('distritoRecojo').value = '';
@@ -1943,15 +1770,9 @@ body{
       if ($('origenExacto')) $('origenExacto').value = '';
       if ($('frecuenteOrigen')) $('frecuenteOrigen').value = '';
       if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
-      if ($('originSuggestions')) {
-        $('originSuggestions').innerHTML = '';
-        $('originSuggestions').classList.remove('show');
-      }
 
-      if (markerOrigen) {
-        map.removeLayer(markerOrigen);
-        markerOrigen = null;
-      }
+      if (markerOrigen) map.removeLayer(markerOrigen);
+      markerOrigen = null;
 
       if (routeLayer) {
         map.removeLayer(routeLayer);
@@ -1961,15 +1782,12 @@ body{
       setOriginValue('Aún no confirmado');
       hidePinMode();
       resetRouteData();
-      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
       showWarn('Recojo limpiado.');
     }
 
     function clearDestination(){
-      clearMessages();
       destinationSelection = null;
       routeData = null;
-      selectingPoint = null;
 
       if ($('destino')) $('destino').value = '';
       if ($('distritoDestino')) $('distritoDestino').value = '';
@@ -1977,15 +1795,9 @@ body{
       if ($('destinoExacto')) $('destinoExacto').value = '';
       if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
       if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
-      if ($('destinationSuggestions')) {
-        $('destinationSuggestions').innerHTML = '';
-        $('destinationSuggestions').classList.remove('show');
-      }
 
-      if (markerDestino) {
-        map.removeLayer(markerDestino);
-        markerDestino = null;
-      }
+      if (markerDestino) map.removeLayer(markerDestino);
+      markerDestino = null;
 
       if (routeLayer) {
         map.removeLayer(routeLayer);
@@ -1995,7 +1807,6 @@ body{
       setDestinationValue('Aún no confirmado');
       hidePinMode();
       resetRouteData();
-      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
       showWarn('Destino limpiado.');
     }
 
@@ -2455,9 +2266,49 @@ body{
     if ($('tipoViaje')) $('tipoViaje').addEventListener('change', resetRouteData);
     if ($('adicionalPeaje')) $('adicionalPeaje').addEventListener('change', resetRouteData);
 
+    $('btnGoStep2').addEventListener('click', ()=>{
+      if (!$('distritoRecojo').value){
+        showWarn('Selecciona el distrito de recojo.');
+        return;
+      }
+
+      if (!hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Escribe la dirección exacta de recojo. Ej: Jr. Ica 540.');
+        return;
+      }
+
+      if (!originSelection){
+        showWarn('Confirma el pin exacto del recojo en el mapa.');
+        return;
+      }
+
+      setStep(2);
+      clearMessages();
+    });
+
     if ($('btnBackStep1')) $('btnBackStep1').addEventListener('click', ()=>{
   
     setStep(1);
+      clearMessages();
+    });
+
+    $('btnGoStep3').addEventListener('click', ()=>{
+      if (!$('distritoDestino').value){
+        showWarn('Selecciona el distrito de destino.');
+        return;
+      }
+
+      if (!hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
+        return;
+      }
+
+      if (!destinationSelection){
+        showWarn('Confirma el pin exacto del destino en el mapa.');
+        return;
+      }
+
+      setStep(3);
       clearMessages();
     });
 
@@ -2465,8 +2316,6 @@ body{
       setStep(2);
       clearMessages();
     });
-    if ($('btnGoStep2')) $('btnGoStep2').addEventListener('click', goDestinationStep);
-    if ($('btnGoStep3')) $('btnGoStep3').addEventListener('click', goServiceStep);
 
     $('btnGoStep4').addEventListener('click', ()=>{
       if (!messageMode){
@@ -2529,51 +2378,6 @@ body{
         applyFrequentPlace('destination', this.value);
       });
     }
-
-    
-    // ===== PARCHE FINAL PROFESIONAL: BOTONES Y FRECUENTES =====
-    function setupProfessionalButtons(){
-      const bind = (id, fn)=>{
-        const el = $(id);
-        if (!el) return;
-        el.onclick = (ev)=>{
-          ev.preventDefault();
-          fn();
-        };
-      };
-
-      bind('btnUseCurrentLocation', useCurrentLocation);
-      bind('btnMapOrigin', ()=>startPinMode('origin'));
-      bind('btnToggleFrequentOrigin', ()=>toggleFrequent('origin'));
-      bind('btnClearOrigin', clearOrigin);
-      bind('btnCancelOriginPin', clearOrigin);
-      bind('btnGoStep2', goDestinationStep);
-
-      bind('btnMapDestination', ()=>startPinMode('destination'));
-      bind('btnToggleFrequentDestination', ()=>toggleFrequent('destination'));
-      bind('btnSearchDestMap', searchDestinationOnMap);
-      bind('btnClearDestination', clearDestination);
-      bind('btnCancelDestinationPin', clearDestination);
-      bind('btnBackStep1', ()=>{
-        setStep(1);
-        clearMessages();
-      });
-      bind('btnGoStep3', goServiceStep);
-
-      if ($('frecuenteOrigen')) {
-        $('frecuenteOrigen').onchange = function(){
-          applyFrequentPlace('origin', this.value);
-        };
-      }
-
-      if ($('frecuenteDestino')) {
-        $('frecuenteDestino').onchange = function(){
-          applyFrequentPlace('destination', this.value);
-        };
-      }
-    }
-
-    setupProfessionalButtons();
 
     setStep(1);
     setOriginValue('Aún no confirmado');
