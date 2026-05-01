@@ -949,7 +949,7 @@ body{
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">✅ Confirmar recojo exacto</button>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
+          <button class="btn btn-gold" id="btnGoStep2">Recojo confirmado • Continuar</button>
           <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1026,11 +1026,9 @@ body{
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-ghost" id="btnBackStep1">Volver</button>
-          <button class="btn btn-gold" id="btnGoStep3">Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep3">Destino confirmado • Continuar</button>
+          <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
         </div>
-
-        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1789,13 +1787,27 @@ body{
 
     function clearDestination(){
       destinationSelection = null;
-      $('destino').value = '';
+      routeData = null;
+
+      if ($('destino')) $('destino').value = '';
+      if ($('distritoDestino')) $('distritoDestino').value = '';
+      if ($('direccionExactaDestino')) $('direccionExactaDestino').value = '';
+      if ($('destinoExacto')) $('destinoExacto').value = '';
+      if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
+      if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
 
       if (markerDestino) map.removeLayer(markerDestino);
       markerDestino = null;
 
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+
       setDestinationValue('Aún no confirmado');
       hidePinMode();
+      resetRouteData();
+      showWarn('Destino limpiado.');
     }
 
     function isAirportSelection(selection){
@@ -2274,7 +2286,7 @@ body{
       clearMessages();
     });
 
-    $('btnBackStep1').addEventListener('click', ()=>{
+    if ($('btnBackStep1')) $('btnBackStep1').addEventListener('click', ()=>{
   
     setStep(1);
       clearMessages();
