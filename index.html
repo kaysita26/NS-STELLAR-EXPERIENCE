@@ -563,7 +563,6 @@ textarea::placeholder{
   font-weight:700;
 }
 
-#btnConfirmOriginPin,
 #btnConfirmDestinationPin{
   font-size:15px !important;
   min-height:52px !important;
@@ -890,12 +889,18 @@ body{
           <label class="label lugar-frecuente-label">⭐ Lugar frecuente de recojo</label>
           <select id="frecuenteOrigen" class="lugar-frecuente-select">
             <option value="">Selecciona un lugar frecuente</option>
-            <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
-            <option value="melia">Hotel Meliá Lima</option>
-            <option value="innside">INNSiDE Lima Miraflores</option>
-            <option value="westin">The Westin Lima</option>
-            <option value="swissotel">Swissôtel Lima</option>
-            <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
+            <optgroup label="✈️ Aeropuerto">
+              <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez - Callao</option>
+              <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
+            </optgroup>
+            <optgroup label="🏨 Hoteles en Miraflores">
+              <option value="innside">INNSiDE Lima Miraflores</option>
+            </optgroup>
+            <optgroup label="🏨 Hoteles en San Isidro">
+              <option value="melia">Hotel Meliá Lima</option>
+              <option value="swissotel">Swissôtel Lima</option>
+              <option value="westin">The Westin Lima</option>
+            </optgroup>
           </select>
           <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
         </div>
@@ -946,9 +951,10 @@ body{
           <div class="value" id="originValue">Aún no confirmado</div>
         </div>
 
+
           <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
-          <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
+          <button class="btn btn-cancel-wide hidden" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
 
@@ -966,12 +972,18 @@ body{
           <label class="label lugar-destino-label">🏁 Lugar frecuente de destino</label>
           <select id="frecuenteDestino" class="lugar-destino-select">
             <option value="">Selecciona un lugar frecuente</option>
-            <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
-            <option value="melia">Hotel Meliá Lima</option>
-            <option value="innside">INNSiDE Lima Miraflores</option>
-            <option value="westin">The Westin Lima</option>
-            <option value="swissotel">Swissôtel Lima</option>
-            <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
+            <optgroup label="✈️ Aeropuerto">
+              <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez - Callao</option>
+              <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
+            </optgroup>
+            <optgroup label="🏨 Hoteles en Miraflores">
+              <option value="innside">INNSiDE Lima Miraflores</option>
+            </optgroup>
+            <optgroup label="🏨 Hoteles en San Isidro">
+              <option value="melia">Hotel Meliá Lima</option>
+              <option value="swissotel">Swissôtel Lima</option>
+              <option value="westin">The Westin Lima</option>
+            </optgroup>
           </select>
           <div class="help-required">Si eliges un lugar frecuente, se llena la dirección de destino y el mapa se acerca.</div>
         </div>
@@ -1021,14 +1033,13 @@ body{
           <div class="value" id="destinationValue">Aún no confirmado</div>
         </div>
 
-        <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
 
         <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-ghost" id="btnBackStep1">Volver</button>
           <button class="btn btn-gold" id="btnGoStep3">Continuar</button>
         </div>
 
-        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
+        <button class="btn btn-cancel-wide hidden" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1441,22 +1452,18 @@ body{
     function showPinSelection(show){
       $('centerPin').classList.toggle('show', show);
 
-      $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
-      $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
+      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
 
-      $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
-      $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
+      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
     }
 
     function hidePinMode(){
       selectingPoint = null;
       $('centerPin').classList.remove('show');
 
-      $('btnConfirmOriginPin').classList.add('hidden');
-      $('btnCancelOriginPin').classList.add('hidden');
+      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.add('hidden');
 
-      $('btnConfirmDestinationPin').classList.add('hidden');
-      $('btnCancelDestinationPin').classList.add('hidden');
+      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.add('hidden');
 
       $('mapModeLabel').textContent = 'Mapa listo';
     }
@@ -1540,13 +1547,13 @@ body{
         selectingPoint = 'origin';
 
         drawMarker('origin', point);
-        setOriginValue('Lugar frecuente cargado: ' + place.label);
+        setOriginValue(place.address + ' — ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
 
         $('mapModeLabel').textContent = 'Confirma recojo';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar recojo exacto”.');
+        showOk('Lugar frecuente de recojo cargado. La dirección ya quedó lista; puedes continuar con destino.');
       }
 
       if (type === 'destination'){
@@ -1564,13 +1571,13 @@ body{
         selectingPoint = 'destination';
 
         drawMarker('destination', point);
-        setDestinationValue('Lugar frecuente cargado: ' + place.label);
+        setDestinationValue(place.address + ' — ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
 
         $('mapModeLabel').textContent = 'Confirma destino';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, toca “Confirmar destino exacto”.');
+        showOk('Lugar frecuente de destino cargado. La dirección ya quedó lista; puedes continuar.');
       }
 
       resetRouteData();
@@ -1579,7 +1586,7 @@ body{
     const searchOrigin = debounce(async ()=>{
       const text = $('origen').value.trim();
       originSelection = null;
-      setOriginValue('Origen pendiente de confirmar');
+      setOriginValue('Escribe, selecciona o confirma una dirección de recojo.');
 
       if (text.length < 3){
         $('originSuggestions').classList.remove('show');
@@ -1592,13 +1599,17 @@ body{
 
         renderSuggestions('originSuggestions', data.results || [], (item)=>{
           $('origen').value = item.label;
+          if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = item.label;
+          originSelection = {...item, type:'manual'};
+          setOriginValue(item.label);
+          drawMarker('origin', originSelection);
           map.setView([item.lat, item.lon], 17);
 
           selectingPoint = 'origin';
           showPinSelection(true);
 
-          $('mapModeLabel').textContent = 'Confirma origen';
-          showOk('Se ubicó un punto cercano. Ajusta el mapa si quieres y confirma el origen.');
+          $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
+          showOk('Dirección de recojo cargada. Puedes continuar con destino o mover el pin si deseas.');
         });
       }catch(err){
         console.error(err);
@@ -1609,7 +1620,7 @@ body{
     const searchDestination = debounce(async ()=>{
       const text = $('destino').value.trim();
       destinationSelection = null;
-      setDestinationValue('Destino pendiente de confirmar');
+      setDestinationValue('Escribe, selecciona o confirma una dirección de destino.');
 
       if (text.length < 3){
         $('destinationSuggestions').classList.remove('show');
@@ -1622,18 +1633,70 @@ body{
 
         renderSuggestions('destinationSuggestions', data.results || [], (item)=>{
           $('destino').value = item.label;
+          if ($('direccionExactaDestino')) $('direccionExactaDestino').value = item.label;
+          destinationSelection = {...item, type:'manual'};
+          setDestinationValue(item.label);
+          drawMarker('destination', destinationSelection);
           map.setView([item.lat, item.lon], 17);
 
           selectingPoint = 'destination';
           showPinSelection(true);
 
-          $('mapModeLabel').textContent = 'Confirma destino';
-          showOk('Se ubicó un punto cercano. Ajusta el mapa si quieres y confirma el destino.');
+          $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
+          showOk('Dirección de destino cargada. Puedes continuar o mover el pin si deseas.');
         });
       }catch(err){
         console.error(err);
         showWarn('No se pudieron cargar sugerencias de destino.');
       }
+    });
+
+
+    const previewCenterAddress = debounce(async ()=>{
+      if (!selectingPoint) return;
+
+      try{
+        const c = map.getCenter();
+        const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
+        const place = data.result;
+
+        if (!place || !place.label) return;
+
+        const point = {
+          ...place,
+          lat: place.lat || c.lat,
+          lon: place.lon || c.lng,
+          type: 'manual'
+        };
+
+        if (selectingPoint === 'origin'){
+          originSelection = point;
+          $('origen').value = place.label;
+          if ($('direccionExactaRecojo')) {
+            $('direccionExactaRecojo').value = place.label;
+          }
+          drawMarker('origin', point);
+          setOriginValue(place.label);
+          $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
+        }
+
+        if (selectingPoint === 'destination'){
+          destinationSelection = point;
+          $('destino').value = place.label;
+          if ($('direccionExactaDestino')) {
+            $('direccionExactaDestino').value = place.label;
+          }
+          drawMarker('destination', point);
+          setDestinationValue(place.label);
+          $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
+        }
+      }catch(err){
+        console.warn('No se pudo previsualizar la dirección del pin:', err);
+      }
+    }, 500);
+
+    map.on('moveend', ()=>{
+      if (selectingPoint) previewCenterAddress();
     });
 
     $('origen').addEventListener('input', searchOrigin);
@@ -1660,15 +1723,17 @@ body{
         if (type === 'origin'){
           originSelection = {...place, type:'manual'};
           $('origen').value = place.label;
+          if ($('direccionExactaRecojo') && !$('direccionExactaRecojo').value.trim()) $('direccionExactaRecojo').value = place.label;
           drawMarker('origin', place);
           setOriginValue(place.label);
-          showOk('Origen confirmado correctamente.');
+          showOk('Recojo confirmado correctamente. Ahora puedes continuar con destino.');
         } else {
           destinationSelection = {...place, type:'manual'};
           $('destino').value = place.label;
+          if ($('direccionExactaDestino') && !$('direccionExactaDestino').value.trim()) $('direccionExactaDestino').value = place.label;
           drawMarker('destination', place);
           setDestinationValue(place.label);
-          showOk('Destino confirmado correctamente.');
+          showOk('Destino confirmado correctamente. Ahora puedes continuar.');
         }
 
         hidePinMode();
@@ -1747,12 +1812,14 @@ body{
         const data = await apiGet('/search?text=' + encodeURIComponent(text));
 
         $('destino').value = data.result.label;
+        if ($('direccionExactaDestino') && !$('direccionExactaDestino').value.trim()) $('direccionExactaDestino').value = data.result.label;
+        setDestinationValue(data.result.label);
         map.setView([data.result.lat, data.result.lon], 17);
 
         selectingPoint = 'destination';
         showPinSelection(true);
 
-        $('mapModeLabel').textContent = 'Confirma destino';
+        $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         showOk('Se ubicó el destino en el mapa. Ajusta si quieres y confirma.');
       }catch(err){
         console.error(err);
@@ -1787,13 +1854,27 @@ body{
 
     function clearDestination(){
       destinationSelection = null;
-      $('destino').value = '';
+      routeData = null;
+
+      if ($('destino')) $('destino').value = '';
+      if ($('distritoDestino')) $('distritoDestino').value = '';
+      if ($('direccionExactaDestino')) $('direccionExactaDestino').value = '';
+      if ($('destinoExacto')) $('destinoExacto').value = '';
+      if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
+      if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
 
       if (markerDestino) map.removeLayer(markerDestino);
       markerDestino = null;
 
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+
       setDestinationValue('Aún no confirmado');
       hidePinMode();
+      resetRouteData();
+      showWarn('Destino limpiado.');
     }
 
     function isAirportSelection(selection){
@@ -2225,21 +2306,21 @@ body{
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
       showPinSelection(true);
-      $('mapModeLabel').textContent = 'Confirma origen';
-      showOk('Mueve el mapa hasta tu origen y confirma.');
+      $('mapModeLabel').textContent = 'Ubicando recojo';
+      showOk('Mueve el mapa hasta tu recojo. La dirección aparecerá automáticamente; luego toca Continuar con destino.');
+      previewCenterAddress();
     });
 
     $('btnMapDestination').addEventListener('click', ()=>{
       selectingPoint = 'destination';
       showPinSelection(true);
-      $('mapModeLabel').textContent = 'Confirma destino';
-      showOk('Mueve el mapa hasta tu destino y confirma.');
+      $('mapModeLabel').textContent = 'Ubicando destino';
+      showOk('Mueve el mapa hasta tu destino. La dirección aparecerá automáticamente; luego toca Continuar.');
+      previewCenterAddress();
     });
 
     $('btnSearchDestMap').addEventListener('click', searchDestinationOnMap);
 
-    $('btnConfirmOriginPin').addEventListener('click', ()=>confirmCenterPoint('origin'));
-    $('btnConfirmDestinationPin').addEventListener('click', ()=>confirmCenterPoint('destination'));
 
     $('btnCancelOriginPin').addEventListener('click', clearOrigin);
 
@@ -2252,7 +2333,11 @@ body{
     if ($('tipoViaje')) $('tipoViaje').addEventListener('change', resetRouteData);
     if ($('adicionalPeaje')) $('adicionalPeaje').addEventListener('change', resetRouteData);
 
-    $('btnGoStep2').addEventListener('click', ()=>{
+    $('btnGoStep2').addEventListener('click', async ()=>{
+      if (selectingPoint === 'origin') {
+        await confirmCenterPoint('origin');
+      }
+
       if (!$('distritoRecojo').value){
         showWarn('Selecciona el distrito de recojo.');
         return;
@@ -2264,7 +2349,7 @@ body{
       }
 
       if (!originSelection){
-        showWarn('Confirma el pin exacto del recojo en el mapa.');
+        showWarn('Toca el botón Pin o selecciona una dirección/lugar frecuente para cargar el recojo en el mapa.');
         return;
       }
 
@@ -2278,7 +2363,11 @@ body{
       clearMessages();
     });
 
-    $('btnGoStep3').addEventListener('click', ()=>{
+    $('btnGoStep3').addEventListener('click', async ()=>{
+      if (selectingPoint === 'destination') {
+        await confirmCenterPoint('destination');
+      }
+
       if (!$('distritoDestino').value){
         showWarn('Selecciona el distrito de destino.');
         return;
@@ -2290,7 +2379,7 @@ body{
       }
 
       if (!destinationSelection){
-        showWarn('Confirma el pin exacto del destino en el mapa.');
+        showWarn('Toca Pin destino, Buscar mapa o selecciona un lugar frecuente para cargar el destino en el mapa.');
         return;
       }
 
