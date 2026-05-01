@@ -873,6 +873,23 @@ body{
   }
 }
 
+
+/* ===== BOTONES PROFESIONALES PASO 1 / PASO 2 ===== */
+#btnCancelDestinationPin{
+  margin-top:10px !important;
+}
+
+@media (max-width:480px){
+  #btnBackStep1,
+  #btnGoStep2,
+  #btnGoStep3,
+  #btnCancelOriginPin,
+  #btnCancelDestinationPin{
+    white-space:normal !important;
+    line-height:1.15 !important;
+  }
+}
+
 </style>
   
 </head>
@@ -906,15 +923,15 @@ body{
       <div id="panelStep1">
 
         <div class="btn-row-4">
-          <button class="btn btn-dark" id="btnUseCurrentLocation">📍 Mi ubicación</button>
-          <button class="btn btn-blue" id="btnMapOrigin">🎯 Pin</button>
-          <button class="btn btn-dark" id="btnToggleFrequentOrigin">⭐ Frecuentes</button>
-          <button class="btn btn-red" id="btnClearOrigin">Limpiar</button>
+          <button class="btn btn-dark" id="btnUseCurrentLocation" onclick="useCurrentLocation()">📍 Mi ubicación</button>
+          <button class="btn btn-blue" id="btnMapOrigin" onclick="startPinMode('origin')">🎯 Pin</button>
+          <button class="btn btn-dark" id="btnToggleFrequentOrigin" onclick="toggleFrequent('origin')">⭐ Frecuentes</button>
+          <button class="btn btn-red" id="btnClearOrigin" onclick="clearOrigin()">Limpiar</button>
         </div>
 
         <div class="frequent-box hidden-frequent" id="frequentOriginBox">
           <label class="label lugar-frecuente-label">⭐ Lugar frecuente de recojo</label>
-          <select id="frecuenteOrigen" class="lugar-frecuente-select">
+          <select id="frecuenteOrigen" class="lugar-frecuente-select" onchange="applyFrequentPlace('origin', this.value)">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -974,7 +991,7 @@ body{
 
            <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-gold" id="btnGoStep2" onclick="goDestinationStep()">Continuar con destino</button>
-          <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
+          <button class="btn btn-cancel-wide" id="btnCancelOriginPin" onclick="clearOrigin()">Limpiar recojo</button>
         </div>
       </div>
 
@@ -982,15 +999,15 @@ body{
       <div id="panelStep2" class="hidden">
 
         <div class="btn-row-4">
-          <button class="btn btn-blue" id="btnMapDestination">🎯 Pin destino</button>
-          <button class="btn btn-dark" id="btnToggleFrequentDestination">⭐ Frecuentes</button>
-          <button class="btn btn-dark" id="btnSearchDestMap">Buscar mapa</button>
-          <button class="btn btn-red" id="btnClearDestination">Limpiar</button>
+          <button class="btn btn-blue" id="btnMapDestination" onclick="startPinMode('destination')">🎯 Pin destino</button>
+          <button class="btn btn-dark" id="btnToggleFrequentDestination" onclick="toggleFrequent('destination')">⭐ Frecuentes</button>
+          <button class="btn btn-dark" id="btnSearchDestMap" onclick="searchDestinationOnMap()">Buscar mapa</button>
+          <button class="btn btn-red" id="btnClearDestination" onclick="clearDestination()">Limpiar</button>
         </div>
 
         <div class="frequent-box frequent-box-destino hidden-frequent" id="frequentDestinationBox">
           <label class="label lugar-destino-label">🏁 Lugar frecuente de destino</label>
-          <select id="frecuenteDestino" class="lugar-destino-select">
+          <select id="frecuenteDestino" class="lugar-destino-select" onchange="applyFrequentPlace('destination', this.value)">
             <option value="">Selecciona un lugar frecuente</option>
             <option value="aeropuerto">✈️ Nuevo Aeropuerto Jorge Chávez - Callao</option>
             <option value="melia">Hotel Meliá Lima</option>
@@ -1048,9 +1065,11 @@ body{
         </div>
 
         <div class="btn-row" style="margin-top:10px">
+          <button class="btn btn-ghost" id="btnBackStep1" onclick="setStep(1); clearMessages();">Volver</button>
           <button class="btn btn-gold" id="btnGoStep3" onclick="goServiceStep()">Continuar con servicio</button>
-          <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
         </div>
+
+        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin" onclick="clearDestination()">Limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1420,8 +1439,11 @@ body{
     function validateDestinationBeforeContinue(){
       clearMessages();
 
-      const distrito = ($('distritoDestino')?.value || '').trim();
-      const direccion = ($('direccionExactaDestino')?.value || '').trim();
+      const distritoEl = $('distritoDestino');
+      const direccionEl = $('direccionExactaDestino');
+
+      const distrito = distritoEl ? distritoEl.value.trim() : '';
+      const direccion = direccionEl ? direccionEl.value.trim() : '';
 
       if (!distrito){
         showWarn('Selecciona el distrito de destino. Es obligatorio.');
@@ -1436,9 +1458,14 @@ body{
       }
 
       if (!destinationSelection){
-        showWarn('Confirma el destino con Pin, lugar frecuente o búsqueda en el mapa.');
-        markInvalidField('destino');
-        return false;
+        const c = map.getCenter();
+        destinationSelection = {
+          label: direccion + ', ' + distrito,
+          lat: c.lat,
+          lon: c.lng,
+          type:'manual'
+        };
+        setDestinationValue(destinationSelection.label);
       }
 
       return true;
@@ -1547,6 +1574,36 @@ body{
         .replaceAll("'",'&#039;');
     }
 
+
+    function toggleFrequent(type){
+      clearMessages();
+      if (type === 'origin' && $('frequentOriginBox')){
+        $('frequentOriginBox').classList.toggle('hidden-frequent');
+      }
+      if (type === 'destination' && $('frequentDestinationBox')){
+        $('frequentDestinationBox').classList.toggle('hidden-frequent');
+      }
+    }
+
+    function startPinMode(type){
+      clearMessages();
+      selectingPoint = type;
+
+      if (type === 'origin'){
+        $('mapModeLabel').textContent = 'Ajusta el pin para recojo';
+        showOk('Mueve el mapa hasta ubicar el recojo exacto. Luego escribe distrito y dirección obligatoria.');
+      } else {
+        $('mapModeLabel').textContent = 'Ajusta el pin para destino';
+        showOk('Mueve el mapa hasta ubicar el destino exacto. Luego escribe distrito y dirección obligatoria.');
+      }
+
+      showPinSelection(true);
+      setTimeout(()=>{
+        if (map) map.invalidateSize();
+      }, 100);
+    }
+
+
     async function apiGet(path){
       const res = await fetch(API_BASE + path);
       if (!res.ok) throw new Error('API ' + res.status);
@@ -1564,26 +1621,23 @@ body{
     }
 
     function showPinSelection(show){
-      $('centerPin').classList.toggle('show', show);
+      if ($('centerPin')) $('centerPin').classList.toggle('show', show);
 
       if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
-      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.toggle('hidden', false);
-
       if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
-      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.toggle('hidden', false);
+
+      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.remove('hidden');
+      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.remove('hidden');
     }
 
     function hidePinMode(){
       selectingPoint = null;
-      $('centerPin').classList.remove('show');
+      if ($('centerPin')) $('centerPin').classList.remove('show');
 
       if ($('btnConfirmOriginPin')) $('btnConfirmOriginPin').classList.add('hidden');
-      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.remove('hidden');
-
       if ($('btnConfirmDestinationPin')) $('btnConfirmDestinationPin').classList.add('hidden');
-      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.remove('hidden');
 
-      $('mapModeLabel').textContent = 'Mapa listo';
+      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
     }
 
     function setOriginValue(text){
@@ -1637,6 +1691,8 @@ body{
 
 
     function applyFrequentPlace(type, key){
+      clearMessages();
+
       if (!key || !FREQUENT_PLACES[key]) return;
 
       const place = FREQUENT_PLACES[key];
@@ -1651,54 +1707,44 @@ body{
       };
 
       if (type === 'origin'){
-        $('origen').value = place.label;
-
-        if ($('distritoRecojo')) {
-          $('distritoRecojo').value = place.district;
-        }
-
-        if ($('direccionExactaRecojo')) {
-          $('direccionExactaRecojo').value = place.address;
-        }
+        if ($('origen')) $('origen').value = place.label;
+        if ($('distritoRecojo')) $('distritoRecojo').value = place.district || '';
+        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.address || place.label;
+        if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
 
         originSelection = point;
-        selectingPoint = 'origin';
+        selectingPoint = null;
 
         drawMarker('origin', point);
-        setOriginValue('Lugar frecuente cargado: ' + place.label);
+        setOriginValue(place.label);
 
         map.setView([place.lat, place.lon], 17);
-        showPinSelection(true);
+        hidePinMode();
+        resetRouteData();
 
-        $('mapModeLabel').textContent = 'Confirma recojo';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, verifica la dirección obligatoria y toca “Continuar con destino”.');
+        $('mapModeLabel').textContent = 'Recojo cargado';
+        showOk('Recojo frecuente cargado. Revisa distrito y dirección, luego toca “Continuar con destino”.');
       }
 
       if (type === 'destination'){
-        $('destino').value = place.label;
-
-        if ($('distritoDestino')) {
-          $('distritoDestino').value = place.district;
-        }
-
-        if ($('direccionExactaDestino')) {
-          $('direccionExactaDestino').value = place.address;
-        }
+        if ($('destino')) $('destino').value = place.label;
+        if ($('distritoDestino')) $('distritoDestino').value = place.district || '';
+        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = place.address || place.label;
+        if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
 
         destinationSelection = point;
-        selectingPoint = 'destination';
+        selectingPoint = null;
 
         drawMarker('destination', point);
-        setDestinationValue('Lugar frecuente cargado: ' + place.label);
+        setDestinationValue(place.label);
 
         map.setView([place.lat, place.lon], 17);
-        showPinSelection(true);
+        hidePinMode();
+        resetRouteData();
 
-        $('mapModeLabel').textContent = 'Confirma destino';
-        showOk('Lugar frecuente cargado. Si el pin está correcto, verifica la dirección obligatoria y toca “Continuar con servicio”.');
+        $('mapModeLabel').textContent = 'Destino cargado';
+        showOk('Destino frecuente cargado. Revisa distrito y dirección, luego toca “Continuar con servicio”.');
       }
-
-      resetRouteData();
     }
 
     const searchOrigin = debounce(async ()=>{
@@ -1886,8 +1932,10 @@ body{
     }
 
     function clearOrigin(){
+      clearMessages();
       originSelection = null;
       routeData = null;
+      selectingPoint = null;
 
       if ($('origen')) $('origen').value = '';
       if ($('distritoRecojo')) $('distritoRecojo').value = '';
@@ -1895,9 +1943,15 @@ body{
       if ($('origenExacto')) $('origenExacto').value = '';
       if ($('frecuenteOrigen')) $('frecuenteOrigen').value = '';
       if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
+      if ($('originSuggestions')) {
+        $('originSuggestions').innerHTML = '';
+        $('originSuggestions').classList.remove('show');
+      }
 
-      if (markerOrigen) map.removeLayer(markerOrigen);
-      markerOrigen = null;
+      if (markerOrigen) {
+        map.removeLayer(markerOrigen);
+        markerOrigen = null;
+      }
 
       if (routeLayer) {
         map.removeLayer(routeLayer);
@@ -1907,12 +1961,15 @@ body{
       setOriginValue('Aún no confirmado');
       hidePinMode();
       resetRouteData();
+      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
       showWarn('Recojo limpiado.');
     }
 
     function clearDestination(){
+      clearMessages();
       destinationSelection = null;
       routeData = null;
+      selectingPoint = null;
 
       if ($('destino')) $('destino').value = '';
       if ($('distritoDestino')) $('distritoDestino').value = '';
@@ -1920,9 +1977,15 @@ body{
       if ($('destinoExacto')) $('destinoExacto').value = '';
       if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
       if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
+      if ($('destinationSuggestions')) {
+        $('destinationSuggestions').innerHTML = '';
+        $('destinationSuggestions').classList.remove('show');
+      }
 
-      if (markerDestino) map.removeLayer(markerDestino);
-      markerDestino = null;
+      if (markerDestino) {
+        map.removeLayer(markerDestino);
+        markerDestino = null;
+      }
 
       if (routeLayer) {
         map.removeLayer(routeLayer);
@@ -1932,6 +1995,7 @@ body{
       setDestinationValue('Aún no confirmado');
       hidePinMode();
       resetRouteData();
+      if ($('mapModeLabel')) $('mapModeLabel').textContent = 'Mapa listo';
       showWarn('Destino limpiado.');
     }
 
@@ -2465,6 +2529,51 @@ body{
         applyFrequentPlace('destination', this.value);
       });
     }
+
+    
+    // ===== PARCHE FINAL PROFESIONAL: BOTONES Y FRECUENTES =====
+    function setupProfessionalButtons(){
+      const bind = (id, fn)=>{
+        const el = $(id);
+        if (!el) return;
+        el.onclick = (ev)=>{
+          ev.preventDefault();
+          fn();
+        };
+      };
+
+      bind('btnUseCurrentLocation', useCurrentLocation);
+      bind('btnMapOrigin', ()=>startPinMode('origin'));
+      bind('btnToggleFrequentOrigin', ()=>toggleFrequent('origin'));
+      bind('btnClearOrigin', clearOrigin);
+      bind('btnCancelOriginPin', clearOrigin);
+      bind('btnGoStep2', goDestinationStep);
+
+      bind('btnMapDestination', ()=>startPinMode('destination'));
+      bind('btnToggleFrequentDestination', ()=>toggleFrequent('destination'));
+      bind('btnSearchDestMap', searchDestinationOnMap);
+      bind('btnClearDestination', clearDestination);
+      bind('btnCancelDestinationPin', clearDestination);
+      bind('btnBackStep1', ()=>{
+        setStep(1);
+        clearMessages();
+      });
+      bind('btnGoStep3', goServiceStep);
+
+      if ($('frecuenteOrigen')) {
+        $('frecuenteOrigen').onchange = function(){
+          applyFrequentPlace('origin', this.value);
+        };
+      }
+
+      if ($('frecuenteDestino')) {
+        $('frecuenteDestino').onchange = function(){
+          applyFrequentPlace('destination', this.value);
+        };
+      }
+    }
+
+    setupProfessionalButtons();
 
     setStep(1);
     setOriginValue('Aún no confirmado');
