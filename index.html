@@ -470,10 +470,10 @@ textarea::placeholder{
   box-shadow:0 0 0 4px rgba(217,179,106,0.15) !important;
 }
 .campo-obligatorio::placeholder{
-  color:#a88a55 !important;   /* 👈 más suave */
+  color:#f3d8a3 !important;
   font-weight:400 !important;
-  opacity:0.5 !important;
-  font-style:normal;
+  opacity:0.7 !important;
+  font-style:italic;
 }
 .campo-opcional{
   background:rgba(255,255,255,0.05) !important;
@@ -949,7 +949,7 @@ body{
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmOriginPin">✅ Confirmar recojo exacto</button>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep2">Recojo confirmado • Continuar</button>
+          <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
           <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
@@ -1026,9 +1026,11 @@ body{
         <button class="btn btn-gold hidden" style="margin-top:10px" id="btnConfirmDestinationPin">✅ Confirmar destino exacto</button>
 
         <div class="btn-row" style="margin-top:10px">
-          <button class="btn btn-gold" id="btnGoStep3">Destino confirmado • Continuar</button>
-          <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar</button>
+          <button class="btn btn-ghost" id="btnBackStep1">Volver</button>
+          <button class="btn btn-gold" id="btnGoStep3">Continuar</button>
         </div>
+
+        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1787,27 +1789,13 @@ body{
 
     function clearDestination(){
       destinationSelection = null;
-      routeData = null;
-
-      if ($('destino')) $('destino').value = '';
-      if ($('distritoDestino')) $('distritoDestino').value = '';
-      if ($('direccionExactaDestino')) $('direccionExactaDestino').value = '';
-      if ($('destinoExacto')) $('destinoExacto').value = '';
-      if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
-      if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
+      $('destino').value = '';
 
       if (markerDestino) map.removeLayer(markerDestino);
       markerDestino = null;
 
-      if (routeLayer) {
-        map.removeLayer(routeLayer);
-        routeLayer = null;
-      }
-
       setDestinationValue('Aún no confirmado');
       hidePinMode();
-      resetRouteData();
-      showWarn('Destino limpiado.');
     }
 
     function isAirportSelection(selection){
@@ -2286,7 +2274,7 @@ body{
       clearMessages();
     });
 
-    if ($('btnBackStep1')) $('btnBackStep1').addEventListener('click', ()=>{
+    $('btnBackStep1').addEventListener('click', ()=>{
   
     setStep(1);
       clearMessages();
