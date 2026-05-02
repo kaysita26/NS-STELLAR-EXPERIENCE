@@ -1467,6 +1467,114 @@ body{
       return isCoordinateText(label) ? '' : label;
     }
 
+
+    function normalizeText(text=''){
+      return String(text || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ñ/g, 'n');
+    }
+
+    const DISTRICT_OPTIONS = [
+      'Miraflores',
+      'San Isidro',
+      'Los Olivos',
+      'San Martín de Porres',
+      'San Miguel',
+      'Callao',
+      'Cercado de Lima',
+      'Santiago de Surco',
+      'Barranco',
+      'La Molina',
+      'San Borja',
+      'Lince',
+      'Jesús María',
+      'Magdalena',
+      'Pueblo Libre'
+    ];
+
+    function detectDistrictFromPlace(place={}, label=''){
+      const parts = [];
+      const keys = [
+        'district','distrito','city_district','suburb','city','county','municipality',
+        'state_district','neighbourhood','label','address','name','display_name'
+      ];
+
+      keys.forEach(k=>{
+        if (place && place[k]) parts.push(place[k]);
+      });
+
+      if (place && place.raw && typeof place.raw === 'object') {
+        keys.forEach(k=>{
+          if (place.raw[k]) parts.push(place.raw[k]);
+        });
+      }
+
+      if (place && place.address && typeof place.address === 'object') {
+        Object.values(place.address).forEach(v=>parts.push(v));
+      }
+
+      parts.push(label);
+
+      const text = normalizeText(parts.join(' '));
+
+      const aliases = [
+        { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
+        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','lima'] },
+        { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
+        { value:'Jesús María', keys:['jesus maria'] },
+        { value:'Los Olivos', keys:['los olivos'] },
+        { value:'San Isidro', keys:['san isidro'] },
+        { value:'San Miguel', keys:['san miguel'] },
+        { value:'San Borja', keys:['san borja'] },
+        { value:'Pueblo Libre', keys:['pueblo libre'] },
+        { value:'La Molina', keys:['la molina'] },
+        { value:'Magdalena', keys:['magdalena'] },
+        { value:'Miraflores', keys:['miraflores'] },
+        { value:'Barranco', keys:['barranco'] },
+        { value:'Callao', keys:['callao'] },
+        { value:'Lince', keys:['lince'] }
+      ];
+
+      for (const item of aliases){
+        if (item.keys.some(k => text.includes(k))) return item.value;
+      }
+
+      return '';
+    }
+
+    function setSelectValueIfPossible(selectId, value){
+      const el = $(selectId);
+      if (!el || !value) return;
+
+      const target = normalizeText(value);
+      const found = [...el.options].find(opt => normalizeText(opt.value || opt.textContent) === target);
+      if (found) el.value = found.value || found.textContent;
+    }
+
+    function fillOriginFieldsFromPoint(point={}, label=''){
+      const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
+      const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
+      const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
+      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
+
+      if ($('origen')) $('origen').value = direccion;
+      if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
+      setSelectValueIfPossible('distritoRecojo', distrito);
+    }
+
+    function fillDestinationFieldsFromPoint(point={}, label=''){
+      const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
+      const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
+      const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
+      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
+
+      if ($('destino')) $('destino').value = direccion;
+      if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
+      setSelectValueIfPossible('distritoDestino', distrito);
+    }
+
     async function apiGet(path){
       const res = await fetch(API_BASE + path);
       if (!res.ok) throw new Error('API ' + res.status);
@@ -1685,8 +1793,8 @@ body{
             return;
           }
 
-          if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = item.label;
           originSelection = {...item, type:'manual'};
+          fillOriginFieldsFromPoint(originSelection, item.label);
           setOriginValue(item.label);
           drawMarker('origin', originSelection);
           selectingPoint = null;
@@ -1726,8 +1834,8 @@ body{
             return;
           }
 
-          if ($('direccionExactaDestino')) $('direccionExactaDestino').value = item.label;
           destinationSelection = {...item, type:'manual'};
+          fillDestinationFieldsFromPoint(destinationSelection, item.label);
           setDestinationValue(item.label);
           drawMarker('destination', destinationSelection);
           selectingPoint = null;
@@ -1819,10 +1927,12 @@ body{
       try{
         clearMessages();
 
-        // OK PIN debe guardar EXACTAMENTE el centro del mapa.
-        // Además intentamos leer la dirección aproximada de ese punto,
-        // pero NUNCA movemos la gota usando la respuesta del mapa gratis.
+        // OK PIN guarda exactamente el centro del mapa.
+        // Luego intenta obtener distrito/dirección aproximada SOLO para llenar campos,
+        // pero la coordenada final siempre queda donde el cliente dejó el pin.
         const c = map.getCenter();
+        const coordsTexto = `${Number(c.lat).toFixed(6)}, ${Number(c.lng).toFixed(6)}`;
+
         let place = null;
         let cleanLabel = '';
 
@@ -1834,66 +1944,50 @@ body{
           console.warn('No se pudo obtener dirección aproximada del pin:', reverseErr);
         }
 
-        const coordsTexto = `${Number(c.lat).toFixed(6)}, ${Number(c.lng).toFixed(6)}`;
-
         if (type === 'origin'){
-          const direccionManual = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
           const textoLupa = $('origen') ? $('origen').value.trim() : '';
-
-          // Prioridad visual:
-          // 1) Dirección aproximada según el pin actual
-          // 2) Dirección exacta escrita por el cliente
-          // 3) Texto de la lupa
-          // 4) Coordenadas exactas del pin
-          const label = cleanLabel || direccionManual || textoLupa || `Pin exacto: ${coordsTexto}`;
+          const direccionManual = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
+          const label = cleanLabel || textoLupa || direccionManual || `Pin exacto: ${coordsTexto}`;
 
           const point = {
             ...(place || {}),
             lat: c.lat,
             lon: c.lng,
             label: label,
-            address: direccionManual || label,
+            address: label,
             coords: coordsTexto,
             type:'manual',
             pinConfirmed:true
           };
 
           originSelection = point;
-          $('origen').value = label;
-          if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) {
-            $('direccionExactaRecojo').value = label;
-          }
-
+          fillOriginFieldsFromPoint(point, label);
           drawMarker('origin', point);
           setOriginValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
-          showOk('Recojo confirmado. Se guardó el punto exacto donde dejaste el pin.');
+          showOk('Recojo confirmado. Se llenó dirección y distrito si el mapa lo reconoce; el punto exacto queda donde dejaste el pin.');
         } else {
-          const direccionManual = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
           const textoLupa = $('destino') ? $('destino').value.trim() : '';
-          const label = cleanLabel || direccionManual || textoLupa || `Pin exacto: ${coordsTexto}`;
+          const direccionManual = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
+          const label = cleanLabel || textoLupa || direccionManual || `Pin exacto: ${coordsTexto}`;
 
           const point = {
             ...(place || {}),
             lat: c.lat,
             lon: c.lng,
             label: label,
-            address: direccionManual || label,
+            address: label,
             coords: coordsTexto,
             type:'manual',
             pinConfirmed:true
           };
 
           destinationSelection = point;
-          $('destino').value = label;
-          if ($('direccionExactaDestino') && !hasMinText($('direccionExactaDestino').value, 5)) {
-            $('direccionExactaDestino').value = label;
-          }
-
+          fillDestinationFieldsFromPoint(point, label);
           drawMarker('destination', point);
           setDestinationValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
-          showOk('Destino confirmado. Se guardó el punto exacto donde dejaste el pin.');
+          showOk('Destino confirmado. Se llenó dirección y distrito si el mapa lo reconoce; el punto exacto queda donde dejaste el pin.');
         }
 
         hidePinMode();
@@ -1932,9 +2026,8 @@ body{
             const place = data.result;
 
             const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
-            originSelection = {lat, lon, label, address:label, type:'manual'};
-            $('origen').value = label;
-            if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) $('direccionExactaRecojo').value = label;
+            originSelection = {...(place || {}), lat, lon, label, address:label, type:'manual'};
+            fillOriginFieldsFromPoint(originSelection, label);
 
             // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
             // No dejamos la gota fija como punto final hasta que presione OK pin.
@@ -1984,8 +2077,8 @@ body{
       try{
         const data = await apiGet('/search?text=' + encodeURIComponent(text));
 
-        $('destino').value = data.result.label;
-        if ($('direccionExactaDestino') && !$('direccionExactaDestino').value.trim()) $('direccionExactaDestino').value = data.result.label;
+        destinationSelection = {...data.result, type:'manual'};
+        fillDestinationFieldsFromPoint(destinationSelection, data.result.label);
         setDestinationValue(data.result.label);
         map.setView([data.result.lat, data.result.lon], 17);
 
