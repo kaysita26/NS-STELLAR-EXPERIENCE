@@ -863,9 +863,9 @@ body{
 
       <div class="step" id="stepBadge">Paso 1 • Confirmar origen</div>
       <div class="title" id="sheetTitle">Confirma tu punto de recojo</div>
-      <div class="sub" id="sheetSub">Usa tu ubicación actual o escribe una dirección. Luego ajusta el mapa y confirma el pin.</div>
+      <div class="sub" id="sheetSub">Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.</div>
 
-      <div class="map-section-inline">
+      <div class="map-section-inline" id="mapSection">
         <div class="map-badge" id="mapModeLabel">Mapa listo</div>
 
           <div class="map-wrap">
@@ -946,15 +946,14 @@ body{
           <input id="origenExacto" class="campo-opcional" placeholder="Ej: puerta negra, frente a Inkafarma" autocomplete="off" />
         </div>
 
-        <div class="card">
-          <div class="label">Recojo actual</div>
-          <div class="value" id="originValue">Aún no confirmado</div>
+        <div class="hidden" aria-hidden="true">
+          <div id="originValue">Aún no confirmado</div>
         </div>
 
 
           <div class="btn-row" style="margin-top:10px">
           <button class="btn btn-gold" id="btnGoStep2">Continuar con destino</button>
-          <button class="btn btn-cancel-wide hidden" id="btnCancelOriginPin">Cancelar / limpiar</button>
+          <button class="btn btn-cancel-wide" id="btnCancelOriginPin">Cancelar / limpiar</button>
         </div>
       </div>
 
@@ -1028,9 +1027,8 @@ body{
           <input id="destinoExacto" class="campo-opcional" placeholder="Ej: puerta principal, recepción, torre A" autocomplete="off" />
         </div>
 
-        <div class="card">
-          <div class="label">Destino actual</div>
-          <div class="value" id="destinationValue">Aún no confirmado</div>
+        <div class="hidden" aria-hidden="true">
+          <div id="destinationValue">Aún no confirmado</div>
         </div>
 
 
@@ -1039,7 +1037,7 @@ body{
           <button class="btn btn-gold" id="btnGoStep3">Continuar</button>
         </div>
 
-        <button class="btn btn-cancel-wide hidden" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
+        <button class="btn btn-cancel-wide" id="btnCancelDestinationPin">Cancelar / limpiar destino</button>
       </div>
 
       <!-- PASO 3: COTIZACION O PEDIDO -->
@@ -1380,7 +1378,7 @@ body{
       if (step === 2){
         $('stepBadge').textContent = 'Paso 2 • DESTINO';
         $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
-        $('sheetSub').textContent = 'Estás en DESTINO. Usa el pin, abre opciones frecuentes o busca el destino. Luego confirma el punto exacto.';
+        $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
       }
 
       if (step === 3){
@@ -1410,6 +1408,7 @@ body{
       }
 
       updateDynamicTexts();
+      moveMapToCurrentStep();
 
       setTimeout(()=>{
         if (map) map.invalidateSize();
@@ -1451,21 +1450,31 @@ body{
 
     function showPinSelection(show){
       $('centerPin').classList.toggle('show', show);
-
-      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.toggle('hidden', !show || selectingPoint !== 'origin');
-
-      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.toggle('hidden', !show || selectingPoint !== 'destination');
     }
 
     function hidePinMode(){
       selectingPoint = null;
       $('centerPin').classList.remove('show');
-
-      if ($('btnCancelOriginPin')) $('btnCancelOriginPin').classList.add('hidden');
-
-      if ($('btnCancelDestinationPin')) $('btnCancelDestinationPin').classList.add('hidden');
-
       $('mapModeLabel').textContent = 'Mapa listo';
+    }
+
+    function moveMapToCurrentStep(){
+      const mapSection = $('mapSection');
+      if (!mapSection) return;
+
+      let buttonsRow = null;
+
+      if (currentStep === 1) {
+        buttonsRow = $('panelStep1')?.querySelector('.btn-row-4');
+      }
+
+      if (currentStep === 2) {
+        buttonsRow = $('panelStep2')?.querySelector('.btn-row-4');
+      }
+
+      if (buttonsRow && buttonsRow.parentNode) {
+        buttonsRow.insertAdjacentElement('afterend', mapSection);
+      }
     }
 
     function setOriginValue(text){
@@ -1552,7 +1561,9 @@ body{
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
 
-        $('mapModeLabel').textContent = 'Confirma recojo';
+        $('sheetTitle').textContent = 'Confirma tu punto de recojo';
+        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
+        $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
         showOk('Lugar frecuente de recojo cargado. La dirección ya quedó lista; puedes continuar con destino.');
       }
 
@@ -1576,7 +1587,9 @@ body{
         map.setView([place.lat, place.lon], 17);
         showPinSelection(true);
 
-        $('mapModeLabel').textContent = 'Confirma destino';
+        $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
+        $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
+        $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         showOk('Lugar frecuente de destino cargado. La dirección ya quedó lista; puedes continuar.');
       }
 
@@ -1770,13 +1783,16 @@ body{
             const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
             const place = data.result;
 
-            originSelection = place;
+            originSelection = {...place, type:'manual'};
             $('origen').value = place.label;
-            drawMarker('origin', place);
+            if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.label;
+            drawMarker('origin', originSelection);
             setOriginValue(place.label);
 
-            $('mapModeLabel').textContent = 'Origen cargado';
-            showOk('Ubicación actual cargada correctamente.');
+            $('sheetTitle').textContent = 'Confirma tu punto de recojo';
+            $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
+            $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
+            showOk('Ubicación actual cargada correctamente. Revisa distrito y dirección exacta, luego toca Continuar con destino.');
           }catch(err){
             console.error(err);
             showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
@@ -2307,6 +2323,8 @@ body{
       selectingPoint = 'origin';
       showPinSelection(true);
       $('mapModeLabel').textContent = 'Ubicando recojo';
+      $('sheetTitle').textContent = 'Confirma tu punto de recojo';
+      $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
       showOk('Mueve el mapa hasta tu recojo. La dirección aparecerá automáticamente; luego toca Continuar con destino.');
       previewCenterAddress();
     });
@@ -2315,6 +2333,8 @@ body{
       selectingPoint = 'destination';
       showPinSelection(true);
       $('mapModeLabel').textContent = 'Ubicando destino';
+      $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
+      $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
       showOk('Mueve el mapa hasta tu destino. La dirección aparecerá automáticamente; luego toca Continuar.');
       previewCenterAddress();
     });
