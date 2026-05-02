@@ -916,6 +916,10 @@ body{
               <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez - Callao</option>
               <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
             </optgroup>
+            <optgroup label="🛍️ Zonas Lima Norte">
+              <option value="plazaNorte">Plaza Norte - Independencia</option>
+              <option value="conzac">Conzac - Los Olivos</option>
+            </optgroup>
             <optgroup label="🏨 Hoteles en Miraflores">
               <option value="innside">INNSiDE Lima Miraflores</option>
             </optgroup>
@@ -944,6 +948,7 @@ body{
             <option>Miraflores</option>
             <option>San Isidro</option>
             <option>Los Olivos</option>
+            <option>Independencia</option>
             <option>San Martín de Porres</option>
             <option>San Miguel</option>
             <option>Callao</option>
@@ -999,6 +1004,10 @@ body{
               <option value="aeropuerto">Nuevo Aeropuerto Jorge Chávez - Callao</option>
               <option value="costaAirport">Costa del Sol Wyndham Lima Airport</option>
             </optgroup>
+            <optgroup label="🛍️ Zonas Lima Norte">
+              <option value="plazaNorte">Plaza Norte - Independencia</option>
+              <option value="conzac">Conzac - Los Olivos</option>
+            </optgroup>
             <optgroup label="🏨 Hoteles en Miraflores">
               <option value="innside">INNSiDE Lima Miraflores</option>
             </optgroup>
@@ -1026,6 +1035,7 @@ body{
             <option>Miraflores</option>
             <option>San Isidro</option>
             <option>Los Olivos</option>
+            <option>Independencia</option>
             <option>San Martín de Porres</option>
             <option>San Miguel</option>
             <option>Callao</option>
@@ -1275,8 +1285,27 @@ body{
         lon:-77.1184253,
         address:'Av. Morales Duárez s/n, Callao 07031'
       },
+      plazaNorte: {
+        type:'zona_fija',
+        fareKey:'plazaNorte',
+        label:'Plaza Norte, Independencia',
+        district:'Independencia',
+        lat:-11.9933,
+        lon:-77.0619,
+        address:'Centro Comercial Plaza Norte, Independencia'
+      },
+      conzac: {
+        type:'zona_fija',
+        fareKey:'conzac',
+        label:'Conzac, Los Olivos',
+        district:'Los Olivos',
+        lat:-11.9699,
+        lon:-77.0749,
+        address:'Zona Conzac, Los Olivos'
+      },
       melia: {
         type:'hotel',
+        fareKey:'melia',
         label:'Hotel Meliá Lima, San Isidro',
         district:'San Isidro',
         lat:-12.0906,
@@ -1285,6 +1314,7 @@ body{
       },
       innside: {
         type:'hotel',
+        fareKey:'innside',
         label:'INNSiDE Lima Miraflores',
         district:'Miraflores',
         lat:-12.1205,
@@ -1308,7 +1338,7 @@ body{
         address:'Av. Santo Toribio 173, San Isidro'
       },
       costaAirport: {
-        type:'hotel',
+        type:'aeropuerto',
         label:'Costa del Sol Wyndham Lima Airport',
         district:'Callao',
         lat:-12.0219,
@@ -1325,6 +1355,7 @@ body{
     let destinationSelection = null;
     let selectingPoint = null;
     let routeData = null;
+    let lastFareInfo = null;
 
     const $ = id => document.getElementById(id);
 
@@ -1518,6 +1549,7 @@ body{
 
       const aliases = [
         { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
+        { value:'Independencia', keys:['independencia'] },
         { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','lima'] },
         { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
         { value:'Jesús María', keys:['jesus maria'] },
@@ -1707,7 +1739,8 @@ body{
         type: place.type,
         key: key,
         district: place.district,
-        address: place.address
+        address: place.address,
+        fareKey: place.fareKey || key
       };
 
       if (type === 'origin'){
@@ -2175,53 +2208,171 @@ body{
       return Math.round(value / 5) * 5;
     }
 
+    function getVehicleExtra(vehicleKey){
+      if (vehicleKey === 'camioneta') return 10;
+      if (vehicleKey === 'van') return 35;
+      if (vehicleKey === 'ejecutivo') return 15;
+      return 0;
+    }
+
+    const AIRPORT_FIXED_FARES = {
+      plazaNorte: 45,
+      conzac: 45,
+      innside: 70,
+      melia: 70
+    };
+
+    const AIRPORT_FIXED_LABELS = {
+      plazaNorte: 'Plaza Norte',
+      conzac: 'Conzac',
+      innside: 'INNSiDE Miraflores',
+      melia: 'Hotel Meliá Lima'
+    };
+
+    const AIRPORT_FIXED_EXTRA_FREE_KM = 2;
+    const AIRPORT_FIXED_EXTRA_PER_KM = 4;
+
+    function getAirportFixedAnchors(){
+      return Object.keys(AIRPORT_FIXED_FARES)
+        .map(key => FREQUENT_PLACES[key] ? {
+          key,
+          label: AIRPORT_FIXED_LABELS[key] || FREQUENT_PLACES[key].label,
+          lat: FREQUENT_PLACES[key].lat,
+          lon: FREQUENT_PLACES[key].lon,
+          fare: AIRPORT_FIXED_FARES[key]
+        } : null)
+        .filter(Boolean);
+    }
+
+    function getFareKey(selection){
+      if (!selection) return '';
+      return selection.fareKey || selection.key || '';
+    }
+
+    function getBestAirportFixedFare(distanceKm){
+      const originIsAirport = isAirportSelection(originSelection);
+      const destinationIsAirport = isAirportSelection(destinationSelection);
+
+      // Solo aplica cuando un lado es aeropuerto y el otro lado es zona/hotel configurado.
+      if (originIsAirport === destinationIsAirport) return null;
+
+      const nonAirportPoint = originIsAirport ? destinationSelection : originSelection;
+      if (!nonAirportPoint) return null;
+
+      const directKey = getFareKey(nonAirportPoint);
+      let anchor = null;
+      let extraKm = 0;
+
+      // Si seleccionó un lugar frecuente exacto, usamos su precio fijo.
+      if (AIRPORT_FIXED_FARES[directKey]){
+        anchor = {
+          key: directKey,
+          label: AIRPORT_FIXED_LABELS[directKey] || FREQUENT_PLACES[directKey]?.label || directKey,
+          fare: AIRPORT_FIXED_FARES[directKey]
+        };
+      } else {
+        // Si usó pin/manual, buscamos el punto fijo más cercano.
+        const anchors = getAirportFixedAnchors()
+          .map(a => ({...a, distanceToPoint: distanceKmFallback(a, nonAirportPoint)}))
+          .sort((a,b) => a.distanceToPoint - b.distanceToPoint);
+
+        const nearest = anchors[0];
+
+        // Si está relativamente cerca de una zona fija, parte de esa tarifa y suma extra.
+        if (nearest && nearest.distanceToPoint <= 8){
+          anchor = nearest;
+          extraKm = Math.max(0, nearest.distanceToPoint - AIRPORT_FIXED_EXTRA_FREE_KM);
+        }
+      }
+
+      if (!anchor) return null;
+
+      let baseFare = Number(anchor.fare) || 0;
+
+      // Si el viaje es HACIA el aeropuerto, cuesta S/5 menos.
+      if (destinationIsAirport){
+        baseFare = Math.max(25, baseFare - 5);
+      }
+
+      // Si el pin queda más lejos que el punto fijo, suma por km adicional.
+      let total = baseFare + (extraKm * AIRPORT_FIXED_EXTRA_PER_KM);
+
+      return {
+        total,
+        label: anchor.label,
+        baseFare,
+        extraKm,
+        directionText: originIsAirport ? 'Desde aeropuerto' : 'Hacia aeropuerto'
+      };
+    }
+
     function calculateFare(distanceKm, minutes, vehicleKey){
       // ===== SISTEMA FINAL DE TARIFA PRO =====
-      // Fórmula base: 6 + (km × 3.0) + (min × 0.25)
-      // Reglas:
-      // 1) Si el recojo es aeropuerto: + S/ 5
-      // 2) Mínimo desde aeropuerto: S/ 45
-      // 3) Si la distancia es 14 km o más: + S/ 5
-      // 4) Mínimo urbano general: S/ 25
-      // 5) Redondeo comercial a múltiplos de S/ 5
+      // 1) Aeropuerto ↔ puntos frecuentes: precio fijo.
+      // 2) Si el pin se aleja del punto frecuente: suma por km adicional.
+      // 3) Otros viajes: tarifa por km real + tiempo.
+      // 4) Vehículo, peaje, programado e ida/vuelta se suman al final.
+      // 5) Redondeo comercial a múltiplos de S/ 5.
 
       const km = Number(distanceKm) || 0;
       const min = Number(minutes) || 0;
-
-      let total = 6 + (km * 3.0) + (min * 0.25);
-
-      // Recargo por distancia media/larga
-      if (km >= 14){
-        total += 5;
-      }
-
-      // Ajuste por vehículo
-      if (vehicleKey === 'camioneta') total += 10;
-      if (vehicleKey === 'van') total += 35;
-      if (vehicleKey === 'ejecutivo') total += 15;
-
-      // Recargo y mínimo si el recojo es aeropuerto
-      if (isAirportSelection(originSelection)){
-        total += 5;
-        total = Math.max(total, 45);
-      }
-
-      // Mínimo urbano general
-      total = Math.max(total, 25);
-
-      // Peaje / adicional manual
       const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
+      const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
+
+      lastFareInfo = null;
+
+      const fixedAirportFare = getBestAirportFixedFare(km);
+      let total = 0;
+      let tipoCalculo = '';
+
+      if (fixedAirportFare){
+        total = fixedAirportFare.total;
+        tipoCalculo = `${fixedAirportFare.directionText}: tarifa fija ${fixedAirportFare.label}`;
+
+        if (fixedAirportFare.extraKm > 0){
+          tipoCalculo += ` + ${fixedAirportFare.extraKm.toFixed(1)} km adicional`;
+        }
+      } else {
+        // Tarifa general para rutas que no están en lista fija.
+        total = 6 + (km * 3.0) + (min * 0.25);
+
+        // Recargo por distancia media/larga.
+        if (km >= 14){
+          total += 5;
+        }
+
+        // Mínimo si el recojo es aeropuerto.
+        if (isAirportSelection(originSelection)){
+          total += 5;
+          total = Math.max(total, 45);
+        }
+
+        // Mínimo urbano general.
+        total = Math.max(total, 25);
+        tipoCalculo = 'Tarifa automática: km real + tiempo + ajustes';
+      }
+
+      // Ajuste por vehículo.
+      total += getVehicleExtra(vehicleKey);
+
+      // Peaje / adicional manual.
       total += adicional;
 
-      // Servicio programado
+      // Servicio programado.
       if (serviceType === 'Programado') total += 5;
 
-      // Ida y vuelta
-      const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
+      // Ida y vuelta.
       if (tipoViaje === 'Ida y vuelta') total = total * 1.8;
 
-      // Redondeo final comercial: 38.50 -> 40, 34.50 -> 35
+      // Redondeo final comercial.
       total = roundToNearestFive(total);
+
+      lastFareInfo = {
+        tipoCalculo,
+        fijoAeropuerto: !!fixedAirportFare,
+        puntoReferencia: fixedAirportFare ? fixedAirportFare.label : '',
+        kmAdicional: fixedAirportFare ? fixedAirportFare.extraKm.toFixed(1) : '0.0'
+      };
 
       return total;
     }
@@ -2324,7 +2475,7 @@ body{
           minutos: min,
           tarifa: fare.toFixed(2),
           adicional: adicional.toFixed(2),
-          tipoCalculo: 'Tarifa automática: base + km + tiempo + ajustes',
+          tipoCalculo: lastFareInfo?.tipoCalculo || 'Tarifa automática: base + km + tiempo + ajustes',
           origen: originSelection.label,
           destino: destinationSelection.label,
           origenCoords: `${originSelection.lat}, ${originSelection.lon}`,
