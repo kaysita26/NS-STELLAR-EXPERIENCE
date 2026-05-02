@@ -1928,8 +1928,8 @@ body{
         clearMessages();
 
         // OK PIN guarda exactamente el centro del mapa.
-        // Luego intenta obtener distrito/dirección aproximada SOLO para llenar campos,
-        // pero la coordenada final siempre queda donde el cliente dejó el pin.
+        // IMPORTANTE: en modo PIN NO se autollenan Distrito ni Dirección exacta.
+        // Solo se actualiza la lupa con una dirección aproximada y se guardan coordenadas exactas.
         const c = map.getCenter();
         const coordsTexto = `${Number(c.lat).toFixed(6)}, ${Number(c.lng).toFixed(6)}`;
 
@@ -1946,8 +1946,7 @@ body{
 
         if (type === 'origin'){
           const textoLupa = $('origen') ? $('origen').value.trim() : '';
-          const direccionManual = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
-          const label = cleanLabel || textoLupa || direccionManual || `Pin exacto: ${coordsTexto}`;
+          const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
 
           const point = {
             ...(place || {}),
@@ -1961,15 +1960,17 @@ body{
           };
 
           originSelection = point;
-          fillOriginFieldsFromPoint(point, label);
+
+          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
+          if ($('origen')) $('origen').value = label;
+
           drawMarker('origin', point);
           setOriginValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
-          showOk('Recojo confirmado. Se llenó dirección y distrito si el mapa lo reconoce; el punto exacto queda donde dejaste el pin.');
+          showOk('Recojo confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
         } else {
           const textoLupa = $('destino') ? $('destino').value.trim() : '';
-          const direccionManual = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
-          const label = cleanLabel || textoLupa || direccionManual || `Pin exacto: ${coordsTexto}`;
+          const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
 
           const point = {
             ...(place || {}),
@@ -1983,11 +1984,14 @@ body{
           };
 
           destinationSelection = point;
-          fillDestinationFieldsFromPoint(point, label);
+
+          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
+          if ($('destino')) $('destino').value = label;
+
           drawMarker('destination', point);
           setDestinationValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
-          showOk('Destino confirmado. Se llenó dirección y distrito si el mapa lo reconoce; el punto exacto queda donde dejaste el pin.');
+          showOk('Destino confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
         }
 
         hidePinMode();
@@ -2027,7 +2031,9 @@ body{
 
             const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
             originSelection = {...(place || {}), lat, lon, label, address:label, type:'manual'};
-            fillOriginFieldsFromPoint(originSelection, label);
+
+            // Mi ubicación solo llena la lupa. NO autollenar distrito ni dirección exacta.
+            if ($('origen')) $('origen').value = label;
 
             // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
             // No dejamos la gota fija como punto final hasta que presione OK pin.
@@ -2042,7 +2048,7 @@ body{
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
             $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
             $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
-            showOk('Ubicación actual cargada. Si la gota no está exacta, mueve el mapa hasta tu puerta y toca OK pin.');
+            showOk('Ubicación actual cargada en la lupa. Si no está exacta, mueve el mapa hasta tu puerta y toca OK pin. Distrito y dirección exacta se escriben manualmente.');
           }catch(err){
             console.error(err);
             showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
