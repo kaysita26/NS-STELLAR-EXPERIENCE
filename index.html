@@ -1496,13 +1496,13 @@ body{
       if ($('destinationField')) $('destinationField').classList.toggle('pin-active', destinationPinMode);
 
       if (originPinMode && $('origen')) {
-        $('origen').placeholder = 'Escribe una dirección o palabra clave para acercarte al punto';
+        $('origen').placeholder = 'Escribe una dirección o lugar cercano para acercarte al punto';
       } else if ($('origen')) {
         $('origen').placeholder = 'Buscar recojo en el mapa';
       }
 
       if (destinationPinMode && $('destino')) {
-        $('destino').placeholder = 'Escribe una dirección o palabra clave para acercarte al destino';
+        $('destino').placeholder = 'Escribe una dirección o lugar cercano para acercarte al destino';
       } else if ($('destino')) {
         $('destino').placeholder = 'Buscar destino en el mapa';
       }
@@ -1676,17 +1676,24 @@ body{
 
         renderSuggestions('originSuggestions', data.results || [], (item)=>{
           $('origen').value = item.label;
+          map.setView([item.lat, item.lon], 17);
+
+          if (selectingPoint === 'origin') {
+            $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
+            showPinSelection(true);
+            showOk('Mapa acercado. Ahora ajusta el pin al punto exacto y toca OK pin.');
+            return;
+          }
+
           if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = item.label;
           originSelection = {...item, type:'manual'};
           setOriginValue(item.label);
           drawMarker('origin', originSelection);
-          map.setView([item.lat, item.lon], 17);
-
           selectingPoint = null;
           showPinSelection(false);
 
           $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
-          showOk('Dirección de recojo cargada. Puedes continuar con destino o mover el pin si deseas.');
+          showOk('Dirección de recojo cargada. Puedes continuar con destino.');
         });
       }catch(err){
         console.error(err);
@@ -1710,17 +1717,24 @@ body{
 
         renderSuggestions('destinationSuggestions', data.results || [], (item)=>{
           $('destino').value = item.label;
+          map.setView([item.lat, item.lon], 17);
+
+          if (selectingPoint === 'destination') {
+            $('mapModeLabel').textContent = 'Ajusta el pin de destino';
+            showPinSelection(true);
+            showOk('Mapa acercado. Ahora ajusta el pin al punto exacto y toca OK pin.');
+            return;
+          }
+
           if ($('direccionExactaDestino')) $('direccionExactaDestino').value = item.label;
           destinationSelection = {...item, type:'manual'};
           setDestinationValue(item.label);
           drawMarker('destination', destinationSelection);
-          map.setView([item.lat, item.lon], 17);
-
           selectingPoint = null;
           showPinSelection(false);
 
           $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
-          showOk('Dirección de destino cargada. Puedes continuar o mover el pin si deseas.');
+          showOk('Dirección de destino cargada. Puedes continuar.');
         });
       }catch(err){
         console.error(err);
@@ -1784,7 +1798,8 @@ body{
     }, 500);
 
     map.on('moveend', ()=>{
-      if (selectingPoint) previewCenterAddress();
+      // En modo PIN no se rellena la lupa automáticamente.
+      // El usuario puede escribir un lugar cercano, ajustar el mapa y confirmar con OK pin.
     });
 
     $('origen').addEventListener('input', searchOrigin);
@@ -2398,24 +2413,30 @@ body{
 
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
-      if ($('origen')) $('origen').value = '';
+      if ($('origen')) {
+        $('origen').value = '';
+        $('origen').placeholder = 'Escribe una dirección o lugar cercano para acercarte al punto';
+        setTimeout(() => $('origen').focus(), 80);
+      }
       showPinSelection(true);
-      $('mapModeLabel').textContent = 'Ubicando recojo';
+      $('mapModeLabel').textContent = 'Ubica el recojo con el pin';
       $('sheetTitle').textContent = 'Confirma tu punto de recojo';
       $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
-      showOk('Mueve el mapa hasta tu recojo. La dirección aparecerá automáticamente; luego toca Continuar con destino.');
-      previewCenterAddress();
+      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, ajusta el mapa y luego toca OK pin.');
     });
 
     $('btnMapDestination').addEventListener('click', ()=>{
       selectingPoint = 'destination';
-      if ($('destino')) $('destino').value = '';
+      if ($('destino')) {
+        $('destino').value = '';
+        $('destino').placeholder = 'Escribe una dirección o lugar cercano para acercarte al destino';
+        setTimeout(() => $('destino').focus(), 80);
+      }
       showPinSelection(true);
-      $('mapModeLabel').textContent = 'Ubicando destino';
+      $('mapModeLabel').textContent = 'Ubica el destino con el pin';
       $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
       $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
-      showOk('Mueve el mapa hasta tu destino. La dirección aparecerá automáticamente; luego toca Continuar.');
-      previewCenterAddress();
+      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, ajusta el mapa y luego toca OK pin.');
     });
 
     $('btnSearchDestMap').addEventListener('click', searchDestinationOnMap);
