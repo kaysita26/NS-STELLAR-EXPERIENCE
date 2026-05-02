@@ -1819,29 +1819,60 @@ body{
       try{
         clearMessages();
 
+        // IMPORTANTE:
+        // OK pin guarda LAS COORDENADAS EXACTAS DEL CENTRO DEL MAPA.
+        // No usamos reverse geocoding aquí porque los mapas gratis pueden devolver
+        // otra casa cercana y mover la gota a un costado.
         const c = map.getCenter();
-        const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
-        const place = data.result;
 
         if (type === 'origin'){
-          const cleanLabel = cleanAddressLabel(place, $('origen') ? $('origen').value : '');
-          originSelection = {...place, label: cleanLabel || place.label || 'Recojo seleccionado por pin', type:'manual'};
-          if (cleanLabel) $('origen').value = cleanLabel;
-          if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5) && cleanLabel) $('direccionExactaRecojo').value = cleanLabel;
-          drawMarker('origin', originSelection);
-          setOriginValue(cleanLabel || 'Recojo seleccionado por pin');
-          showOk('Recojo confirmado correctamente. Ahora puedes continuar con destino.');
+          const direccion = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
+          const textoLupa = $('origen') ? $('origen').value.trim() : '';
+          const label = direccion || textoLupa || 'Recojo seleccionado por pin';
+
+          const point = {
+            lat: c.lat,
+            lon: c.lng,
+            label: label,
+            address: direccion || label,
+            type:'manual',
+            pinConfirmed:true
+          };
+
+          originSelection = point;
+          if ($('origen') && !hasMinText($('origen').value, 3)) $('origen').value = label;
+          if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) $('direccionExactaRecojo').value = label;
+
+          drawMarker('origin', point);
+          setOriginValue(label);
+          $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
+          showOk('Recojo confirmado. El pin quedó guardado exactamente donde lo dejaste.');
         } else {
-          const cleanLabel = cleanAddressLabel(place, $('destino') ? $('destino').value : '');
-          destinationSelection = {...place, label: cleanLabel || place.label || 'Destino seleccionado por pin', type:'manual'};
-          if (cleanLabel) $('destino').value = cleanLabel;
-          if ($('direccionExactaDestino') && !hasMinText($('direccionExactaDestino').value, 5) && cleanLabel) $('direccionExactaDestino').value = cleanLabel;
-          drawMarker('destination', destinationSelection);
-          setDestinationValue(cleanLabel || 'Destino seleccionado por pin');
-          showOk('Destino confirmado correctamente. Ahora puedes continuar.');
+          const direccion = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
+          const textoLupa = $('destino') ? $('destino').value.trim() : '';
+          const label = direccion || textoLupa || 'Destino seleccionado por pin';
+
+          const point = {
+            lat: c.lat,
+            lon: c.lng,
+            label: label,
+            address: direccion || label,
+            type:'manual',
+            pinConfirmed:true
+          };
+
+          destinationSelection = point;
+          if ($('destino') && !hasMinText($('destino').value, 3)) $('destino').value = label;
+          if ($('direccionExactaDestino') && !hasMinText($('direccionExactaDestino').value, 5)) $('direccionExactaDestino').value = label;
+
+          drawMarker('destination', point);
+          setDestinationValue(label);
+          $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
+          showOk('Destino confirmado. El pin quedó guardado exactamente donde lo dejaste.');
         }
 
         hidePinMode();
+        resetRouteData();
       }catch(err){
         console.error(err);
         showWarn('No se pudo confirmar el punto.');
@@ -1875,16 +1906,25 @@ body{
             const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
             const place = data.result;
 
-            originSelection = {...place, type:'manual'};
-            $('origen').value = place.label;
-            if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.label;
-            drawMarker('origin', originSelection);
-            setOriginValue(place.label);
+            const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
+            originSelection = {lat, lon, label, address:label, type:'manual'};
+            $('origen').value = label;
+            if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) $('direccionExactaRecojo').value = label;
+
+            // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
+            // No dejamos la gota fija como punto final hasta que presione OK pin.
+            if (markerOrigen) {
+              map.removeLayer(markerOrigen);
+              markerOrigen = null;
+            }
+            selectingPoint = 'origin';
+            showPinSelection(true);
+            setOriginValue(label);
 
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
-            $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
-            $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
-            showOk('Ubicación actual cargada correctamente. Revisa distrito y dirección exacta, luego toca Continuar con destino.');
+            $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
+            $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
+            showOk('Ubicación actual cargada. Si la gota no está exacta, mueve el mapa hasta tu puerta y toca OK pin.');
           }catch(err){
             console.error(err);
             showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
@@ -2427,6 +2467,10 @@ body{
 
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
+      if (markerOrigen) {
+        map.removeLayer(markerOrigen);
+        markerOrigen = null;
+      }
       if ($('origen')) {
         $('origen').value = '';
         $('origen').placeholder = 'Escribe una dirección o lugar cercano para acercarte al punto';
@@ -2436,11 +2480,15 @@ body{
       $('mapModeLabel').textContent = 'Ubica el recojo con el pin';
       $('sheetTitle').textContent = 'Confirma tu punto de recojo';
       $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
-      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, ajusta el mapa y luego toca OK pin.');
+      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, mueve el mapa hasta el punto exacto y toca OK pin.');
     });
 
     $('btnMapDestination').addEventListener('click', ()=>{
       selectingPoint = 'destination';
+      if (markerDestino) {
+        map.removeLayer(markerDestino);
+        markerDestino = null;
+      }
       if ($('destino')) {
         $('destino').value = '';
         $('destino').placeholder = 'Escribe una dirección o lugar cercano para acercarte al destino';
@@ -2450,7 +2498,7 @@ body{
       $('mapModeLabel').textContent = 'Ubica el destino con el pin';
       $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
       $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
-      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, ajusta el mapa y luego toca OK pin.');
+      showOk('Escribe una dirección o lugar cercano en la lupa para acercarte, mueve el mapa hasta el punto exacto y toca OK pin.');
     });
 
     $('btnSearchDestMap').addEventListener('click', searchDestinationOnMap);
