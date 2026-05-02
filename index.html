@@ -846,6 +846,29 @@ body{
     opacity:0.5 !important;
   }
 
+
+/* ===== BOTÓN OK PIN EN LA MISMA FILA DE LA LUPA ===== */
+.input-box.pin-active{
+  border-color:rgba(109,184,255,.38) !important;
+  box-shadow:0 0 0 4px rgba(109,184,255,.08) !important;
+}
+.btn-pin-ok{
+  width:auto !important;
+  min-width:82px !important;
+  min-height:38px !important;
+  padding:9px 10px !important;
+  border-radius:13px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+}
+@media (max-width:480px){
+  .btn-pin-ok{
+    min-width:70px !important;
+    font-size:10.5px !important;
+    padding:8px 7px !important;
+  }
+}
+
 </style>
   
 </head>
@@ -908,6 +931,7 @@ body{
         <div class="input-box" style="margin-top:12px" id="originField">
           <div class="input-icon">🔎</div>
           <input id="origen" placeholder="Buscar recojo en el mapa" autocomplete="off" />
+          <button class="btn btn-blue btn-pin-ok hidden" id="btnOkOriginPin" type="button">OK pin</button>
         </div>
 
         <div class="suggestions" id="originSuggestions"></div>
@@ -990,6 +1014,7 @@ body{
         <div class="input-box" style="margin-top:12px" id="destinationField">
           <div class="input-icon">🔎</div>
           <input id="destino" placeholder="Buscar destino en el mapa" autocomplete="off" />
+          <button class="btn btn-blue btn-pin-ok hidden" id="btnOkDestinationPin" type="button">OK pin</button>
         </div>
 
         <div class="suggestions" id="destinationSuggestions"></div>
@@ -1432,6 +1457,16 @@ body{
         .replaceAll("'",'&#039;');
     }
 
+
+    function isCoordinateText(text=''){
+      return /^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(String(text || '').trim());
+    }
+
+    function cleanAddressLabel(place, fallback=''){
+      const label = String(place?.label || fallback || '').trim();
+      return isCoordinateText(label) ? '' : label;
+    }
+
     async function apiGet(path){
       const res = await fetch(API_BASE + path);
       if (!res.ok) throw new Error('API ' + res.status);
@@ -1450,11 +1485,40 @@ body{
 
     function showPinSelection(show){
       $('centerPin').classList.toggle('show', show);
+
+      const originPinMode = show && selectingPoint === 'origin';
+      const destinationPinMode = show && selectingPoint === 'destination';
+
+      if ($('btnOkOriginPin')) $('btnOkOriginPin').classList.toggle('hidden', !originPinMode);
+      if ($('btnOkDestinationPin')) $('btnOkDestinationPin').classList.toggle('hidden', !destinationPinMode);
+
+      if ($('originField')) $('originField').classList.toggle('pin-active', originPinMode);
+      if ($('destinationField')) $('destinationField').classList.toggle('pin-active', destinationPinMode);
+
+      if (originPinMode && $('origen')) {
+        $('origen').placeholder = 'Escribe una dirección o palabra clave para acercarte al punto';
+      } else if ($('origen')) {
+        $('origen').placeholder = 'Buscar recojo en el mapa';
+      }
+
+      if (destinationPinMode && $('destino')) {
+        $('destino').placeholder = 'Escribe una dirección o palabra clave para acercarte al destino';
+      } else if ($('destino')) {
+        $('destino').placeholder = 'Buscar destino en el mapa';
+      }
     }
 
     function hidePinMode(){
       selectingPoint = null;
       $('centerPin').classList.remove('show');
+
+      if ($('btnOkOriginPin')) $('btnOkOriginPin').classList.add('hidden');
+      if ($('btnOkDestinationPin')) $('btnOkDestinationPin').classList.add('hidden');
+      if ($('originField')) $('originField').classList.remove('pin-active');
+      if ($('destinationField')) $('destinationField').classList.remove('pin-active');
+      if ($('origen')) $('origen').placeholder = 'Buscar recojo en el mapa';
+      if ($('destino')) $('destino').placeholder = 'Buscar destino en el mapa';
+
       $('mapModeLabel').textContent = 'Mapa listo';
     }
 
@@ -1553,13 +1617,13 @@ body{
         }
 
         originSelection = point;
-        selectingPoint = 'origin';
+        selectingPoint = null;
 
         drawMarker('origin', point);
         setOriginValue(place.address + ' — ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
-        showPinSelection(true);
+        showPinSelection(false);
 
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
         $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
@@ -1579,13 +1643,13 @@ body{
         }
 
         destinationSelection = point;
-        selectingPoint = 'destination';
+        selectingPoint = null;
 
         drawMarker('destination', point);
         setDestinationValue(place.address + ' — ' + place.label);
 
         map.setView([place.lat, place.lon], 17);
-        showPinSelection(true);
+        showPinSelection(false);
 
         $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
         $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
@@ -1618,8 +1682,8 @@ body{
           drawMarker('origin', originSelection);
           map.setView([item.lat, item.lon], 17);
 
-          selectingPoint = 'origin';
-          showPinSelection(true);
+          selectingPoint = null;
+          showPinSelection(false);
 
           $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
           showOk('Dirección de recojo cargada. Puedes continuar con destino o mover el pin si deseas.');
@@ -1652,8 +1716,8 @@ body{
           drawMarker('destination', destinationSelection);
           map.setView([item.lat, item.lon], 17);
 
-          selectingPoint = 'destination';
-          showPinSelection(true);
+          selectingPoint = null;
+          showPinSelection(false);
 
           $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
           showOk('Dirección de destino cargada. Puedes continuar o mover el pin si deseas.');
@@ -1673,7 +1737,8 @@ body{
         const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
         const place = data.result;
 
-        if (!place || !place.label) return;
+        if (!place) return;
+        const cleanLabel = cleanAddressLabel(place);
 
         const point = {
           ...place,
@@ -1684,23 +1749,33 @@ body{
 
         if (selectingPoint === 'origin'){
           originSelection = point;
-          $('origen').value = place.label;
-          if ($('direccionExactaRecojo')) {
-            $('direccionExactaRecojo').value = place.label;
+          if (cleanLabel) {
+            $('origen').value = cleanLabel;
+            if ($('direccionExactaRecojo')) {
+              $('direccionExactaRecojo').value = cleanLabel;
+            }
+            setOriginValue(cleanLabel);
+          } else {
+            $('origen').value = '';
+            setOriginValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
           }
           drawMarker('origin', point);
-          setOriginValue(place.label);
           $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
         }
 
         if (selectingPoint === 'destination'){
           destinationSelection = point;
-          $('destino').value = place.label;
-          if ($('direccionExactaDestino')) {
-            $('direccionExactaDestino').value = place.label;
+          if (cleanLabel) {
+            $('destino').value = cleanLabel;
+            if ($('direccionExactaDestino')) {
+              $('direccionExactaDestino').value = cleanLabel;
+            }
+            setDestinationValue(cleanLabel);
+          } else {
+            $('destino').value = '';
+            setDestinationValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
           }
           drawMarker('destination', point);
-          setDestinationValue(place.label);
           $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         }
       }catch(err){
@@ -1734,18 +1809,20 @@ body{
         const place = data.result;
 
         if (type === 'origin'){
-          originSelection = {...place, type:'manual'};
-          $('origen').value = place.label;
-          if ($('direccionExactaRecojo') && !$('direccionExactaRecojo').value.trim()) $('direccionExactaRecojo').value = place.label;
-          drawMarker('origin', place);
-          setOriginValue(place.label);
+          const cleanLabel = cleanAddressLabel(place, $('origen') ? $('origen').value : '');
+          originSelection = {...place, label: cleanLabel || place.label || 'Recojo seleccionado por pin', type:'manual'};
+          if (cleanLabel) $('origen').value = cleanLabel;
+          if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5) && cleanLabel) $('direccionExactaRecojo').value = cleanLabel;
+          drawMarker('origin', originSelection);
+          setOriginValue(cleanLabel || 'Recojo seleccionado por pin');
           showOk('Recojo confirmado correctamente. Ahora puedes continuar con destino.');
         } else {
-          destinationSelection = {...place, type:'manual'};
-          $('destino').value = place.label;
-          if ($('direccionExactaDestino') && !$('direccionExactaDestino').value.trim()) $('direccionExactaDestino').value = place.label;
-          drawMarker('destination', place);
-          setDestinationValue(place.label);
+          const cleanLabel = cleanAddressLabel(place, $('destino') ? $('destino').value : '');
+          destinationSelection = {...place, label: cleanLabel || place.label || 'Destino seleccionado por pin', type:'manual'};
+          if (cleanLabel) $('destino').value = cleanLabel;
+          if ($('direccionExactaDestino') && !hasMinText($('direccionExactaDestino').value, 5) && cleanLabel) $('direccionExactaDestino').value = cleanLabel;
+          drawMarker('destination', destinationSelection);
+          setDestinationValue(cleanLabel || 'Destino seleccionado por pin');
           showOk('Destino confirmado correctamente. Ahora puedes continuar.');
         }
 
@@ -1832,8 +1909,8 @@ body{
         setDestinationValue(data.result.label);
         map.setView([data.result.lat, data.result.lon], 17);
 
-        selectingPoint = 'destination';
-        showPinSelection(true);
+        selectingPoint = null;
+        showPinSelection(false);
 
         $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         showOk('Se ubicó el destino en el mapa. Ajusta si quieres y confirma.');
@@ -2321,6 +2398,7 @@ body{
 
     $('btnMapOrigin').addEventListener('click', ()=>{
       selectingPoint = 'origin';
+      if ($('origen')) $('origen').value = '';
       showPinSelection(true);
       $('mapModeLabel').textContent = 'Ubicando recojo';
       $('sheetTitle').textContent = 'Confirma tu punto de recojo';
@@ -2331,6 +2409,7 @@ body{
 
     $('btnMapDestination').addEventListener('click', ()=>{
       selectingPoint = 'destination';
+      if ($('destino')) $('destino').value = '';
       showPinSelection(true);
       $('mapModeLabel').textContent = 'Ubicando destino';
       $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
@@ -2340,6 +2419,18 @@ body{
     });
 
     $('btnSearchDestMap').addEventListener('click', searchDestinationOnMap);
+
+    if ($('btnOkOriginPin')) {
+      $('btnOkOriginPin').addEventListener('click', async ()=>{
+        await confirmCenterPoint('origin');
+      });
+    }
+
+    if ($('btnOkDestinationPin')) {
+      $('btnOkDestinationPin').addEventListener('click', async ()=>{
+        await confirmCenterPoint('destination');
+      });
+    }
 
 
     $('btnCancelOriginPin').addEventListener('click', clearOrigin);
