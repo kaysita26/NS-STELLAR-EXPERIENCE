@@ -2010,41 +2010,59 @@ body{
       return fare;
     }
 
-    function calculateFare(distanceKm, vehicleKey){
-      let fare = 0;
+    function roundToNearestFive(value){
+      return Math.round(value / 5) * 5;
+    }
 
-      const origenEsAeropuerto = isAirportSelection(originSelection);
-      const destinoEsAeropuerto = isAirportSelection(destinationSelection);
-      const origenEsHotel = isHotelSelection(originSelection);
-      const destinoEsHotel = isHotelSelection(destinationSelection);
+    function calculateFare(distanceKm, minutes, vehicleKey){
+      // ===== SISTEMA FINAL DE TARIFA PRO =====
+      // Fórmula base: 6 + (km × 3.0) + (min × 0.25)
+      // Reglas:
+      // 1) Si el recojo es aeropuerto: + S/ 5
+      // 2) Mínimo desde aeropuerto: S/ 45
+      // 3) Si la distancia es 14 km o más: + S/ 5
+      // 4) Mínimo urbano general: S/ 25
+      // 5) Redondeo comercial a múltiplos de S/ 5
 
-      if (origenEsHotel && destinoEsAeropuerto){
-        if (vehicleKey === 'camioneta') fare = 70;
-        else if (vehicleKey === 'van') fare = 120;
-        else if (vehicleKey === 'ejecutivo') fare = 70;
-        else fare = 60;
+      const km = Number(distanceKm) || 0;
+      const min = Number(minutes) || 0;
+
+      let total = 6 + (km * 3.0) + (min * 0.25);
+
+      // Recargo por distancia media/larga
+      if (km >= 14){
+        total += 5;
       }
 
-      else if (origenEsAeropuerto && destinoEsHotel){
-        if (vehicleKey === 'camioneta') fare = 75;
-        else if (vehicleKey === 'van') fare = 120;
-        else if (vehicleKey === 'ejecutivo') fare = 75;
-        else fare = 65;
+      // Ajuste por vehículo
+      if (vehicleKey === 'camioneta') total += 10;
+      if (vehicleKey === 'van') total += 35;
+      if (vehicleKey === 'ejecutivo') total += 15;
+
+      // Recargo y mínimo si el recojo es aeropuerto
+      if (isAirportSelection(originSelection)){
+        total += 5;
+        total = Math.max(total, 45);
       }
 
-      else{
-        fare = fareByDistanceBlocks(distanceKm, vehicleKey);
-      }
+      // Mínimo urbano general
+      total = Math.max(total, 25);
 
+      // Peaje / adicional manual
       const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
-      fare += adicional;
+      total += adicional;
 
-      if (serviceType === 'Programado') fare += 5;
+      // Servicio programado
+      if (serviceType === 'Programado') total += 5;
 
+      // Ida y vuelta
       const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
-      if (tipoViaje === 'Ida y vuelta') fare = fare * 1.8;
+      if (tipoViaje === 'Ida y vuelta') total = total * 1.8;
 
-      return fare;
+      // Redondeo final comercial: 38.50 -> 40, 34.50 -> 35
+      total = roundToNearestFive(total);
+
+      return total;
     }
 
 
@@ -2137,7 +2155,7 @@ body{
           drawSimpleLineFallback(originSelection, destinationSelection);
         }
 
-        const fare = calculateFare(km, currentVehicle);
+        const fare = calculateFare(km, min, currentVehicle);
         const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
 
         routeData = {
@@ -2145,11 +2163,7 @@ body{
           minutos: min,
           tarifa: fare.toFixed(2),
           adicional: adicional.toFixed(2),
-          tipoCalculo: (isHotelSelection(originSelection) && isAirportSelection(destinationSelection))
-            ? 'Tarifa fija Hotel → Aeropuerto'
-            : (isAirportSelection(originSelection) && isHotelSelection(destinationSelection))
-              ? 'Tarifa fija Aeropuerto → Hotel'
-              : 'Tarifa por tramos de distancia',
+          tipoCalculo: 'Tarifa automática: base + km + tiempo + ajustes',
           origen: originSelection.label,
           destino: destinationSelection.label,
           origenCoords: `${originSelection.lat}, ${originSelection.lon}`,
