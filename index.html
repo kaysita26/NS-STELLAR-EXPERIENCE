@@ -1165,22 +1165,12 @@ body{
           <div class="value" id="vehicleSuggestion">🚗 Se recomienda AUTO</div>
         </div>
 
-        <div class="grid-2">
-          <div>
-            <label class="label">Tipo de viaje</label>
-            <select id="tipoViaje">
-              <option value="Solo ida">Solo ida</option>
-              <option value="Ida y vuelta">Ida y vuelta</option>
-            </select>
-          </div>
-          <div id="peajeOpcionalBox" class="hidden">
-            <label class="label">Peaje opcional</label>
-            <select id="adicionalPeaje">
-              <option value="0">Sin peaje opcional</option>
-              <option value="12.60">Con 02 peajes opcionales S/ 12.60</option>
-            </select>
-            <div class="help-required">Solo aparece cuando el distrito permite elegir ruta con peaje o sin peaje.</div>
-          </div>
+        <div style="margin-top:10px">
+          <label class="label">Tipo de viaje</label>
+          <select id="tipoViaje">
+            <option value="Solo ida">Solo ida</option>
+            <option value="Ida y vuelta">Ida y vuelta</option>
+          </select>
         </div>
 
         <div class="grid-2" id="programacionBox">
@@ -1236,6 +1226,16 @@ body{
         <div class="card">
           <div class="label">Tipo de servicio</div>
           <div class="value" id="summaryServiceType">-</div>
+        </div>
+
+        <!-- PEAJE OPCIONAL SOLO EN PASO 6 -->
+        <div id="peajeOpcionalBox" class="card hidden">
+          <label class="label">Peaje opcional</label>
+          <select id="adicionalPeaje">
+            <option value="0">Sin peaje opcional</option>
+            <option value="12.60">Con 02 peajes opcionales S/ 12.60</option>
+          </select>
+          <div class="help-required">Esta opción solo aparece en Paso 6 cuando el distrito permite elegir ruta con peaje o sin peaje.</div>
         </div>
 
         <div class="summary">
@@ -1458,7 +1458,18 @@ body{
       if (step === 6){
         $('stepBadge').textContent = 'Paso 6 • Monto y envío';
         $('sheetTitle').textContent = messageMode === 'cotizacion' ? 'Calcula y envía la cotización' : 'Calcula y envía el pedido';
-        $('sheetSub').textContent = 'Calcula el monto estimado y envía todos los datos por WhatsApp.';
+        $('sheetSub').textContent = 'Calcula el monto estimado y, si corresponde, elige el peaje opcional aquí mismo.';
+
+        const airportRulePreview = getAirportDistrictFareRule();
+        if (airportRulePreview && airportRulePreview.tollType === 'optional') {
+          setPeajeOpcionalVisible(true);
+          updatePeajeCalcNotice('Puede elegir peaje. Selecciona SIN peaje o CON 02 peajes y luego toca Calcular monto.');
+        } else {
+          setPeajeOpcionalVisible(false);
+          updatePeajeCalcNotice('');
+        }
+      } else {
+        setPeajeOpcionalVisible(false);
       }
 
       updateDynamicTexts();
@@ -2512,8 +2523,10 @@ body{
           adicional: adicional.toFixed(2),
           tipoCalculo: lastFareInfo?.tipoCalculo || 'Tarifa automática: base + km + tiempo + ajustes',
           peajeAutomatico: lastFareInfo?.peajeAutomatico || '0.00',
+          peajeElegido: lastFareInfo?.peajeElegido || '0.00',
           peajeTipo: lastFareInfo?.peajeTipo || 'none',
           peajeMensaje: lastFareInfo?.peajeMensaje || '',
+          mensajePantalla: lastFareInfo?.mensajePantalla || '',
           distritoReferencia: lastFareInfo?.distritoReferencia || '',
           tarifaBaseDistrito: lastFareInfo?.tarifaBaseDistrito || '',
           ajusteRuta: lastFareInfo?.ajusteRuta || '',
@@ -2534,9 +2547,9 @@ body{
         $('mapModeLabel').textContent = rutaCalculadaPorAPI ? 'Ruta calculada' : 'Ruta aproximada';
         updatePeajeCalcNotice(routeData.mensajePantalla || '');
 
-        // Solo se muestra mensaje verde cuando hay peaje obligatorio u opcional.
-        // Si es sin peaje, no aparece mensaje adicional.
-        showOk(routeData.mensajePantalla || '');
+        // El mensaje de peaje se muestra dentro del PASO 6, encima del monto.
+        // Evita mostrar abajo el mensaje genérico tipo "monto calculado".
+        showOk('');
       }
       catch(err){
         console.error(err);
