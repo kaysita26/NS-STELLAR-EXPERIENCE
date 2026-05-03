@@ -2388,8 +2388,8 @@ body{
       const min = Number(minutes) || 0;
 
       // Compensación por diferencia entre OpenRoute/OpenStreetMap y Google Maps:
-      // se usa un factor de seguridad para no quedar corto cuando Google marque más km o más tráfico.
-      const kmAjustado = km * 1.08;
+      // se usa un factor 1.18 para acercar el kilometraje de OpenRoute/OpenStreetMap al comportamiento usual de Google Maps.
+      const kmAjustado = km * 1.18;
       let total = 18 + (kmAjustado * 3.20) + (min * 0.20);
 
       if (kmAjustado >= 12) total += 5;
@@ -2542,7 +2542,7 @@ body{
       } else {
         setPeajeOpcionalVisible(false);
         total = getGeneralKmFare(distanceKm, minutes);
-        tipoCalculo = 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
+        tipoCalculo = 'Tarifa por km ajustado tipo Google Maps + tiempo';
       }
 
       total += getVehicleExtra(vehicleKey);
@@ -2563,7 +2563,7 @@ body{
         peajeTipo: airportRule ? airportRule.tollType : 'none',
         peajeMensaje: mensajeWhatsapp,
         mensajePantalla,
-        ajusteRuta: airportRule ? 'Tabla fija Aeropuerto ↔ Distrito' : 'Km real con factor 1.08 por diferencia OpenRoute/Google Maps'
+        ajusteRuta: airportRule ? 'Tabla fija Aeropuerto ↔ Distrito' : 'Km OpenRoute ajustado x 1.18 para aproximar Google Maps'
       };
 
       return total;
@@ -2663,10 +2663,11 @@ body{
 
         routeData = {
           km: km.toFixed(1),
+          kmGoogleAjustado: (lastFareInfo && String(lastFareInfo.tipoCalculo || '').includes('km')) ? (km * 1.18).toFixed(1) : '',
           minutos: min,
           tarifa: fare.toFixed(2),
           adicional: adicional.toFixed(2),
-          tipoCalculo: lastFareInfo?.tipoCalculo || 'Tarifa automática: base + km + tiempo + ajustes',
+          tipoCalculo: lastFareInfo?.tipoCalculo || 'Tarifa automática: base + km ajustado + tiempo',
           peajeAutomatico: lastFareInfo?.peajeAutomatico || '0.00',
           peajeElegido: lastFareInfo?.peajeElegido || '0.00',
           peajeTipo: lastFareInfo?.peajeTipo || 'none',
@@ -2846,7 +2847,8 @@ body{
         routeData && routeData.distritoReferencia ? `🏙️ Distrito tarifado: ${routeData.distritoReferencia}` : '',
         routeData && routeData.tarifaBaseDistrito ? `💵 Tarifa base distrito: S/ ${routeData.tarifaBaseDistrito}` : '',
         routeData && routeData.peajeMensaje ? `🛣️ ${routeData.peajeMensaje}` : '',
-        routeData ? `📏 Distancia estimada: ${routeData.km} km` : '📏 Distancia estimada: -',
+        routeData ? `📏 Distancia OpenRoute/OpenStreetMap: ${routeData.km} km` : '📏 Distancia OpenRoute/OpenStreetMap: -',
+        routeData && routeData.kmGoogleAjustado ? `📏 Distancia ajustada tipo Google Maps: ${routeData.kmGoogleAjustado} km` : '',
         routeData ? `⏱️ Tiempo estimado: ${routeData.minutos} min` : '⏱️ Tiempo estimado: -',
         routeData ? `🛣️ Peaje mostrado: S/ ${routeData.peajeElegido || routeData.peajeAutomatico || '0.00'}` : '🛣️ Peaje mostrado: -',
         routeData ? `🧮 Tipo de cálculo: ${routeData.tipoCalculo}` : '🧮 Tipo de cálculo: -',
