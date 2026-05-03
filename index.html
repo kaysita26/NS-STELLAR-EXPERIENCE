@@ -2036,7 +2036,7 @@ body{
           const textoLupa = $('origen') ? $('origen').value.trim() : '';
           const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
 
-          const distritoDetectado = detectDistrictFromPlace(place || {}, label);
+          const distritoDetectado = detectDistrictByCoordinates(c.lat, c.lng) || detectDistrictFromPlace(place || {}, label);
           const point = {
             ...(place || {}),
             lat: c.lat,
@@ -2064,7 +2064,7 @@ body{
           const textoLupa = $('destino') ? $('destino').value.trim() : '';
           const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
 
-          const distritoDetectado = detectDistrictFromPlace(place || {}, label);
+          const distritoDetectado = detectDistrictByCoordinates(c.lat, c.lng) || detectDistrictFromPlace(place || {}, label);
           const point = {
             ...(place || {}),
             lat: c.lat,
@@ -2127,7 +2127,7 @@ body{
 
             const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
             const coordsTexto = `${Number(lat).toFixed(6)}, ${Number(lon).toFixed(6)}`;
-            const distritoDetectado = detectDistrictFromPlace(place || {}, label);
+            const distritoDetectado = detectDistrictByCoordinates(lat, lon) || detectDistrictFromPlace(place || {}, label);
             originSelection = {...(place || {}), lat, lon, label, address:label, coords:coordsTexto, district:distritoDetectado, distrito:distritoDetectado, type:'manual'};
 
             // Mi ubicación muestra coordenadas en la lupa. El distrito queda oculto y automático.
@@ -2280,6 +2280,111 @@ body{
         .trim();
     }
 
+
+
+    // ===== DETECCIÓN PROFESIONAL POR COORDENADAS =====
+    // Ya no dependemos del texto que devuelve el mapa. Primero se analiza la coordenada.
+    // El aeropuerto se detecta por radio para que siempre aplique la tarifa fija Aeropuerto ↔ Distrito.
+    const AIRPORT_POINT = { lat:-12.030216, lon:-77.118425, radiusKm:3.2 };
+
+    function distanceKmCoords(lat1, lon1, lat2, lon2){
+      const R = 6371;
+      const dLat = (Number(lat2) - Number(lat1)) * Math.PI / 180;
+      const dLon = (Number(lon2) - Number(lon1)) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(Number(lat1) * Math.PI / 180) *
+        Math.cos(Number(lat2) * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function isAirportByCoordinates(selection){
+      if (!selection || selection.lat == null || selection.lon == null) return false;
+      return distanceKmCoords(selection.lat, selection.lon, AIRPORT_POINT.lat, AIRPORT_POINT.lon) <= AIRPORT_POINT.radiusKm;
+    }
+
+    // Zonas aproximadas por coordenadas. Sirven como respaldo cuando el reverse geocoding
+    // solo devuelve "Lima, Peru" o un nombre comercial, pero no el distrito.
+    // minLat, maxLat, minLon, maxLon
+    const DISTRICT_COORD_ZONES = [
+      { name:'Ancon', minLat:-11.88, maxLat:-11.55, minLon:-77.23, maxLon:-77.05 },
+      { name:'Santa Rosa', minLat:-11.84, maxLat:-11.72, minLon:-77.20, maxLon:-77.09 },
+      { name:'Carabayllo', minLat:-11.98, maxLat:-11.78, minLon:-77.08, maxLon:-76.88 },
+      { name:'Puente Piedra', minLat:-12.02, maxLat:-11.84, minLon:-77.16, maxLon:-77.04 },
+      { name:'Comas', minLat:-12.02, maxLat:-11.88, minLon:-77.08, maxLon:-76.98 },
+      { name:'Los Olivos', minLat:-12.035, maxLat:-11.925, minLon:-77.115, maxLon:-77.035 },
+      { name:'Independencia', minLat:-12.035, maxLat:-11.970, minLon:-77.075, maxLon:-77.035 },
+      { name:'San Martin de Porres', minLat:-12.085, maxLat:-11.965, minLon:-77.125, maxLon:-77.045 },
+
+      { name:'Callao', minLat:-12.085, maxLat:-11.965, minLon:-77.170, maxLon:-77.085 },
+      { name:'Bellavista', minLat:-12.075, maxLat:-12.045, minLon:-77.125, maxLon:-77.085 },
+      { name:'Carmen de la Legua Reynoso', minLat:-12.060, maxLat:-12.030, minLon:-77.105, maxLon:-77.075 },
+      { name:'La Perla', minLat:-12.085, maxLat:-12.060, minLon:-77.135, maxLon:-77.095 },
+      { name:'La Punta', minLat:-12.085, maxLat:-12.060, minLon:-77.170, maxLon:-77.145 },
+      { name:'Ventanilla', minLat:-11.99, maxLat:-11.82, minLon:-77.17, maxLon:-77.08 },
+      { name:'Mi Peru', minLat:-11.89, maxLat:-11.83, minLon:-77.12, maxLon:-77.06 },
+
+      { name:'Rimac', minLat:-12.055, maxLat:-12.000, minLon:-77.060, maxLon:-77.015 },
+      { name:'Cercado de Lima', minLat:-12.075, maxLat:-12.025, minLon:-77.070, maxLon:-77.000 },
+      { name:'Brena', minLat:-12.070, maxLat:-12.045, minLon:-77.065, maxLon:-77.035 },
+      { name:'Pueblo Libre', minLat:-12.090, maxLat:-12.065, minLon:-77.080, maxLon:-77.045 },
+      { name:'Jesus Maria', minLat:-12.090, maxLat:-12.060, minLon:-77.060, maxLon:-77.030 },
+      { name:'Lince', minLat:-12.095, maxLat:-12.075, minLon:-77.045, maxLon:-77.020 },
+      { name:'La Victoria', minLat:-12.090, maxLat:-12.045, minLon:-77.035, maxLon:-76.995 },
+      { name:'San Miguel', minLat:-12.100, maxLat:-12.065, minLon:-77.105, maxLon:-77.070 },
+
+      { name:'Magdalena del Mar', minLat:-12.105, maxLat:-12.080, minLon:-77.085, maxLon:-77.045 },
+      { name:'San Isidro', minLat:-12.115, maxLat:-12.085, minLon:-77.060, maxLon:-77.015 },
+      { name:'Miraflores', minLat:-12.135, maxLat:-12.100, minLon:-77.055, maxLon:-77.015 },
+      { name:'Surquillo', minLat:-12.120, maxLat:-12.095, minLon:-77.030, maxLon:-77.000 },
+      { name:'San Borja', minLat:-12.120, maxLat:-12.075, minLon:-77.015, maxLon:-76.970 },
+      { name:'Santiago de Surco', minLat:-12.180, maxLat:-12.095, minLon:-77.050, maxLon:-76.940 },
+      { name:'Barranco', minLat:-12.160, maxLat:-12.130, minLon:-77.035, maxLon:-77.005 },
+      { name:'La Molina', minLat:-12.130, maxLat:-12.035, minLon:-76.990, maxLon:-76.870 },
+
+      { name:'El Agustino', minLat:-12.070, maxLat:-12.025, minLon:-77.020, maxLon:-76.970 },
+      { name:'San Juan de Lurigancho', minLat:-12.040, maxLat:-11.900, minLon:-77.020, maxLon:-76.930 },
+      { name:'Santa Anita', minLat:-12.075, maxLat:-12.030, minLon:-76.985, maxLon:-76.940 },
+      { name:'Ate', minLat:-12.095, maxLat:-12.000, minLon:-76.970, maxLon:-76.800 },
+      { name:'Lurigancho Chosica', minLat:-12.020, maxLat:-11.880, minLon:-76.850, maxLon:-76.550 },
+      { name:'Chaclacayo', minLat:-12.025, maxLat:-11.965, minLon:-76.835, maxLon:-76.720 },
+      { name:'Cieneguilla', minLat:-12.180, maxLat:-12.020, minLon:-76.900, maxLon:-76.700 },
+
+      { name:'Chorrillos', minLat:-12.210, maxLat:-12.135, minLon:-77.050, maxLon:-76.980 },
+      { name:'Villa Maria del Triunfo', minLat:-12.220, maxLat:-12.120, minLon:-76.980, maxLon:-76.880 },
+      { name:'Villa El Salvador', minLat:-12.255, maxLat:-12.175, minLon:-77.020, maxLon:-76.900 },
+      { name:'Pachacamac', minLat:-12.330, maxLat:-12.130, minLon:-76.950, maxLon:-76.750 },
+      { name:'Lurin', minLat:-12.330, maxLat:-12.230, minLon:-77.050, maxLon:-76.850 },
+      { name:'Pucusana', minLat:-12.520, maxLat:-12.450, minLon:-77.000, maxLon:-76.900 },
+      { name:'Punta Hermosa', minLat:-12.360, maxLat:-12.290, minLon:-77.020, maxLon:-76.900 },
+      { name:'Punta Negra', minLat:-12.390, maxLat:-12.330, minLon:-77.020, maxLon:-76.900 },
+      { name:'San Bartolo', minLat:-12.420, maxLat:-12.360, minLon:-77.020, maxLon:-76.900 },
+      { name:'Santa Maria del Mar', minLat:-12.430, maxLat:-12.390, minLon:-77.020, maxLon:-76.900 }
+    ];
+
+    function detectDistrictByCoordinates(lat, lon){
+      const la = Number(lat);
+      const lo = Number(lon);
+      if (!Number.isFinite(la) || !Number.isFinite(lo)) return '';
+
+      // Aeropuerto se trata como punto especial, no como distrito normal para tarifa.
+      // Si está cerca del aeropuerto, se devuelve Callao solo como respaldo visual.
+      if (distanceKmCoords(la, lo, AIRPORT_POINT.lat, AIRPORT_POINT.lon) <= AIRPORT_POINT.radiusKm) return 'Callao';
+
+      const matches = DISTRICT_COORD_ZONES.filter(z => la >= z.minLat && la <= z.maxLat && lo >= z.minLon && lo <= z.maxLon);
+      if (!matches.length) return '';
+
+      // Si hay superposición, elegimos la zona más pequeña para mayor precisión.
+      matches.sort((a,b)=>{
+        const areaA = Math.abs((a.maxLat - a.minLat) * (a.maxLon - a.minLon));
+        const areaB = Math.abs((b.maxLat - b.minLat) * (b.maxLon - b.minLon));
+        return areaA - areaB;
+      });
+
+      return matches[0].name;
+    }
+
     // ===== TARIFAS BASE: DISTRITO → AEROPUERTO =====
     // IMPORTANTE: si el viaje es AEROPUERTO → DISTRITO, se suma S/ 5 automáticamente.
     const DISTRICT_AIRPORT_RULES = {
@@ -2340,21 +2445,29 @@ body{
     };
 
     function getSelectedDistrict(type){
-      const id = type === 'origin' ? 'distritoRecojo' : 'distritoDestino';
       const selection = type === 'origin' ? originSelection : destinationSelection;
-      return (
-        ($(id)?.value || '') ||
-        selection?.district ||
-        selection?.distrito ||
-        detectDistrictFromPlace(selection || {}, `${selection?.label || ''} ${selection?.address || ''}`)
-      ).trim();
+
+      // 1) Primero coordenadas: evita errores cuando el mapa devuelve solo nombre comercial o "Lima, Peru".
+      const byCoords = detectDistrictByCoordinates(selection?.lat, selection?.lon);
+      if (byCoords) return byCoords.trim();
+
+      // 2) Luego dato guardado de lugar frecuente o reverse geocoding.
+      const saved = selection?.district || selection?.distrito || '';
+      if (saved) return String(saved).trim();
+
+      // 3) Último respaldo: texto.
+      return detectDistrictFromPlace(selection || {}, `${selection?.label || ''} ${selection?.address || ''}`).trim();
     }
 
     function isAirportDistrictOrSelection(type){
       const selection = type === 'origin' ? originSelection : destinationSelection;
       const district = getSelectedDistrict(type);
       const label = `${selection?.label || ''} ${selection?.address || ''} ${district}`;
-      return isAirportSelection(selection) || normalizeText(label).includes('aeropuerto') || normalizeText(label).includes('jorge chavez');
+
+      // Aeropuerto por coordenadas: es la forma más segura.
+      if (isAirportByCoordinates(selection)) return true;
+
+      return isAirportSelection(selection) || normalizeText(label).includes('aeropuerto') || normalizeText(label).includes('jorge chavez') || normalizeText(label).includes('airport');
     }
 
     function getAirportDistrictFareRule(){
