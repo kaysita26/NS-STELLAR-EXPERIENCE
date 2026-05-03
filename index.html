@@ -1627,9 +1627,9 @@ body{
       const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
       const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
       const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
+      const distrito = detectDistrictByCoordinates(point.lat, point.lon) || point.district || point.distrito || detectDistrictFromPlace(point, direccion);
 
-      if ($('origen')) $('origen').value = coordsTexto ? `${direccion} | ${coordsTexto}` : direccion;
+      if ($('origen')) $('origen').value = coordsTexto || direccion;
       if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
       setSelectValueIfPossible('distritoRecojo', distrito);
     }
@@ -1638,9 +1638,9 @@ body{
       const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
       const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
       const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
+      const distrito = detectDistrictByCoordinates(point.lat, point.lon) || point.district || point.distrito || detectDistrictFromPlace(point, direccion);
 
-      if ($('destino')) $('destino').value = coordsTexto ? `${direccion} | ${coordsTexto}` : direccion;
+      if ($('destino')) $('destino').value = coordsTexto || direccion;
       if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
       setSelectValueIfPossible('distritoDestino', distrito);
     }
@@ -2052,7 +2052,7 @@ body{
 
           originSelection = point;
 
-          // En la lupa se muestran dirección aproximada + coordenadas exactas.
+          // En la lupa se muestran SOLO coordenadas exactas.
           if ($('origen')) $('origen').value = coordsTexto;
           if ($('distritoRecojo')) $('distritoRecojo').value = distritoDetectado;
 
@@ -2080,7 +2080,7 @@ body{
 
           destinationSelection = point;
 
-          // En la lupa se muestran dirección aproximada + coordenadas exactas.
+          // En la lupa se muestran SOLO coordenadas exactas.
           if ($('destino')) $('destino').value = coordsTexto;
           if ($('distritoDestino')) $('distritoDestino').value = distritoDetectado;
 
@@ -2446,17 +2446,26 @@ body{
 
     function getSelectedDistrict(type){
       const selection = type === 'origin' ? originSelection : destinationSelection;
+      if (!selection) return '';
 
-      // 1) Primero coordenadas: evita errores cuando el mapa devuelve solo nombre comercial o "Lima, Peru".
+      // ULTRA PRECISO:
+      // 1) Aeropuerto por radio de coordenadas.
+      // 2) Distrito por coordenadas exactas del pin/lugar.
+      // 3) Texto del reverse geocoding como respaldo.
+      // 4) Distrito guardado como último respaldo.
+      // Así evitamos errores de frontera como Surco/Miraflores/San Borja o Los Olivos/SMP/Callao.
+      if (isAirportByCoordinates(selection)) return 'Callao';
+
       const byCoords = detectDistrictByCoordinates(selection?.lat, selection?.lon);
-      if (byCoords) return byCoords.trim();
+      if (byCoords) return String(byCoords).trim();
 
-      // 2) Luego dato guardado de lugar frecuente o reverse geocoding.
+      const fromPlace = detectDistrictFromPlace(selection || {}, `${selection?.label || ''} ${selection?.address || ''}`);
+      if (fromPlace) return String(fromPlace).trim();
+
       const saved = selection?.district || selection?.distrito || '';
       if (saved) return String(saved).trim();
 
-      // 3) Último respaldo: texto.
-      return detectDistrictFromPlace(selection || {}, `${selection?.label || ''} ${selection?.address || ''}`).trim();
+      return '';
     }
 
     function isAirportDistrictOrSelection(type){
@@ -2477,8 +2486,20 @@ body{
 
       const districtName = originAirport ? getSelectedDistrict('destination') : getSelectedDistrict('origin');
       const key = districtKey(districtName);
-      const rule = DISTRICT_AIRPORT_RULES[key];
-      if (!rule) return null;
+      const aliasKey = {
+        'lurigancho chosica':'lurigancho chosica',
+        'lurigancho-chosica':'lurigancho chosica',
+        'magdalena':'magdalena del mar',
+        'carmen de la legua':'carmen de la legua reynoso',
+        'san martin de porres':'san martin de porres',
+        'villa maria del triunfo':'villa maria del triunfo',
+        'santa maria del mar':'santa maria del mar'
+      }[key] || key;
+      const rule = DISTRICT_AIRPORT_RULES[aliasKey];
+      if (!rule) {
+        console.warn('Distrito sin tarifa fija Aeropuerto ↔ Distrito:', districtName, 'key:', key);
+        return null;
+      }
 
       const directionExtra = originAirport ? 5 : 0;
       const baseFare = Number(rule.fare) + directionExtra;
