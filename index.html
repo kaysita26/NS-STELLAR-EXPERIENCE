@@ -1239,8 +1239,8 @@ body{
 
         <div class="summary">
           <div class="summary-row"><span>Vehículo</span><strong id="sumVehicle">Auto</strong></div>
-          <div class="summary-row"><span>Distancia</span><strong id="sumDistance">—</strong></div>
-          <div class="summary-row"><span>Tiempo</span><strong id="sumTime">—</strong></div>
+          <div class="summary-row hidden" id="rowDistance"><span>Distancia</span><strong id="sumDistance">—</strong></div>
+          <div class="summary-row hidden" id="rowTime"><span>Tiempo</span><strong id="sumTime">—</strong></div>
           <div class="summary-row"><span>Peaje/adicional</span><strong id="sumPeaje">S/ 0.00</strong></div>
           <div class="summary-row"><span>Monto</span><strong id="sumFare">—</strong></div>
         </div>
@@ -1452,6 +1452,7 @@ body{
         $('sheetSub').textContent = serviceType === 'Programado'
           ? 'Completa fecha, hora, unidad, pasajeros, cliente y referencias.'
           : 'Completa unidad, pasajeros, cliente y referencias. No necesitas fecha ni hora.';
+        updateStep5AddressSummaries();
       }
 
       if (step === 6){
@@ -1728,6 +1729,21 @@ body{
       $('summaryDestination').textContent = text || '-';
     }
 
+    function getExactOriginSummary(){
+      const dir = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
+      return dir || 'Completa la dirección exacta de recojo';
+    }
+
+    function getExactDestinationSummary(){
+      const dir = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
+      return dir || 'Completa la dirección exacta de destino';
+    }
+
+    function updateStep5AddressSummaries(){
+      if ($('summaryOrigin')) $('summaryOrigin').textContent = getExactOriginSummary();
+      if ($('summaryDestination')) $('summaryDestination').textContent = getExactDestinationSummary();
+    }
+
     function drawMarker(type, point){
       if (type === 'origin'){
         if (markerOrigen) map.removeLayer(markerOrigen);
@@ -1784,7 +1800,7 @@ body{
       };
 
       if (type === 'origin'){
-        $('origen').value = place.label;
+        $('origen').value = `${Number(place.lat).toFixed(6)}, ${Number(place.lon).toFixed(6)}`;
 
         if ($('distritoRecojo')) {
           $('distritoRecojo').value = place.district;
@@ -1798,7 +1814,7 @@ body{
         selectingPoint = null;
 
         drawMarker('origin', point);
-        setOriginValue(place.address + ' — ' + place.label);
+        setOriginValue(place.address || place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -1810,7 +1826,7 @@ body{
       }
 
       if (type === 'destination'){
-        $('destino').value = place.label;
+        $('destino').value = `${Number(place.lat).toFixed(6)}, ${Number(place.lon).toFixed(6)}`;
 
         if ($('distritoDestino')) {
           $('distritoDestino').value = place.district;
@@ -1824,7 +1840,7 @@ body{
         selectingPoint = null;
 
         drawMarker('destination', point);
-        setDestinationValue(place.address + ' — ' + place.label);
+        setDestinationValue(place.address || place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -1853,7 +1869,8 @@ body{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
 
         renderSuggestions('originSuggestions', data.results || [], (item)=>{
-          $('origen').value = item.label;
+          const coordsTexto = `${Number(item.lat).toFixed(6)}, ${Number(item.lon).toFixed(6)}`;
+          $('origen').value = coordsTexto;
           map.setView([item.lat, item.lon], 17);
 
           if (selectingPoint === 'origin') {
@@ -1863,9 +1880,9 @@ body{
             return;
           }
 
-          originSelection = {...item, type:'manual'};
+          originSelection = {...item, coords:coordsTexto, type:'manual'};
           fillOriginFieldsFromPoint(originSelection, item.label);
-          setOriginValue(item.label);
+          setOriginValue(`Pin: ${coordsTexto}`);
           drawMarker('origin', originSelection);
           selectingPoint = null;
           showPinSelection(false);
@@ -1894,7 +1911,8 @@ body{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
 
         renderSuggestions('destinationSuggestions', data.results || [], (item)=>{
-          $('destino').value = item.label;
+          const coordsTexto = `${Number(item.lat).toFixed(6)}, ${Number(item.lon).toFixed(6)}`;
+          $('destino').value = coordsTexto;
           map.setView([item.lat, item.lon], 17);
 
           if (selectingPoint === 'destination') {
@@ -1904,9 +1922,9 @@ body{
             return;
           }
 
-          destinationSelection = {...item, type:'manual'};
+          destinationSelection = {...item, coords:coordsTexto, type:'manual'};
           fillDestinationFieldsFromPoint(destinationSelection, item.label);
-          setDestinationValue(item.label);
+          setDestinationValue(`Pin: ${coordsTexto}`);
           drawMarker('destination', destinationSelection);
           selectingPoint = null;
           showPinSelection(false);
@@ -2035,13 +2053,13 @@ body{
           originSelection = point;
 
           // En la lupa se muestran dirección aproximada + coordenadas exactas.
-          if ($('origen')) $('origen').value = `${label} | ${coordsTexto}`;
+          if ($('origen')) $('origen').value = coordsTexto;
           if ($('distritoRecojo')) $('distritoRecojo').value = distritoDetectado;
 
           drawMarker('origin', point);
-          setOriginValue(`${label} | Pin: ${coordsTexto}`);
+          setOriginValue(`Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
-          showOk('Recojo confirmado con coordenadas exactas. El distrito se detecta automáticamente.');
+          showOk('Recojo confirmado con coordenadas exactas. Ahora completa la dirección exacta de recojo.');
         } else {
           const textoLupa = $('destino') ? $('destino').value.trim() : '';
           const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
@@ -2063,13 +2081,13 @@ body{
           destinationSelection = point;
 
           // En la lupa se muestran dirección aproximada + coordenadas exactas.
-          if ($('destino')) $('destino').value = `${label} | ${coordsTexto}`;
+          if ($('destino')) $('destino').value = coordsTexto;
           if ($('distritoDestino')) $('distritoDestino').value = distritoDetectado;
 
           drawMarker('destination', point);
-          setDestinationValue(`${label} | Pin: ${coordsTexto}`);
+          setDestinationValue(`Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
-          showOk('Destino confirmado con coordenadas exactas. El distrito se detecta automáticamente.');
+          showOk('Destino confirmado con coordenadas exactas. Ahora completa la dirección exacta de destino.');
         }
 
         hidePinMode();
@@ -2113,7 +2131,7 @@ body{
             originSelection = {...(place || {}), lat, lon, label, address:label, coords:coordsTexto, district:distritoDetectado, distrito:distritoDetectado, type:'manual'};
 
             // Mi ubicación muestra coordenadas en la lupa. El distrito queda oculto y automático.
-            if ($('origen')) $('origen').value = `${label} | ${coordsTexto}`;
+            if ($('origen')) $('origen').value = coordsTexto;
             if ($('distritoRecojo')) $('distritoRecojo').value = distritoDetectado;
 
             // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
@@ -2124,7 +2142,7 @@ body{
             }
             selectingPoint = 'origin';
             showPinSelection(true);
-            setOriginValue(label);
+            setOriginValue(`Pin: ${coordsTexto}`);
 
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
             $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
@@ -2164,9 +2182,11 @@ body{
       try{
         const data = await apiGet('/search?text=' + encodeURIComponent(text));
 
-        destinationSelection = {...data.result, type:'manual'};
+        const coordsTexto = `${Number(data.result.lat).toFixed(6)}, ${Number(data.result.lon).toFixed(6)}`;
+        destinationSelection = {...data.result, coords:coordsTexto, type:'manual'};
         fillDestinationFieldsFromPoint(destinationSelection, data.result.label);
-        setDestinationValue(data.result.label);
+        if ($('destino')) $('destino').value = coordsTexto;
+        setDestinationValue(`Pin: ${coordsTexto}`);
         map.setView([data.result.lat, data.result.lon], 17);
 
         selectingPoint = null;
@@ -3113,6 +3133,9 @@ body{
     }
 
     setStep(1);
+    if ($('direccionExactaRecojo')) $('direccionExactaRecojo').addEventListener('input', updateStep5AddressSummaries);
+    if ($('direccionExactaDestino')) $('direccionExactaDestino').addEventListener('input', updateStep5AddressSummaries);
+
     setOriginValue('Aún no confirmado');
     setDestinationValue('Aún no confirmado');
     $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
