@@ -1497,6 +1497,7 @@ body{
         $('sheetSub').textContent = serviceType === 'Programado'
           ? 'Completa fecha, hora, unidad, pasajeros, cliente y referencias.'
           : 'Completa unidad, pasajeros, cliente y referencias. No necesitas fecha ni hora.';
+        updateStep5AddressSummaries();
       }
 
       if (step === 6){
@@ -1740,14 +1741,36 @@ body{
       }
     }
 
+    // Muestra en Paso 5 siempre la DIRECCIÓN EXACTA ingresada por el cliente
+    // (manual, autocompletada o lugar frecuente).
+    // El mapa/coordenadas se guardan internamente solo como referencia técnica.
+    function getExactOriginSummary(){
+      const dir = $('direccionExactaRecojo') ? $('direccionExactaRecojo').value.trim() : '';
+      return dir || 'Completa la dirección exacta de recojo';
+    }
+
+    function getExactDestinationSummary(){
+      const dir = $('direccionExactaDestino') ? $('direccionExactaDestino').value.trim() : '';
+      return dir || 'Completa la dirección exacta de destino';
+    }
+
+    function updateStep5AddressSummaries(){
+      if ($('summaryOrigin')) $('summaryOrigin').textContent = getExactOriginSummary();
+      if ($('summaryDestination')) $('summaryDestination').textContent = getExactDestinationSummary();
+    }
+
     function setOriginValue(text){
+      // Valor interno oculto: puede incluir pin/coordenadas para cálculo.
       $('originValue').textContent = text || 'Aún no confirmado';
-      $('summaryOrigin').textContent = text || '-';
+      // Valor visible en Paso 5: SOLO dirección exacta escrita/autorrellenada.
+      updateStep5AddressSummaries();
     }
 
     function setDestinationValue(text){
+      // Valor interno oculto: puede incluir pin/coordenadas para cálculo.
       $('destinationValue').textContent = text || 'Aún no confirmado';
-      $('summaryDestination').textContent = text || '-';
+      // Valor visible en Paso 5: SOLO dirección exacta escrita/autorrellenada.
+      updateStep5AddressSummaries();
     }
 
     function drawMarker(type, point){
@@ -1820,7 +1843,8 @@ body{
         selectingPoint = null;
 
         drawMarker('origin', point);
-        setOriginValue(place.address + ' — ' + place.label);
+        const dir = $('direccionExactaRecojo').value || place.address || place.label;
+setOriginValue('📍 ' + dir);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -1846,7 +1870,7 @@ body{
         selectingPoint = null;
 
         drawMarker('destination', point);
-        setDestinationValue(place.address + ' — ' + place.label);
+        setDestinationValue(place.address || place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -3114,6 +3138,14 @@ body{
 
     $('btnCalculate').addEventListener('click', calculateTrip);
     $('btnWhatsapp').addEventListener('click', openWhatsapp);
+
+    if ($('direccionExactaRecojo')) {
+      $('direccionExactaRecojo').addEventListener('input', updateStep5AddressSummaries);
+    }
+
+    if ($('direccionExactaDestino')) {
+      $('direccionExactaDestino').addEventListener('input', updateStep5AddressSummaries);
+    }
 
     if ($('frecuenteOrigen')) {
       $('frecuenteOrigen').addEventListener('change', function(){
