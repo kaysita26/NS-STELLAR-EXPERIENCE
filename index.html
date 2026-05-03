@@ -1505,21 +1505,13 @@ body{
     }
 
     const DISTRICT_OPTIONS = [
-      'Miraflores',
-      'San Isidro',
-      'Los Olivos',
-      'San Martín de Porres',
-      'San Miguel',
-      'Callao',
-      'Cercado de Lima',
-      'Santiago de Surco',
-      'Barranco',
-      'La Molina',
-      'San Borja',
-      'Lince',
-      'Jesús María',
-      'Magdalena',
-      'Pueblo Libre'
+      'Ancón','Ate','Barranco','Bellavista','Breña','Callao','Carabayllo','Carmen de la Legua-Reynoso',
+      'Cercado de Lima','Chaclacayo','Chorrillos','Cieneguilla','Comas','El Agustino','Independencia',
+      'Jesús María','La Molina','La Perla','La Punta','La Victoria','Lince','Los Olivos','Lurigancho-Chosica',
+      'Lurín','Magdalena del Mar','Mi Perú','Miraflores','Pachacámac','Pucusana','Pueblo Libre',
+      'Puente Piedra','Punta Hermosa','Punta Negra','Rímac','San Bartolo','San Borja','San Isidro',
+      'San Juan de Lurigancho','San Martín de Porres','San Miguel','Santa Anita','Santa María del Mar',
+      'Santa Rosa','Santiago de Surco','Surquillo','Ventanilla','Villa El Salvador','Villa María del Triunfo'
     ];
 
     function detectDistrictFromPlace(place={}, label=''){
@@ -1581,6 +1573,20 @@ body{
       const found = [...el.options].find(opt => normalizeText(opt.value || opt.textContent) === target);
       if (found) el.value = found.value || found.textContent;
     }
+
+
+    function populateDistrictSelects(){
+      ['distritoRecojo','distritoDestino'].forEach(id=>{
+        const el = $(id);
+        if (!el) return;
+        const current = el.value;
+        el.innerHTML = '<option value="">Selecciona distrito</option>' +
+          DISTRICT_OPTIONS.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+        if (current) setSelectValueIfPossible(id, current);
+      });
+    }
+
+    populateDistrictSelects();
 
     function fillOriginFieldsFromPoint(point={}, label=''){
       const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
@@ -2187,25 +2193,12 @@ body{
       return selection && selection.type === 'hotel';
     }
 
-    function fareByDistanceBlocks(distanceKm, vehicleKey){
-      let fare = 0;
-
-      if (distanceKm <= 4) fare = 25;
-      else if (distanceKm <= 10) fare = 40;
-      else if (distanceKm <= 15) fare = 50;
-      else if (distanceKm <= 20) fare = 60;
-      else if (distanceKm <= 25) fare = 70;
-      else fare = 80;
-
-      if (vehicleKey === 'camioneta') fare += 10;
-      if (vehicleKey === 'van') fare += 35;
-      if (vehicleKey === 'ejecutivo') fare += 15;
-
-      return fare;
-    }
-
     function roundToNearestFive(value){
       return Math.round(value / 5) * 5;
+    }
+
+    function roundUpToFive(value){
+      return Math.ceil(value / 5) * 5;
     }
 
     function getVehicleExtra(vehicleKey){
@@ -2215,168 +2208,172 @@ body{
       return 0;
     }
 
-    const AIRPORT_FIXED_FARES = {
-      plazaNorte: 45,
-      conzac: 45,
-      innside: 70,
-      melia: 70
-    };
-
-    const AIRPORT_FIXED_LABELS = {
-      plazaNorte: 'Plaza Norte',
-      conzac: 'Conzac',
-      innside: 'INNSiDE Miraflores',
-      melia: 'Hotel Meliá Lima'
-    };
-
-    const AIRPORT_FIXED_EXTRA_FREE_KM = 2;
-    const AIRPORT_FIXED_EXTRA_PER_KM = 4;
-
-    function getAirportFixedAnchors(){
-      return Object.keys(AIRPORT_FIXED_FARES)
-        .map(key => FREQUENT_PLACES[key] ? {
-          key,
-          label: AIRPORT_FIXED_LABELS[key] || FREQUENT_PLACES[key].label,
-          lat: FREQUENT_PLACES[key].lat,
-          lon: FREQUENT_PLACES[key].lon,
-          fare: AIRPORT_FIXED_FARES[key]
-        } : null)
-        .filter(Boolean);
+    function districtKey(value=''){
+      return normalizeText(value)
+        .replace(/-/g,' ')
+        .replace(/\s+/g,' ')
+        .trim();
     }
 
-    function getFareKey(selection){
-      if (!selection) return '';
-      return selection.fareKey || selection.key || '';
+    // ===== TARIFAS BASE: DISTRITO → AEROPUERTO =====
+    // IMPORTANTE: si el viaje es AEROPUERTO → DISTRITO, se suma S/ 5 automáticamente.
+    const DISTRICT_AIRPORT_RULES = {
+      'ancon': { fare:100, toll:0, tollType:'none' },
+      'carabayllo': { fare:90, toll:0, tollType:'none' },
+      'comas': { fare:80, toll:0, tollType:'none' },
+      'independencia': { fare:60, toll:0, tollType:'none' },
+      'los olivos': { fare:60, toll:0, tollType:'none' },
+      'puente piedra': { fare:70, toll:0, tollType:'none' },
+      'san martin de porres': { fare:60, toll:0, tollType:'none' },
+      'santa rosa': { fare:80, toll:0, tollType:'none' },
+
+      'cercado de lima': { fare:65, toll:0, tollType:'none' },
+      'brena': { fare:65, toll:0, tollType:'none' },
+      'jesus maria': { fare:65, toll:0, tollType:'none' },
+      'la victoria': { fare:65, toll:0, tollType:'none' },
+      'lince': { fare:65, toll:0, tollType:'none' },
+      'pueblo libre': { fare:60, toll:0, tollType:'none' },
+      'rimac': { fare:65, toll:0, tollType:'none' },
+      'san miguel': { fare:60, toll:0, tollType:'none' },
+
+      'barranco': { fare:65, toll:0, tollType:'none' },
+      'la molina': { fare:90, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'magdalena del mar': { fare:65, toll:0, tollType:'none' },
+      'magdalena': { fare:65, toll:0, tollType:'none' },
+      'miraflores': { fare:65, toll:0, tollType:'none' },
+      'san borja': { fare:65, toll:12.60, tollType:'optional', tollText:'Peaje opcional: el cliente puede elegir. Si se toma vía con peaje se suma S/ 12.60' },
+      'san isidro': { fare:65, toll:0, tollType:'none' },
+      'santiago de surco': { fare:70, toll:12.60, tollType:'optional', tollText:'Peaje opcional: el cliente puede elegir. Si se toma vía con peaje se suma S/ 12.60' },
+      'surquillo': { fare:65, toll:0, tollType:'none' },
+
+      'ate': { fare:80, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'chaclacayo': { fare:130, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'cieneguilla': { fare:130, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'el agustino': { fare:70, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'lurigancho chosica': { fare:140, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'san juan de lurigancho': { fare:80, toll:0, tollType:'none' },
+      'santa anita': { fare:80, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+
+      'chorrillos': { fare:80, toll:0, tollType:'none' },
+      'lurin': { fare:100, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'pachacamac': { fare:120, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'pucusana': { fare:150, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'punta hermosa': { fare:160, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'punta negra': { fare:160, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'san bartolo': { fare:160, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'santa maria del mar': { fare:160, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'villa el salvador': { fare:90, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+      'villa maria del triunfo': { fare:90, toll:12.60, tollType:'included', tollText:'Incluye 02 peajes: S/ 12.60' },
+
+      'callao': { fare:40, toll:0, tollType:'none' },
+      'bellavista': { fare:40, toll:0, tollType:'none' },
+      'carmen de la legua reynoso': { fare:40, toll:0, tollType:'none' },
+      'la perla': { fare:50, toll:0, tollType:'none' },
+      'la punta': { fare:50, toll:0, tollType:'none' },
+      'mi peru': { fare:70, toll:0, tollType:'none' },
+      'ventanilla': { fare:70, toll:0, tollType:'none' }
+    };
+
+    function getSelectedDistrict(type){
+      const id = type === 'origin' ? 'distritoRecojo' : 'distritoDestino';
+      return ($(id)?.value || '').trim();
     }
 
-    function getBestAirportFixedFare(distanceKm){
-      const originIsAirport = isAirportSelection(originSelection);
-      const destinationIsAirport = isAirportSelection(destinationSelection);
+    function isAirportDistrictOrSelection(type){
+      const selection = type === 'origin' ? originSelection : destinationSelection;
+      const district = getSelectedDistrict(type);
+      const label = `${selection?.label || ''} ${selection?.address || ''} ${district}`;
+      return isAirportSelection(selection) || normalizeText(label).includes('aeropuerto') || normalizeText(label).includes('jorge chavez');
+    }
 
-      // Solo aplica cuando un lado es aeropuerto y el otro lado es zona/hotel configurado.
-      if (originIsAirport === destinationIsAirport) return null;
+    function getAirportDistrictFareRule(){
+      const originAirport = isAirportDistrictOrSelection('origin');
+      const destinationAirport = isAirportDistrictOrSelection('destination');
+      if (originAirport === destinationAirport) return null;
 
-      const nonAirportPoint = originIsAirport ? destinationSelection : originSelection;
-      if (!nonAirportPoint) return null;
+      const districtName = originAirport ? getSelectedDistrict('destination') : getSelectedDistrict('origin');
+      const key = districtKey(districtName);
+      const rule = DISTRICT_AIRPORT_RULES[key];
+      if (!rule) return null;
 
-      const directKey = getFareKey(nonAirportPoint);
-      let anchor = null;
-      let extraKm = 0;
-
-      // Si seleccionó un lugar frecuente exacto, usamos su precio fijo.
-      if (AIRPORT_FIXED_FARES[directKey]){
-        anchor = {
-          key: directKey,
-          label: AIRPORT_FIXED_LABELS[directKey] || FREQUENT_PLACES[directKey]?.label || directKey,
-          fare: AIRPORT_FIXED_FARES[directKey]
-        };
-      } else {
-        // Si usó pin/manual, buscamos el punto fijo más cercano.
-        const anchors = getAirportFixedAnchors()
-          .map(a => ({...a, distanceToPoint: distanceKmFallback(a, nonAirportPoint)}))
-          .sort((a,b) => a.distanceToPoint - b.distanceToPoint);
-
-        const nearest = anchors[0];
-
-        // Si está relativamente cerca de una zona fija, parte de esa tarifa y suma extra.
-        if (nearest && nearest.distanceToPoint <= 8){
-          anchor = nearest;
-          extraKm = Math.max(0, nearest.distanceToPoint - AIRPORT_FIXED_EXTRA_FREE_KM);
-        }
-      }
-
-      if (!anchor) return null;
-
-      let baseFare = Number(anchor.fare) || 0;
-
-      // Si el viaje es HACIA el aeropuerto, cuesta S/5 menos.
-      if (destinationIsAirport){
-        baseFare = Math.max(25, baseFare - 5);
-      }
-
-      // Si el pin queda más lejos que el punto fijo, suma por km adicional.
-      let total = baseFare + (extraKm * AIRPORT_FIXED_EXTRA_PER_KM);
+      const directionExtra = originAirport ? 5 : 0;
+      const baseFare = Number(rule.fare) + directionExtra;
+      const automaticToll = rule.tollType === 'included' ? Number(rule.toll || 0) : 0;
+      const totalBase = baseFare + automaticToll;
 
       return {
-        total,
-        label: anchor.label,
+        district: districtName,
         baseFare,
-        extraKm,
-        directionText: originIsAirport ? 'Desde aeropuerto' : 'Hacia aeropuerto'
+        automaticToll,
+        totalBase,
+        tollType: rule.tollType,
+        tollText: rule.tollText || '',
+        directionText: originAirport ? 'Aeropuerto → distrito' : 'Distrito → aeropuerto'
       };
     }
 
-    function calculateFare(distanceKm, minutes, vehicleKey){
-      // ===== SISTEMA FINAL DE TARIFA PRO =====
-      // 1) Aeropuerto ↔ puntos frecuentes: precio fijo.
-      // 2) Si el pin se aleja del punto frecuente: suma por km adicional.
-      // 3) Otros viajes: tarifa por km real + tiempo.
-      // 4) Vehículo, peaje, programado e ida/vuelta se suman al final.
-      // 5) Redondeo comercial a múltiplos de S/ 5.
-
+    function getGeneralKmFare(distanceKm, minutes){
       const km = Number(distanceKm) || 0;
       const min = Number(minutes) || 0;
-      const adicional = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
+
+      // Compensación por diferencia entre OpenRoute/OpenStreetMap y Google Maps:
+      // se usa un factor de seguridad para no quedar corto cuando Google marque más km o más tráfico.
+      const kmAjustado = km * 1.08;
+      let total = 18 + (kmAjustado * 3.20) + (min * 0.20);
+
+      if (kmAjustado >= 12) total += 5;
+      if (kmAjustado >= 20) total += 8;
+      if (kmAjustado >= 30) total += 12;
+
+      return Math.max(25, total);
+    }
+
+    function calculateFare(distanceKm, minutes, vehicleKey){
+      const adicionalManual = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
       const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
 
       lastFareInfo = null;
-
-      const fixedAirportFare = getBestAirportFixedFare(km);
       let total = 0;
       let tipoCalculo = '';
+      let airportRule = getAirportDistrictFareRule();
 
-      if (fixedAirportFare){
-        total = fixedAirportFare.total;
-        tipoCalculo = `${fixedAirportFare.directionText}: tarifa fija ${fixedAirportFare.label}`;
-
-        if (fixedAirportFare.extraKm > 0){
-          tipoCalculo += ` + ${fixedAirportFare.extraKm.toFixed(1)} km adicional`;
-        }
+      if (airportRule){
+        total = airportRule.totalBase;
+        tipoCalculo = `${airportRule.directionText}: tarifa fija por distrito (${airportRule.district})`;
       } else {
-        // Tarifa general para rutas que no están en lista fija.
-        total = 6 + (km * 3.0) + (min * 0.25);
-
-        // Recargo por distancia media/larga.
-        if (km >= 14){
-          total += 5;
-        }
-
-        // Mínimo si el recojo es aeropuerto.
-        if (isAirportSelection(originSelection)){
-          total += 5;
-          total = Math.max(total, 45);
-        }
-
-        // Mínimo urbano general.
-        total = Math.max(total, 25);
-        tipoCalculo = 'Tarifa automática: km real + tiempo + ajustes';
+        total = getGeneralKmFare(distanceKm, minutes);
+        tipoCalculo = 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
       }
 
-      // Ajuste por vehículo.
       total += getVehicleExtra(vehicleKey);
+      total += adicionalManual;
 
-      // Peaje / adicional manual.
-      total += adicional;
-
-      // Servicio programado.
       if (serviceType === 'Programado') total += 5;
-
-      // Ida y vuelta.
       if (tipoViaje === 'Ida y vuelta') total = total * 1.8;
 
-      // Redondeo final comercial.
-      total = roundToNearestFive(total);
+      total = roundUpToFive(total);
+
+      let tollMessage = '';
+      if (airportRule){
+        if (airportRule.tollType === 'included') {
+          tollMessage = `${airportRule.tollText}. Monto total con peaje: S/ ${total.toFixed(2)}`;
+        } else if (airportRule.tollType === 'optional') {
+          tollMessage = `${airportRule.tollText}. Monto sin peaje opcional: S/ ${total.toFixed(2)}`;
+        }
+      }
 
       lastFareInfo = {
         tipoCalculo,
-        fijoAeropuerto: !!fixedAirportFare,
-        puntoReferencia: fixedAirportFare ? fixedAirportFare.label : '',
-        kmAdicional: fixedAirportFare ? fixedAirportFare.extraKm.toFixed(1) : '0.0'
+        distritoReferencia: airportRule ? airportRule.district : '',
+        tarifaBaseDistrito: airportRule ? airportRule.baseFare.toFixed(2) : '',
+        peajeAutomatico: airportRule ? airportRule.automaticToll.toFixed(2) : '0.00',
+        peajeTipo: airportRule ? airportRule.tollType : 'none',
+        peajeMensaje: tollMessage,
+        ajusteRuta: airportRule ? 'Tabla fija Aeropuerto ↔ Distrito' : 'Km real con factor 1.08 por diferencia OpenRoute/Google Maps'
       };
 
       return total;
     }
-
 
     function distanceKmFallback(from, to){
       const R = 6371;
@@ -2476,6 +2473,12 @@ body{
           tarifa: fare.toFixed(2),
           adicional: adicional.toFixed(2),
           tipoCalculo: lastFareInfo?.tipoCalculo || 'Tarifa automática: base + km + tiempo + ajustes',
+          peajeAutomatico: lastFareInfo?.peajeAutomatico || '0.00',
+          peajeTipo: lastFareInfo?.peajeTipo || 'none',
+          peajeMensaje: lastFareInfo?.peajeMensaje || '',
+          distritoReferencia: lastFareInfo?.distritoReferencia || '',
+          tarifaBaseDistrito: lastFareInfo?.tarifaBaseDistrito || '',
+          ajusteRuta: lastFareInfo?.ajusteRuta || '',
           origen: originSelection.label,
           destino: destinationSelection.label,
           origenCoords: `${originSelection.lat}, ${originSelection.lon}`,
@@ -2485,7 +2488,7 @@ body{
 
         $('sumDistance').textContent = routeData.km + ' km';
         $('sumTime').textContent = routeData.minutos + ' min';
-        if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ ' + routeData.adicional;
+        if ($('sumPeaje')) $('sumPeaje').textContent = routeData.peajeAutomatico !== '0.00' ? 'S/ ' + routeData.peajeAutomatico : 'S/ ' + routeData.adicional;
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
@@ -2632,11 +2635,15 @@ body{
         `💬 Observaciones: ${observaciones}`,
         '',
         lineaMonto,
+        routeData && routeData.distritoReferencia ? `🏙️ Distrito tarifado: ${routeData.distritoReferencia}` : '',
+        routeData && routeData.tarifaBaseDistrito ? `💵 Tarifa base distrito: S/ ${routeData.tarifaBaseDistrito}` : '',
+        routeData && routeData.peajeMensaje ? `🛣️ ${routeData.peajeMensaje}` : '',
         routeData ? `📏 Distancia estimada: ${routeData.km} km` : '📏 Distancia estimada: -',
         routeData ? `⏱️ Tiempo estimado: ${routeData.minutos} min` : '⏱️ Tiempo estimado: -',
-        routeData ? `🛣️ Peaje/adicional: S/ ${routeData.adicional || '0.00'}` : '🛣️ Peaje/adicional: -',
+        routeData ? `🛣️ Peaje/adicional manual: S/ ${routeData.adicional || '0.00'}` : '🛣️ Peaje/adicional manual: -',
         routeData ? `🧮 Tipo de cálculo: ${routeData.tipoCalculo}` : '🧮 Tipo de cálculo: -',
         routeData ? `🗺️ Método de ruta: ${routeData.rutaMetodo}` : '🗺️ Método de ruta: -',
+        routeData && routeData.ajusteRuta ? `📌 Ajuste usado: ${routeData.ajusteRuta}` : '',
         '',
       
       ].join('\n');
