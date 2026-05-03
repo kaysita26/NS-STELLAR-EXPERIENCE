@@ -869,6 +869,50 @@ body{
   }
 }
 
+
+/* ===== PEAJE OPCIONAL ENFOCADO + BOTONES PRO PASO 6 ===== */
+#peajeOpcionalBox.peaje-opcional-pro{
+  background:#2b2110 !important;
+  border:2px solid #d9b36a !important;
+  box-shadow:0 0 0 4px rgba(217,179,106,.15), 0 14px 28px rgba(0,0,0,.22) !important;
+}
+#peajeOpcionalBox.peaje-opcional-pro .label{
+  color:#ffd98a !important;
+  font-weight:900 !important;
+  font-size:15px !important;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+#peajeOpcionalBox.peaje-opcional-pro select{
+  background:#2f281c !important;
+  border:2px solid #d9b36a !important;
+  color:#fff !important;
+  box-shadow:0 0 0 4px rgba(217,179,106,.12) !important;
+  font-weight:800 !important;
+}
+#peajeOpcionalBox.peaje-focus{
+  animation:peajeFocusPulse 1.05s ease-in-out 3;
+}
+@keyframes peajeFocusPulse{
+  0%{box-shadow:0 0 0 4px rgba(217,179,106,.16), 0 14px 28px rgba(0,0,0,.22)}
+  50%{box-shadow:0 0 0 8px rgba(217,179,106,.33), 0 18px 36px rgba(0,0,0,.30)}
+  100%{box-shadow:0 0 0 4px rgba(217,179,106,.16), 0 14px 28px rgba(0,0,0,.22)}
+}
+.btn-calc-pro{
+  background:linear-gradient(135deg,#c4812c,#f3d8a3) !important;
+  color:#111 !important;
+  border:1px solid rgba(243,216,163,.75) !important;
+  box-shadow:0 10px 22px rgba(217,179,106,.18) !important;
+}
+#btnWhatsapp.whatsapp-disabled{
+  opacity:.55 !important;
+  filter:grayscale(.35);
+  cursor:not-allowed !important;
+}
+#peajeCalcNotice{
+  font-weight:800 !important;
+}
+
 </style>
   
 </head>
@@ -1229,13 +1273,13 @@ body{
         </div>
 
         <!-- PEAJE OPCIONAL SOLO EN PASO 6 -->
-        <div id="peajeOpcionalBox" class="card hidden">
+        <div id="peajeOpcionalBox" class="card hidden peaje-opcional-pro">
           <label class="label">Peaje opcional</label>
           <select id="adicionalPeaje">
             <option value="0">Sin peaje opcional</option>
             <option value="12.60">Con 02 peajes opcionales S/ 12.60</option>
           </select>
-          <div class="help-required">Esta opción solo aparece en Paso 6 cuando el distrito permite elegir ruta con peaje o sin peaje.</div>
+          <div class="help-required">Elige si deseas ruta con peaje o sin peaje. Luego toca nuevamente CALCULAR MONTO para actualizar el total.</div>
         </div>
 
         <div class="summary">
@@ -1252,10 +1296,10 @@ body{
 
         <div class="btn-row" style="margin-top:12px">
           <button class="btn btn-ghost" id="btnBackStep5A">Volver</button>
-          <button class="btn btn-dark" id="btnCalculate">Calcular monto</button>
+          <button class="btn btn-calc-pro" id="btnCalculate">Calcular monto</button>
         </div>
 
-        <button class="btn btn-gold" style="margin-top:10px" id="btnWhatsapp">Enviar por WhatsApp</button>
+        <button class="btn btn-gold whatsapp-disabled" style="margin-top:10px" id="btnWhatsapp" disabled>Enviar por WhatsApp</button>
       </div>
 
       <div class="alert ok" id="okBox"></div>
@@ -2355,6 +2399,92 @@ body{
       box.classList.toggle('show', !!message);
     }
 
+    function focusPeajeOpcionalBox(){
+      const box = $('peajeOpcionalBox');
+      const select = $('adicionalPeaje');
+      if (!box || box.classList.contains('hidden')) return;
+
+      box.classList.add('peaje-focus');
+      setTimeout(()=>box.classList.remove('peaje-focus'), 3400);
+
+      setTimeout(()=>{
+        box.scrollIntoView({ behavior:'smooth', block:'center' });
+        if (select) select.focus({ preventScroll:true });
+      }, 180);
+    }
+
+    function updateWhatsappButtonState(){
+      const btn = $('btnWhatsapp');
+      if (!btn) return;
+      const listo = !!routeData;
+      btn.disabled = !listo;
+      btn.classList.toggle('whatsapp-disabled', !listo);
+      btn.title = listo ? 'Listo para enviar por WhatsApp' : 'Primero debes calcular el monto';
+    }
+
+    function resetAllAfterWhatsapp(){
+      originSelection = null;
+      destinationSelection = null;
+      selectingPoint = null;
+      routeData = null;
+      lastFareInfo = null;
+      messageMode = 'pedido';
+      serviceType = 'Inmediato';
+      currentVehicle = 'auto';
+
+      if (markerOrigen) map.removeLayer(markerOrigen);
+      if (markerDestino) map.removeLayer(markerDestino);
+      if (routeLayer) map.removeLayer(routeLayer);
+      markerOrigen = null;
+      markerDestino = null;
+      routeLayer = null;
+
+      const valuesToClear = [
+        'origen','destino','direccionExactaRecojo','direccionExactaDestino','origenExacto','destinoExacto',
+        'nombre','telefono','vueloReferencia','observaciones','fecha','hora'
+      ];
+      valuesToClear.forEach(id=>{ if ($(id)) $(id).value = ''; });
+
+      if ($('nombreServicio')) $('nombreServicio').value = 'Aeropuerto';
+      if ($('pasajeros')) $('pasajeros').value = '1';
+      if ($('equipaje')) $('equipaje').value = 'Sin equipaje';
+      if ($('tipoViaje')) $('tipoViaje').value = 'Solo ida';
+      if ($('adicionalPeaje')) $('adicionalPeaje').value = '0';
+      if ($('distritoRecojo')) $('distritoRecojo').value = '';
+      if ($('distritoDestino')) $('distritoDestino').value = '';
+      if ($('frecuenteOrigen')) $('frecuenteOrigen').value = '';
+      if ($('frecuenteDestino')) $('frecuenteDestino').value = '';
+
+      document.querySelectorAll('#vehicleGrid .vehicle').forEach(v=>v.classList.remove('active'));
+      const autoCard = document.querySelector('#vehicleGrid .vehicle[data-key="auto"]');
+      if (autoCard) autoCard.classList.add('active');
+
+      document.querySelectorAll('#messageModeGrid .option-card').forEach(c=>c.classList.remove('active'));
+      const pedidoCard = document.querySelector('#messageModeGrid .option-card[data-mode="pedido"]');
+      if (pedidoCard) pedidoCard.classList.add('active');
+
+      document.querySelectorAll('#serviceTypeGrid .option-card').forEach(c=>c.classList.remove('active'));
+      const inmediatoCard = document.querySelector('#serviceTypeGrid .option-card[data-service="Inmediato"]');
+      if (inmediatoCard) inmediatoCard.classList.add('active');
+
+      if ($('frequentOriginBox')) $('frequentOriginBox').classList.add('hidden-frequent');
+      if ($('frequentDestinationBox')) $('frequentDestinationBox').classList.add('hidden-frequent');
+      if ($('originSuggestions')) $('originSuggestions').classList.remove('show');
+      if ($('destinationSuggestions')) $('destinationSuggestions').classList.remove('show');
+
+      hidePinMode();
+      setOriginValue('Aún no confirmado');
+      setDestinationValue('Aún no confirmado');
+      setPeajeOpcionalVisible(false);
+      resetRouteData();
+      updateDynamicTexts();
+      if ($('sumVehicle')) $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
+      map.setView([-12.0464, -77.0428], 12);
+      clearMessages();
+      setStep(1);
+      showOk('Pedido enviado. El formulario se limpió y volvió al Paso 1.');
+    }
+
     function calculateFare(distanceKm, minutes, vehicleKey){
       const tipoViaje = $('tipoViaje') ? $('tipoViaje').value : 'Solo ida';
       const adicionalManual = Number($('adicionalPeaje') ? $('adicionalPeaje').value : 0);
@@ -2546,10 +2676,15 @@ body{
 
         $('mapModeLabel').textContent = rutaCalculadaPorAPI ? 'Ruta calculada' : 'Ruta aproximada';
         updatePeajeCalcNotice(routeData.mensajePantalla || '');
+        updateWhatsappButtonState();
 
         // El mensaje de peaje se muestra dentro del PASO 6, encima del monto.
         // Evita mostrar abajo el mensaje genérico tipo "monto calculado".
         showOk('');
+
+        if (routeData.peajeTipo === 'optional') {
+          focusPeajeOpcionalBox();
+        }
       }
       catch(err){
         console.error(err);
@@ -2569,6 +2704,7 @@ body{
       if ($('sumFare')) $('sumFare').textContent = '—';
       if ($('fareBig')) $('fareBig').textContent = 'S/ 0.00';
       updatePeajeCalcNotice('');
+      updateWhatsappButtonState();
     }
 
     function updateVehicleSuggestion(){
@@ -2715,7 +2851,7 @@ body{
       }
 
       if (!routeData){
-        showWarn('Primero calcula el monto.');
+        showWarn('Primero debes calcular el monto. Es obligatorio antes de enviar por WhatsApp.');
         return;
       }
 
@@ -2751,6 +2887,7 @@ body{
 
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildWhatsappMessage())}`;
       window.open(url, '_blank');
+      setTimeout(resetAllAfterWhatsapp, 650);
     }
 
     document.querySelectorAll('#vehicleGrid .vehicle').forEach(card=>{
@@ -2994,6 +3131,7 @@ body{
     setOriginValue('Aún no confirmado');
     setDestinationValue('Aún no confirmado');
     $('sumVehicle').textContent = VEHICLES[currentVehicle].name;
+    updateWhatsappButtonState();
   </script>
 </body>
 </html>
