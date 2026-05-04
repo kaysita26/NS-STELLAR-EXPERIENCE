@@ -985,10 +985,10 @@ body{
         <div class="suggestions" id="originSuggestions"></div>
 
 
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
+        <div class="hidden" style="margin-top:10px" aria-hidden="true">
+          <label class="label texto-obligatorio">Distrito de recojo interno</label>
           <select id="distritoRecojo" class="campo-obligatorio">
-            <option value="">Selecciona distrito</option>
+            <option value="">Distrito detectado automáticamente</option>
             <option>Miraflores</option>
             <option>San Isidro</option>
             <option>Los Olivos</option>
@@ -1072,10 +1072,10 @@ body{
 
         <div class="suggestions" id="destinationSuggestions"></div>
 
-        <div style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
+        <div class="hidden" style="margin-top:10px" aria-hidden="true">
+          <label class="label texto-obligatorio">Distrito de destino interno</label>
           <select id="distritoDestino" class="campo-obligatorio">
-            <option value="">Selecciona distrito</option>
+            <option value="">Distrito detectado automáticamente</option>
             <option>Miraflores</option>
             <option>San Isidro</option>
             <option>Los Olivos</option>
@@ -1640,7 +1640,7 @@ body{
         const el = $(id);
         if (!el) return;
         const current = el.value;
-        el.innerHTML = '<option value="">Selecciona distrito</option>' +
+        el.innerHTML = '<option value="">Distrito detectado automáticamente</option>' +
           DISTRICT_OPTIONS.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
         if (current) setSelectValueIfPossible(id, current);
       });
@@ -2954,13 +2954,13 @@ setOriginValue('📍 ' + dir);
         return;
       }
 
-      if (!$('distritoRecojo').value || !hasMinText($('direccionExactaRecojo').value, 5)){
-        showWarn('Completa distrito y dirección exacta de recojo.');
+      if (!hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Completa la dirección exacta de recojo.');
         return;
       }
 
-      if (!$('distritoDestino').value || !hasMinText($('direccionExactaDestino').value, 5)){
-        showWarn('Completa distrito y dirección exacta de destino.');
+      if (!hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Completa la dirección exacta de destino.');
         return;
       }
 
@@ -3095,11 +3095,6 @@ setOriginValue('📍 ' + dir);
         await confirmCenterPoint('origin');
       }
 
-      if (!$('distritoRecojo').value){
-        showWarn('Selecciona el distrito de recojo.');
-        return;
-      }
-
       if (!hasMinText($('direccionExactaRecojo').value, 5)){
         showWarn('Escribe la dirección exacta de recojo. Ej: Jr. Ica 540.');
         return;
@@ -3123,11 +3118,6 @@ setOriginValue('📍 ' + dir);
     $('btnGoStep3').addEventListener('click', async ()=>{
       if (selectingPoint === 'destination') {
         await confirmCenterPoint('destination');
-      }
-
-      if (!$('distritoDestino').value){
-        showWarn('Selecciona el distrito de destino.');
-        return;
       }
 
       if (!hasMinText($('direccionExactaDestino').value, 5)){
