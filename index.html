@@ -1274,10 +1274,10 @@ body{
 
         <!-- PEAJE OPCIONAL SOLO EN PASO 6 -->
         <div id="peajeOpcionalBox" class="card hidden peaje-opcional-pro">
-          <label class="label">Peaje opcional</label>
+          <label class="label">Peaje en Paso 6</label>
           <select id="adicionalPeaje">
             <option value="0">Sin peaje opcional</option>
-            <option value="12.60">Con 02 peajes opcionales S/ 12.60</option>
+            <option value="12.60">Con peaje / 02 peajes S/ 12.60</option>
           </select>
           <div class="help-required">Elige si deseas ruta con peaje o sin peaje. Luego toca nuevamente CALCULAR MONTO para actualizar el total.</div>
         </div>
@@ -1506,9 +1506,20 @@ body{
         $('sheetSub').textContent = 'Calcula el monto estimado y, si corresponde, elige el peaje opcional aquí mismo.';
 
         const airportRulePreview = getAirportDistrictFareRule();
+        const districtDistrictPreview = isDistrictToDistrictTrip();
+
         if (airportRulePreview && airportRulePreview.tollType === 'optional') {
           setPeajeOpcionalVisible(true);
-          updatePeajeCalcNotice('Puede elegir peaje. Selecciona SIN peaje o CON 02 peajes y luego toca Calcular monto.');
+          updatePeajeCalcNotice('Peaje opcional: el cliente puede elegir SIN peaje o CON 02 peajes S/ 12.60. Luego toca Calcular monto.');
+        } else if (airportRulePreview && airportRulePreview.tollType === 'included') {
+          setPeajeOpcionalVisible(false);
+          updatePeajeCalcNotice('Peaje fijo incluido para este distrito: 02 peajes S/ 12.60. Toca Calcular monto.');
+        } else if (airportRulePreview && airportRulePreview.tollType === 'none') {
+          setPeajeOpcionalVisible(false);
+          updatePeajeCalcNotice('Esta ruta Aeropuerto ↔ distrito está marcada SIN PEAJE. Toca Calcular monto.');
+        } else if (districtDistrictPreview) {
+          setPeajeOpcionalVisible(true);
+          updatePeajeCalcNotice('Ruta distrito ↔ distrito: el cliente decide en este paso si desea agregar peaje o ir sin peaje.');
         } else {
           setPeajeOpcionalVisible(false);
           updatePeajeCalcNotice('');
@@ -1728,21 +1739,53 @@ body{
 
       const aliases = [
         { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
-        { value:'Independencia', keys:['independencia'] },
-        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','lima'] },
+        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','centro de lima','lima'] },
         { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
         { value:'Jesús María', keys:['jesus maria'] },
+        { value:'Lurigancho-Chosica', keys:['lurigancho chosica','lurigancho-chosica','chosica'] },
+        { value:'Carmen de la Legua-Reynoso', keys:['carmen de la legua reynoso','carmen de la legua-reynoso','carmen de la legua'] },
+        { value:'Villa María del Triunfo', keys:['villa maria del triunfo','vmt'] },
+        { value:'Santa María del Mar', keys:['santa maria del mar'] },
+        { value:'Magdalena del Mar', keys:['magdalena del mar','magdalena'] },
+        { value:'San Juan de Lurigancho', keys:['san juan de lurigancho','sjl'] },
+        { value:'Ancón', keys:['ancon'] },
+        { value:'Ate', keys:['ate'] },
+        { value:'Barranco', keys:['barranco'] },
+        { value:'Bellavista', keys:['bellavista'] },
+        { value:'Breña', keys:['brena'] },
+        { value:'Callao', keys:['callao'] },
+        { value:'Carabayllo', keys:['carabayllo'] },
+        { value:'Chaclacayo', keys:['chaclacayo'] },
+        { value:'Chorrillos', keys:['chorrillos'] },
+        { value:'Cieneguilla', keys:['cieneguilla'] },
+        { value:'Comas', keys:['comas'] },
+        { value:'El Agustino', keys:['el agustino'] },
+        { value:'Independencia', keys:['independencia'] },
+        { value:'La Molina', keys:['la molina'] },
+        { value:'La Perla', keys:['la perla'] },
+        { value:'La Punta', keys:['la punta'] },
+        { value:'La Victoria', keys:['la victoria'] },
+        { value:'Lince', keys:['lince'] },
         { value:'Los Olivos', keys:['los olivos'] },
+        { value:'Lurín', keys:['lurin'] },
+        { value:'Mi Perú', keys:['mi peru'] },
+        { value:'Miraflores', keys:['miraflores'] },
+        { value:'Pachacámac', keys:['pachacamac'] },
+        { value:'Pucusana', keys:['pucusana'] },
+        { value:'Pueblo Libre', keys:['pueblo libre'] },
+        { value:'Puente Piedra', keys:['puente piedra'] },
+        { value:'Punta Hermosa', keys:['punta hermosa'] },
+        { value:'Punta Negra', keys:['punta negra'] },
+        { value:'Rímac', keys:['rimac'] },
+        { value:'San Bartolo', keys:['san bartolo'] },
+        { value:'San Borja', keys:['san borja'] },
         { value:'San Isidro', keys:['san isidro'] },
         { value:'San Miguel', keys:['san miguel'] },
-        { value:'San Borja', keys:['san borja'] },
-        { value:'Pueblo Libre', keys:['pueblo libre'] },
-        { value:'La Molina', keys:['la molina'] },
-        { value:'Magdalena', keys:['magdalena'] },
-        { value:'Miraflores', keys:['miraflores'] },
-        { value:'Barranco', keys:['barranco'] },
-        { value:'Callao', keys:['callao'] },
-        { value:'Lince', keys:['lince'] }
+        { value:'Santa Anita', keys:['santa anita'] },
+        { value:'Santa Rosa', keys:['santa rosa'] },
+        { value:'Surquillo', keys:['surquillo'] },
+        { value:'Ventanilla', keys:['ventanilla'] },
+        { value:'Villa El Salvador', keys:['villa el salvador','ves'] }
       ];
 
       for (const item of aliases){
@@ -2494,6 +2537,17 @@ body{
       };
     }
 
+
+    function isDistrictToDistrictTrip(){
+      const originAirport = isAirportDistrictOrSelection('origin');
+      const destinationAirport = isAirportDistrictOrSelection('destination');
+      if (originAirport || destinationAirport) return false;
+
+      const originDistrict = getSelectedDistrict('origin');
+      const destinationDistrict = getSelectedDistrict('destination');
+      return !!(originDistrict && destinationDistrict);
+    }
+
     function getGeneralKmFare(distanceKm, minutes){
       const km = Number(distanceKm) || 0;
       const min = Number(minutes) || 0;
@@ -2651,9 +2705,26 @@ body{
           setPeajeOpcionalVisible(false);
         }
       } else {
-        setPeajeOpcionalVisible(false);
+        // Distrito ↔ distrito: se calcula por km ajustado y el peaje queda como decisión del cliente en Paso 6.
+        const districtDistrict = isDistrictToDistrictTrip();
         total = getGeneralKmFare(distanceKm, minutes);
-        tipoCalculo = 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
+        tipoCalculo = districtDistrict
+          ? 'Distrito ↔ distrito: tarifa por km ajustado + peaje opcional del cliente'
+          : 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
+
+        if (districtDistrict){
+          setPeajeOpcionalVisible(true);
+          peajeMostrado = adicionalManual;
+          total += adicionalManual;
+          mensajePantalla = adicionalManual > 0
+            ? `Ruta distrito ↔ distrito. Cliente eligió CON peaje: + S/ ${adicionalManual.toFixed(2)}.`
+            : `Ruta distrito ↔ distrito. Cliente eligió SIN peaje opcional.`;
+          mensajeWhatsapp = adicionalManual > 0
+            ? `Distrito ↔ distrito: cliente eligió CON 02 peajes S/ ${adicionalManual.toFixed(2)}`
+            : `Distrito ↔ distrito: cliente eligió SIN peaje`;
+        } else {
+          setPeajeOpcionalVisible(false);
+        }
       }
 
       total += getVehicleExtra(vehicleKey);
@@ -2671,7 +2742,7 @@ body{
         tarifaBaseDistrito: airportRule ? airportRule.baseFare.toFixed(2) : '',
         peajeAutomatico: airportRule ? airportRule.automaticToll.toFixed(2) : '0.00',
         peajeElegido: peajeMostrado.toFixed(2),
-        peajeTipo: airportRule ? airportRule.tollType : 'none',
+        peajeTipo: airportRule ? airportRule.tollType : (isDistrictToDistrictTrip() ? 'optional' : 'none'),
         peajeMensaje: mensajeWhatsapp,
         mensajePantalla,
         ajusteRuta: airportRule ? 'Tabla fija Aeropuerto ↔ Distrito' : 'Km real con factor 1.08 por diferencia OpenRoute/Google Maps'
@@ -2796,7 +2867,12 @@ body{
         $('sumDistance').textContent = routeData.km + ' km';
         $('sumTime').textContent = routeData.minutos + ' min';
         const peajeResumen = Number(routeData.peajeElegido || routeData.peajeAutomatico || routeData.adicional || 0);
-        if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ ' + peajeResumen.toFixed(2);
+        if ($('sumPeaje')) {
+          let peajeTexto = 'S/ ' + peajeResumen.toFixed(2);
+          if (routeData.peajeTipo === 'included' && peajeResumen > 0) peajeTexto += ' incluido';
+          if (routeData.peajeTipo === 'optional') peajeTexto += peajeResumen > 0 ? ' elegido' : ' sin peaje';
+          $('sumPeaje').textContent = peajeTexto;
+        }
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
