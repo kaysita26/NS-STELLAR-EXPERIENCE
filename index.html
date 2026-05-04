@@ -1553,6 +1553,46 @@ body{
     }
 
 
+    function coordsTextFromPoint(point={}){
+      const lat = point.lat ?? point.latitude;
+      const lon = point.lon ?? point.lng ?? point.longitude;
+      if (lat === undefined || lon === undefined || lat === null || lon === null) return '';
+      return `${Number(lat).toFixed(6)}, ${Number(lon).toFixed(6)}`;
+    }
+
+    function setPinOrLocationFields(type, point={}){
+      const coordsTexto = coordsTextFromPoint(point);
+      const textoLupa = coordsTexto || 'Coordenadas no disponibles';
+
+      if (type === 'origin'){
+        if ($('origen')) $('origen').value = textoLupa;
+        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = '';
+        setOriginValue(`Pin exacto: ${textoLupa}`);
+      } else {
+        if ($('destino')) $('destino').value = textoLupa;
+        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = '';
+        setDestinationValue(`Pin exacto: ${textoLupa}`);
+      }
+    }
+
+    function setFrequentFields(type, place={}){
+      const coordsTexto = coordsTextFromPoint(place);
+      const direccion = place.address || place.label || '';
+
+      if (type === 'origin'){
+        if ($('origen')) $('origen').value = coordsTexto || direccion;
+        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
+        if ($('distritoRecojo')) $('distritoRecojo').value = place.district || '';
+        setOriginValue(direccion || coordsTexto);
+      } else {
+        if ($('destino')) $('destino').value = coordsTexto || direccion;
+        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
+        if ($('distritoDestino')) $('distritoDestino').value = place.district || '';
+        setDestinationValue(direccion || coordsTexto);
+      }
+    }
+
+
     function normalizeText(text=''){
       return String(text || '')
         .toLowerCase()
@@ -1919,22 +1959,13 @@ body{
       };
 
       if (type === 'origin'){
-        $('origen').value = place.label;
-
-        if ($('distritoRecojo')) {
-          $('distritoRecojo').value = place.district;
-        }
-
-        if ($('direccionExactaRecojo')) {
-          $('direccionExactaRecojo').value = place.address;
-        }
+        // FRECUENTES: la lupa muestra coordenadas y la dirección exacta SÍ se autollenará.
+        setFrequentFields('origin', place);
 
         originSelection = point;
         selectingPoint = null;
 
         drawMarker('origin', point);
-        const dir = $('direccionExactaRecojo').value || place.address || place.label;
-setOriginValue('📍 ' + dir);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -1946,21 +1977,13 @@ setOriginValue('📍 ' + dir);
       }
 
       if (type === 'destination'){
-        $('destino').value = place.label;
-
-        if ($('distritoDestino')) {
-          $('distritoDestino').value = place.district;
-        }
-
-        if ($('direccionExactaDestino')) {
-          $('direccionExactaDestino').value = place.address;
-        }
+        // FRECUENTES: la lupa muestra coordenadas y la dirección exacta SÍ se autollenará.
+        setFrequentFields('destination', place);
 
         destinationSelection = point;
         selectingPoint = null;
 
         drawMarker('destination', point);
-        setDestinationValue(place.address || place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -2077,32 +2100,14 @@ setOriginValue('📍 ' + dir);
 
         if (selectingPoint === 'origin'){
           originSelection = point;
-          if (cleanLabel) {
-            $('origen').value = cleanLabel;
-            if ($('direccionExactaRecojo')) {
-              $('direccionExactaRecojo').value = cleanLabel;
-            }
-            setOriginValue(cleanLabel);
-          } else {
-            $('origen').value = '';
-            setOriginValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
-          }
+          setPinOrLocationFields('origin', point);
           drawMarker('origin', point);
           $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
         }
 
         if (selectingPoint === 'destination'){
           destinationSelection = point;
-          if (cleanLabel) {
-            $('destino').value = cleanLabel;
-            if ($('direccionExactaDestino')) {
-              $('direccionExactaDestino').value = cleanLabel;
-            }
-            setDestinationValue(cleanLabel);
-          } else {
-            $('destino').value = '';
-            setDestinationValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
-          }
+          setPinOrLocationFields('destination', point);
           drawMarker('destination', point);
           $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         }
@@ -2168,11 +2173,10 @@ setOriginValue('📍 ' + dir);
           const district = applyDetectedDistrict('origin', point, label);
           originSelection = point;
 
-          if ($('origen')) $('origen').value = label;
-          if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) $('direccionExactaRecojo').value = label;
+          // UBICACIÓN / PIN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
+          setPinOrLocationFields('origin', point);
 
           drawMarker('origin', point);
-          setOriginValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
           showOk('Recojo confirmado. ' + functionLabelDistrict(district));
         } else {
@@ -2193,11 +2197,10 @@ setOriginValue('📍 ' + dir);
           const district = applyDetectedDistrict('destination', point, label);
           destinationSelection = point;
 
-          if ($('destino')) $('destino').value = label;
-          if ($('direccionExactaDestino') && !hasMinText($('direccionExactaDestino').value, 5)) $('direccionExactaDestino').value = label;
+          // UBICACIÓN / PIN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
+          setPinOrLocationFields('destination', point);
 
           drawMarker('destination', point);
-          setDestinationValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
           showOk('Destino confirmado. ' + functionLabelDistrict(district));
         }
@@ -2241,8 +2244,8 @@ setOriginValue('📍 ' + dir);
             originSelection = {...(place || {}), lat, lon, label, address:label, type:'manual'};
             const district = applyDetectedDistrict('origin', originSelection, label);
 
-            if ($('origen')) $('origen').value = label;
-            if ($('direccionExactaRecojo') && !hasMinText($('direccionExactaRecojo').value, 5)) $('direccionExactaRecojo').value = label;
+            // MI UBICACIÓN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
+            setPinOrLocationFields('origin', originSelection);
 
             // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
             // No dejamos la gota fija como punto final hasta que presione OK pin.
@@ -2252,7 +2255,7 @@ setOriginValue('📍 ' + dir);
             }
             selectingPoint = 'origin';
             showPinSelection(true);
-            setOriginValue(label);
+            setPinOrLocationFields('origin', originSelection);
 
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
             $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
@@ -2993,13 +2996,13 @@ setOriginValue('📍 ' + dir);
         return;
       }
 
-      if (!$('distritoRecojo').value || !hasMinText($('direccionExactaRecojo').value, 5)){
-        showWarn('Revisa la dirección exacta de recojo. El distrito se detecta automáticamente por el mapa.');
+      if (!$('distritoRecojo').value || !originSelection){
+        showWarn('Revisa el punto de recojo. El distrito se detecta automáticamente por el mapa.');
         return;
       }
 
-      if (!$('distritoDestino').value || !hasMinText($('direccionExactaDestino').value, 5)){
-        showWarn('Revisa la dirección exacta de destino. El distrito se detecta automáticamente por el mapa.');
+      if (!$('distritoDestino').value || !destinationSelection){
+        showWarn('Revisa el punto de destino. El distrito se detecta automáticamente por el mapa.');
         return;
       }
 
@@ -3141,11 +3144,8 @@ setOriginValue('📍 ' + dir);
         return;
       }
 
-      if (!hasMinText($('direccionExactaRecojo').value, 5)){
-        showWarn('Escribe la dirección exacta de recojo. Ej: Jr. Ica 540.');
-        return;
-      }
-
+      // Si viene de PIN o MI UBICACIÓN, la dirección exacta puede quedar en blanco.
+      // El cálculo usa coordenadas. En frecuentes sí se autollenará la dirección.
       if (!originSelection){
         showWarn('Toca el botón Pin o selecciona una dirección/lugar frecuente para cargar el recojo en el mapa.');
         return;
@@ -3173,11 +3173,8 @@ setOriginValue('📍 ' + dir);
         return;
       }
 
-      if (!hasMinText($('direccionExactaDestino').value, 5)){
-        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
-        return;
-      }
-
+      // Si viene de PIN, la dirección exacta puede quedar en blanco.
+      // El cálculo usa coordenadas. En frecuentes sí se autollenará la dirección.
       if (!destinationSelection){
         showWarn('Toca Pin destino, Buscar mapa o selecciona un lugar frecuente para cargar el destino en el mapa.');
         return;
