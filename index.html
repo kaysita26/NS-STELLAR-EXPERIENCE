@@ -985,8 +985,8 @@ body{
         <div class="suggestions" id="originSuggestions"></div>
 
 
-        <div class="hidden" style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de recojo detectado automáticamente</label>
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">Distrito de recojo * (OBLIGATORIO)</label>
           <select id="distritoRecojo" class="campo-obligatorio">
             <option value="">Selecciona distrito</option>
             <option>Miraflores</option>
@@ -1072,8 +1072,8 @@ body{
 
         <div class="suggestions" id="destinationSuggestions"></div>
 
-        <div class="hidden" style="margin-top:10px">
-          <label class="label texto-obligatorio">Distrito de destino detectado automáticamente</label>
+        <div style="margin-top:10px">
+          <label class="label texto-obligatorio">Distrito de destino * (OBLIGATORIO)</label>
           <select id="distritoDestino" class="campo-obligatorio">
             <option value="">Selecciona distrito</option>
             <option>Miraflores</option>
@@ -1274,10 +1274,10 @@ body{
 
         <!-- PEAJE OPCIONAL SOLO EN PASO 6 -->
         <div id="peajeOpcionalBox" class="card hidden peaje-opcional-pro">
-          <label class="label">Peaje en Paso 6</label>
+          <label class="label">Peaje opcional</label>
           <select id="adicionalPeaje">
             <option value="0">Sin peaje opcional</option>
-            <option value="12.60">Con peaje / 02 peajes S/ 12.60</option>
+            <option value="12.60">Con 02 peajes opcionales S/ 12.60</option>
           </select>
           <div class="help-required">Elige si deseas ruta con peaje o sin peaje. Luego toca nuevamente CALCULAR MONTO para actualizar el total.</div>
         </div>
@@ -1506,20 +1506,9 @@ body{
         $('sheetSub').textContent = 'Calcula el monto estimado y, si corresponde, elige el peaje opcional aquí mismo.';
 
         const airportRulePreview = getAirportDistrictFareRule();
-        const districtDistrictPreview = isDistrictToDistrictTrip();
-
         if (airportRulePreview && airportRulePreview.tollType === 'optional') {
           setPeajeOpcionalVisible(true);
-          updatePeajeCalcNotice('Peaje opcional: el cliente puede elegir SIN peaje o CON 02 peajes S/ 12.60. Luego toca Calcular monto.');
-        } else if (airportRulePreview && airportRulePreview.tollType === 'included') {
-          setPeajeOpcionalVisible(false);
-          updatePeajeCalcNotice('Peaje fijo incluido para este distrito: 02 peajes S/ 12.60. Toca Calcular monto.');
-        } else if (airportRulePreview && airportRulePreview.tollType === 'none') {
-          setPeajeOpcionalVisible(false);
-          updatePeajeCalcNotice('Esta ruta Aeropuerto ↔ distrito está marcada SIN PEAJE. Toca Calcular monto.');
-        } else if (districtDistrictPreview) {
-          setPeajeOpcionalVisible(true);
-          updatePeajeCalcNotice('Ruta distrito ↔ distrito: el cliente decide en este paso si desea agregar peaje o ir sin peaje.');
+          updatePeajeCalcNotice('Puede elegir peaje. Selecciona SIN peaje o CON 02 peajes y luego toca Calcular monto.');
         } else {
           setPeajeOpcionalVisible(false);
           updatePeajeCalcNotice('');
@@ -1564,46 +1553,6 @@ body{
     }
 
 
-    function coordsTextFromPoint(point={}){
-      const lat = point.lat ?? point.latitude;
-      const lon = point.lon ?? point.lng ?? point.longitude;
-      if (lat === undefined || lon === undefined || lat === null || lon === null) return '';
-      return `${Number(lat).toFixed(6)}, ${Number(lon).toFixed(6)}`;
-    }
-
-    function setPinOrLocationFields(type, point={}){
-      const coordsTexto = coordsTextFromPoint(point);
-      const textoLupa = coordsTexto || 'Coordenadas no disponibles';
-
-      if (type === 'origin'){
-        if ($('origen')) $('origen').value = textoLupa;
-        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = '';
-        setOriginValue(`Pin exacto: ${textoLupa}`);
-      } else {
-        if ($('destino')) $('destino').value = textoLupa;
-        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = '';
-        setDestinationValue(`Pin exacto: ${textoLupa}`);
-      }
-    }
-
-    function setFrequentFields(type, place={}){
-      const coordsTexto = coordsTextFromPoint(place);
-      const direccion = place.address || place.label || '';
-
-      if (type === 'origin'){
-        if ($('origen')) $('origen').value = coordsTexto || direccion;
-        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
-        if ($('distritoRecojo')) $('distritoRecojo').value = place.district || '';
-        setOriginValue(direccion || coordsTexto);
-      } else {
-        if ($('destino')) $('destino').value = coordsTexto || direccion;
-        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
-        if ($('distritoDestino')) $('distritoDestino').value = place.district || '';
-        setDestinationValue(direccion || coordsTexto);
-      }
-    }
-
-
     function normalizeText(text=''){
       return String(text || '')
         .toLowerCase()
@@ -1621,96 +1570,6 @@ body{
       'San Juan de Lurigancho','San Martín de Porres','San Miguel','Santa Anita','Santa María del Mar',
       'Santa Rosa','Santiago de Surco','Surquillo','Ventanilla','Villa El Salvador','Villa María del Triunfo'
     ];
-
-    // Centros aproximados para respaldo cuando el mapa no devuelve el distrito.
-    // Primero se intenta detectar por reverse geocoding; si falla, se usa el distrito más cercano por coordenadas.
-    const DISTRICT_COORDINATE_FALLBACKS = [
-      {name:'Ancón', lat:-11.7733, lon:-77.1714},
-      {name:'Ate', lat:-12.0267, lon:-76.9195},
-      {name:'Barranco', lat:-12.1494, lon:-77.0217},
-      {name:'Bellavista', lat:-12.0620, lon:-77.1290},
-      {name:'Breña', lat:-12.0567, lon:-77.0536},
-      {name:'Callao', lat:-12.0500, lon:-77.1250},
-      {name:'Carabayllo', lat:-11.8530, lon:-77.0370},
-      {name:'Carmen de la Legua-Reynoso', lat:-12.0397, lon:-77.0942},
-      {name:'Cercado de Lima', lat:-12.0464, lon:-77.0428},
-      {name:'Chaclacayo', lat:-11.9828, lon:-76.7664},
-      {name:'Chorrillos', lat:-12.1728, lon:-77.0164},
-      {name:'Cieneguilla', lat:-12.1205, lon:-76.8140},
-      {name:'Comas', lat:-11.9320, lon:-77.0520},
-      {name:'El Agustino', lat:-12.0444, lon:-76.9992},
-      {name:'Independencia', lat:-11.9950, lon:-77.0520},
-      {name:'Jesús María', lat:-12.0750, lon:-77.0430},
-      {name:'La Molina', lat:-12.0815, lon:-76.9286},
-      {name:'La Perla', lat:-12.0700, lon:-77.1200},
-      {name:'La Punta', lat:-12.0710, lon:-77.1620},
-      {name:'La Victoria', lat:-12.0653, lon:-77.0308},
-      {name:'Lince', lat:-12.0840, lon:-77.0350},
-      {name:'Los Olivos', lat:-11.9763, lon:-77.0750},
-      {name:'Lurigancho-Chosica', lat:-11.9431, lon:-76.7094},
-      {name:'Lurín', lat:-12.2739, lon:-76.8694},
-      {name:'Magdalena del Mar', lat:-12.0917, lon:-77.0678},
-      {name:'Mi Perú', lat:-11.8564, lon:-77.1242},
-      {name:'Miraflores', lat:-12.1211, lon:-77.0305},
-      {name:'Pachacámac', lat:-12.2295, lon:-76.8585},
-      {name:'Pucusana', lat:-12.4828, lon:-76.7978},
-      {name:'Pueblo Libre', lat:-12.0769, lon:-77.0678},
-      {name:'Puente Piedra', lat:-11.8665, lon:-77.0764},
-      {name:'Punta Hermosa', lat:-12.3333, lon:-76.8167},
-      {name:'Punta Negra', lat:-12.3650, lon:-76.7950},
-      {name:'Rímac', lat:-12.0290, lon:-77.0430},
-      {name:'San Bartolo', lat:-12.3890, lon:-76.7800},
-      {name:'San Borja', lat:-12.1080, lon:-76.9980},
-      {name:'San Isidro', lat:-12.0970, lon:-77.0365},
-      {name:'San Juan de Lurigancho', lat:-11.9810, lon:-76.9990},
-      {name:'San Martín de Porres', lat:-12.0000, lon:-77.0850},
-      {name:'San Miguel', lat:-12.0780, lon:-77.0900},
-      {name:'Santa Anita', lat:-12.0440, lon:-76.9700},
-      {name:'Santa María del Mar', lat:-12.4090, lon:-76.7740},
-      {name:'Santa Rosa', lat:-11.8000, lon:-77.1700},
-      {name:'Santiago de Surco', lat:-12.1359, lon:-76.9910},
-      {name:'Surquillo', lat:-12.1130, lon:-77.0130},
-      {name:'Ventanilla', lat:-11.8750, lon:-77.1270},
-      {name:'Villa El Salvador', lat:-12.2130, lon:-76.9360},
-      {name:'Villa María del Triunfo', lat:-12.1620, lon:-76.9430}
-    ];
-
-    function distanceKmBetween(lat1, lon1, lat2, lon2){
-      const R = 6371;
-      const dLat = (Number(lat2) - Number(lat1)) * Math.PI / 180;
-      const dLon = (Number(lon2) - Number(lon1)) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(Number(lat1)*Math.PI/180) * Math.cos(Number(lat2)*Math.PI/180) * Math.sin(dLon/2)**2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function detectDistrictByCoordinates(lat, lon){
-      if (lat == null || lon == null) return '';
-      let best = null;
-      DISTRICT_COORDINATE_FALLBACKS.forEach(d=>{
-        const dist = distanceKmBetween(lat, lon, d.lat, d.lon);
-        if (!best || dist < best.dist) best = { ...d, dist };
-      });
-      return best ? best.name : '';
-    }
-
-    function detectDistrictFromPoint(point={}, label=''){
-      return point.district || point.distrito || detectDistrictFromPlace(point, label) || detectDistrictByCoordinates(point.lat, point.lon);
-    }
-
-    function applyDetectedDistrict(type, point={}, label=''){
-      const district = detectDistrictFromPoint(point, label);
-      const selectId = type === 'origin' ? 'distritoRecojo' : 'distritoDestino';
-      setSelectValueIfPossible(selectId, district);
-      if (point && district) {
-        point.district = district;
-        point.distrito = district;
-      }
-      return district;
-    }
-
-    function functionLabelDistrict(district){
-      return district ? `Distrito detectado: ${district}.` : 'No se pudo detectar el distrito; mueve el pin ligeramente o busca la dirección exacta.';
-    }
 
     function detectDistrictFromPlace(place={}, label=''){
       const parts = [];
@@ -1739,53 +1598,21 @@ body{
 
       const aliases = [
         { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
-        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','centro de lima','lima'] },
+        { value:'Independencia', keys:['independencia'] },
+        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','lima'] },
         { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
         { value:'Jesús María', keys:['jesus maria'] },
-        { value:'Lurigancho-Chosica', keys:['lurigancho chosica','lurigancho-chosica','chosica'] },
-        { value:'Carmen de la Legua-Reynoso', keys:['carmen de la legua reynoso','carmen de la legua-reynoso','carmen de la legua'] },
-        { value:'Villa María del Triunfo', keys:['villa maria del triunfo','vmt'] },
-        { value:'Santa María del Mar', keys:['santa maria del mar'] },
-        { value:'Magdalena del Mar', keys:['magdalena del mar','magdalena'] },
-        { value:'San Juan de Lurigancho', keys:['san juan de lurigancho','sjl'] },
-        { value:'Ancón', keys:['ancon'] },
-        { value:'Ate', keys:['ate'] },
-        { value:'Barranco', keys:['barranco'] },
-        { value:'Bellavista', keys:['bellavista'] },
-        { value:'Breña', keys:['brena'] },
-        { value:'Callao', keys:['callao'] },
-        { value:'Carabayllo', keys:['carabayllo'] },
-        { value:'Chaclacayo', keys:['chaclacayo'] },
-        { value:'Chorrillos', keys:['chorrillos'] },
-        { value:'Cieneguilla', keys:['cieneguilla'] },
-        { value:'Comas', keys:['comas'] },
-        { value:'El Agustino', keys:['el agustino'] },
-        { value:'Independencia', keys:['independencia'] },
-        { value:'La Molina', keys:['la molina'] },
-        { value:'La Perla', keys:['la perla'] },
-        { value:'La Punta', keys:['la punta'] },
-        { value:'La Victoria', keys:['la victoria'] },
-        { value:'Lince', keys:['lince'] },
         { value:'Los Olivos', keys:['los olivos'] },
-        { value:'Lurín', keys:['lurin'] },
-        { value:'Mi Perú', keys:['mi peru'] },
-        { value:'Miraflores', keys:['miraflores'] },
-        { value:'Pachacámac', keys:['pachacamac'] },
-        { value:'Pucusana', keys:['pucusana'] },
-        { value:'Pueblo Libre', keys:['pueblo libre'] },
-        { value:'Puente Piedra', keys:['puente piedra'] },
-        { value:'Punta Hermosa', keys:['punta hermosa'] },
-        { value:'Punta Negra', keys:['punta negra'] },
-        { value:'Rímac', keys:['rimac'] },
-        { value:'San Bartolo', keys:['san bartolo'] },
-        { value:'San Borja', keys:['san borja'] },
         { value:'San Isidro', keys:['san isidro'] },
         { value:'San Miguel', keys:['san miguel'] },
-        { value:'Santa Anita', keys:['santa anita'] },
-        { value:'Santa Rosa', keys:['santa rosa'] },
-        { value:'Surquillo', keys:['surquillo'] },
-        { value:'Ventanilla', keys:['ventanilla'] },
-        { value:'Villa El Salvador', keys:['villa el salvador','ves'] }
+        { value:'San Borja', keys:['san borja'] },
+        { value:'Pueblo Libre', keys:['pueblo libre'] },
+        { value:'La Molina', keys:['la molina'] },
+        { value:'Magdalena', keys:['magdalena'] },
+        { value:'Miraflores', keys:['miraflores'] },
+        { value:'Barranco', keys:['barranco'] },
+        { value:'Callao', keys:['callao'] },
+        { value:'Lince', keys:['lince'] }
       ];
 
       for (const item of aliases){
@@ -1822,7 +1649,7 @@ body{
       const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
       const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
       const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = detectDistrictFromPoint(point, direccion);
+      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
 
       if ($('origen')) $('origen').value = direccion;
       if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
@@ -1833,7 +1660,7 @@ body{
       const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
       const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
       const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = detectDistrictFromPoint(point, direccion);
+      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
 
       if ($('destino')) $('destino').value = direccion;
       if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
@@ -2002,13 +1829,22 @@ body{
       };
 
       if (type === 'origin'){
-        // FRECUENTES: la lupa muestra coordenadas y la dirección exacta SÍ se autollenará.
-        setFrequentFields('origin', place);
+        $('origen').value = place.label;
+
+        if ($('distritoRecojo')) {
+          $('distritoRecojo').value = place.district;
+        }
+
+        if ($('direccionExactaRecojo')) {
+          $('direccionExactaRecojo').value = place.address;
+        }
 
         originSelection = point;
         selectingPoint = null;
 
         drawMarker('origin', point);
+        const dir = $('direccionExactaRecojo').value || place.address || place.label;
+setOriginValue('📍 ' + dir);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -2020,13 +1856,21 @@ body{
       }
 
       if (type === 'destination'){
-        // FRECUENTES: la lupa muestra coordenadas y la dirección exacta SÍ se autollenará.
-        setFrequentFields('destination', place);
+        $('destino').value = place.label;
+
+        if ($('distritoDestino')) {
+          $('distritoDestino').value = place.district;
+        }
+
+        if ($('direccionExactaDestino')) {
+          $('direccionExactaDestino').value = place.address;
+        }
 
         destinationSelection = point;
         selectingPoint = null;
 
         drawMarker('destination', point);
+        setDestinationValue(place.address || place.label);
 
         map.setView([place.lat, place.lon], 17);
         showPinSelection(false);
@@ -2143,14 +1987,32 @@ body{
 
         if (selectingPoint === 'origin'){
           originSelection = point;
-          setPinOrLocationFields('origin', point);
+          if (cleanLabel) {
+            $('origen').value = cleanLabel;
+            if ($('direccionExactaRecojo')) {
+              $('direccionExactaRecojo').value = cleanLabel;
+            }
+            setOriginValue(cleanLabel);
+          } else {
+            $('origen').value = '';
+            setOriginValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
+          }
           drawMarker('origin', point);
           $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
         }
 
         if (selectingPoint === 'destination'){
           destinationSelection = point;
-          setPinOrLocationFields('destination', point);
+          if (cleanLabel) {
+            $('destino').value = cleanLabel;
+            if ($('direccionExactaDestino')) {
+              $('direccionExactaDestino').value = cleanLabel;
+            }
+            setDestinationValue(cleanLabel);
+          } else {
+            $('destino').value = '';
+            setDestinationValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
+          }
           drawMarker('destination', point);
           $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
         }
@@ -2213,15 +2075,15 @@ body{
             pinConfirmed:true
           };
 
-          const district = applyDetectedDistrict('origin', point, label);
           originSelection = point;
 
-          // UBICACIÓN / PIN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
-          setPinOrLocationFields('origin', point);
+          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
+          if ($('origen')) $('origen').value = label;
 
           drawMarker('origin', point);
+          setOriginValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
-          showOk('Recojo confirmado. ' + functionLabelDistrict(district));
+          showOk('Recojo confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
         } else {
           const textoLupa = $('destino') ? $('destino').value.trim() : '';
           const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
@@ -2237,15 +2099,15 @@ body{
             pinConfirmed:true
           };
 
-          const district = applyDetectedDistrict('destination', point, label);
           destinationSelection = point;
 
-          // UBICACIÓN / PIN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
-          setPinOrLocationFields('destination', point);
+          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
+          if ($('destino')) $('destino').value = label;
 
           drawMarker('destination', point);
+          setDestinationValue(`${label} | Pin: ${coordsTexto}`);
           $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
-          showOk('Destino confirmado. ' + functionLabelDistrict(district));
+          showOk('Destino confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
         }
 
         hidePinMode();
@@ -2285,10 +2147,9 @@ body{
 
             const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
             originSelection = {...(place || {}), lat, lon, label, address:label, type:'manual'};
-            const district = applyDetectedDistrict('origin', originSelection, label);
 
-            // MI UBICACIÓN: la lupa muestra SOLO coordenadas y la dirección exacta queda en blanco.
-            setPinOrLocationFields('origin', originSelection);
+            // Mi ubicación solo llena la lupa. NO autollenar distrito ni dirección exacta.
+            if ($('origen')) $('origen').value = label;
 
             // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
             // No dejamos la gota fija como punto final hasta que presione OK pin.
@@ -2298,12 +2159,12 @@ body{
             }
             selectingPoint = 'origin';
             showPinSelection(true);
-            setPinOrLocationFields('origin', originSelection);
+            setOriginValue(label);
 
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
             $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
             $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
-            showOk('Ubicación actual cargada. Si no está exacta, mueve el mapa hasta tu puerta y toca OK pin. ' + functionLabelDistrict(district));
+            showOk('Ubicación actual cargada en la lupa. Si no está exacta, mueve el mapa hasta tu puerta y toca OK pin. Distrito y dirección exacta se escriben manualmente.');
           }catch(err){
             console.error(err);
             showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
@@ -2495,13 +2356,7 @@ body{
 
     function getSelectedDistrict(type){
       const id = type === 'origin' ? 'distritoRecojo' : 'distritoDestino';
-      let value = ($(id)?.value || '').trim();
-      if (value) return value;
-
-      const selection = type === 'origin' ? originSelection : destinationSelection;
-      value = detectDistrictFromPoint(selection || {}, selection?.label || selection?.address || '');
-      if (value) setSelectValueIfPossible(id, value);
-      return value || '';
+      return ($(id)?.value || '').trim();
     }
 
     function isAirportDistrictOrSelection(type){
@@ -2535,17 +2390,6 @@ body{
         tollText: rule.tollText || '',
         directionText: originAirport ? 'Aeropuerto → distrito' : 'Distrito → aeropuerto'
       };
-    }
-
-
-    function isDistrictToDistrictTrip(){
-      const originAirport = isAirportDistrictOrSelection('origin');
-      const destinationAirport = isAirportDistrictOrSelection('destination');
-      if (originAirport || destinationAirport) return false;
-
-      const originDistrict = getSelectedDistrict('origin');
-      const destinationDistrict = getSelectedDistrict('destination');
-      return !!(originDistrict && destinationDistrict);
     }
 
     function getGeneralKmFare(distanceKm, minutes){
@@ -2705,26 +2549,9 @@ body{
           setPeajeOpcionalVisible(false);
         }
       } else {
-        // Distrito ↔ distrito: se calcula por km ajustado y el peaje queda como decisión del cliente en Paso 6.
-        const districtDistrict = isDistrictToDistrictTrip();
+        setPeajeOpcionalVisible(false);
         total = getGeneralKmFare(distanceKm, minutes);
-        tipoCalculo = districtDistrict
-          ? 'Distrito ↔ distrito: tarifa por km ajustado + peaje opcional del cliente'
-          : 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
-
-        if (districtDistrict){
-          setPeajeOpcionalVisible(true);
-          peajeMostrado = adicionalManual;
-          total += adicionalManual;
-          mensajePantalla = adicionalManual > 0
-            ? `Ruta distrito ↔ distrito. Cliente eligió CON peaje: + S/ ${adicionalManual.toFixed(2)}.`
-            : `Ruta distrito ↔ distrito. Cliente eligió SIN peaje opcional.`;
-          mensajeWhatsapp = adicionalManual > 0
-            ? `Distrito ↔ distrito: cliente eligió CON 02 peajes S/ ${adicionalManual.toFixed(2)}`
-            : `Distrito ↔ distrito: cliente eligió SIN peaje`;
-        } else {
-          setPeajeOpcionalVisible(false);
-        }
+        tipoCalculo = 'Tarifa por km real + tiempo + ajuste OpenRoute/Google Maps';
       }
 
       total += getVehicleExtra(vehicleKey);
@@ -2742,7 +2569,7 @@ body{
         tarifaBaseDistrito: airportRule ? airportRule.baseFare.toFixed(2) : '',
         peajeAutomatico: airportRule ? airportRule.automaticToll.toFixed(2) : '0.00',
         peajeElegido: peajeMostrado.toFixed(2),
-        peajeTipo: airportRule ? airportRule.tollType : (isDistrictToDistrictTrip() ? 'optional' : 'none'),
+        peajeTipo: airportRule ? airportRule.tollType : 'none',
         peajeMensaje: mensajeWhatsapp,
         mensajePantalla,
         ajusteRuta: airportRule ? 'Tabla fija Aeropuerto ↔ Distrito' : 'Km real con factor 1.08 por diferencia OpenRoute/Google Maps'
@@ -2867,12 +2694,7 @@ body{
         $('sumDistance').textContent = routeData.km + ' km';
         $('sumTime').textContent = routeData.minutos + ' min';
         const peajeResumen = Number(routeData.peajeElegido || routeData.peajeAutomatico || routeData.adicional || 0);
-        if ($('sumPeaje')) {
-          let peajeTexto = 'S/ ' + peajeResumen.toFixed(2);
-          if (routeData.peajeTipo === 'included' && peajeResumen > 0) peajeTexto += ' incluido';
-          if (routeData.peajeTipo === 'optional') peajeTexto += peajeResumen > 0 ? ' elegido' : ' sin peaje';
-          $('sumPeaje').textContent = peajeTexto;
-        }
+        if ($('sumPeaje')) $('sumPeaje').textContent = 'S/ ' + peajeResumen.toFixed(2);
         $('sumFare').textContent = 'S/ ' + routeData.tarifa;
         $('fareBig').textContent = 'S/ ' + routeData.tarifa;
 
@@ -3072,13 +2894,13 @@ body{
         return;
       }
 
-      if (!$('distritoRecojo').value || !originSelection){
-        showWarn('Revisa el punto de recojo. El distrito se detecta automáticamente por el mapa.');
+      if (!$('distritoRecojo').value || !hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Completa distrito y dirección exacta de recojo.');
         return;
       }
 
-      if (!$('distritoDestino').value || !destinationSelection){
-        showWarn('Revisa el punto de destino. El distrito se detecta automáticamente por el mapa.');
+      if (!$('distritoDestino').value || !hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Completa distrito y dirección exacta de destino.');
         return;
       }
 
@@ -3213,15 +3035,16 @@ body{
         await confirmCenterPoint('origin');
       }
 
-      if (originSelection) applyDetectedDistrict('origin', originSelection, originSelection.label || originSelection.address || '');
-
       if (!$('distritoRecojo').value){
-        showWarn('No se pudo detectar el distrito de recojo. Busca la dirección o mueve el pin ligeramente y vuelve a confirmar.');
+        showWarn('Selecciona el distrito de recojo.');
         return;
       }
 
-      // Si viene de PIN o MI UBICACIÓN, la dirección exacta puede quedar en blanco.
-      // El cálculo usa coordenadas. En frecuentes sí se autollenará la dirección.
+      if (!hasMinText($('direccionExactaRecojo').value, 5)){
+        showWarn('Escribe la dirección exacta de recojo. Ej: Jr. Ica 540.');
+        return;
+      }
+
       if (!originSelection){
         showWarn('Toca el botón Pin o selecciona una dirección/lugar frecuente para cargar el recojo en el mapa.');
         return;
@@ -3242,15 +3065,16 @@ body{
         await confirmCenterPoint('destination');
       }
 
-      if (destinationSelection) applyDetectedDistrict('destination', destinationSelection, destinationSelection.label || destinationSelection.address || '');
-
       if (!$('distritoDestino').value){
-        showWarn('No se pudo detectar el distrito de destino. Busca la dirección o mueve el pin ligeramente y vuelve a confirmar.');
+        showWarn('Selecciona el distrito de destino.');
         return;
       }
 
-      // Si viene de PIN, la dirección exacta puede quedar en blanco.
-      // El cálculo usa coordenadas. En frecuentes sí se autollenará la dirección.
+      if (!hasMinText($('direccionExactaDestino').value, 5)){
+        showWarn('Escribe la dirección exacta del destino. Ej: Aeropuerto Jorge Chávez.');
+        return;
+      }
+
       if (!destinationSelection){
         showWarn('Toca Pin destino, Buscar mapa o selecciona un lugar frecuente para cargar el destino en el mapa.');
         return;
