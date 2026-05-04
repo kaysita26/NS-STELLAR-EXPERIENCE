@@ -913,6 +913,12 @@ body{
   font-weight:800 !important;
 }
 
+
+/* ===== DISTRITO OCULTO: se detecta internamente por coordenadas ===== */
+.distrito-auto-hidden{
+  display:none !important;
+}
+
 </style>
   
 </head>
@@ -1571,54 +1577,214 @@ body{
     ];
 
     function detectDistrictFromPlace(place={}, label=''){
+      // Detección estricta por datos devueltos desde coordenadas / reverse geocode.
+      // NO usar la palabra genérica "Lima", porque causa errores como Megaplaza -> Cercado de Lima.
       const parts = [];
       const keys = [
-        'district','distrito','city_district','suburb','city','county','municipality',
-        'state_district','neighbourhood','label','address','name','display_name'
+        'district','distrito','city_district','suburb','county','municipality',
+        'state_district','neighbourhood','borough','town','village','display_name'
       ];
 
       keys.forEach(k=>{
-        if (place && place[k]) parts.push(place[k]);
+        if (place && typeof place[k] === 'string') parts.push(place[k]);
       });
 
       if (place && place.raw && typeof place.raw === 'object') {
         keys.forEach(k=>{
-          if (place.raw[k]) parts.push(place.raw[k]);
+          if (typeof place.raw[k] === 'string') parts.push(place.raw[k]);
         });
       }
 
       if (place && place.address && typeof place.address === 'object') {
-        Object.values(place.address).forEach(v=>parts.push(v));
+        keys.forEach(k=>{
+          if (typeof place.address[k] === 'string') parts.push(place.address[k]);
+        });
       }
 
+      // El label solo se usa como último apoyo, pero sin alias genérico "lima".
       parts.push(label);
-
-      const text = normalizeText(parts.join(' '));
+      const text = normalizeText(parts.join(' | '));
 
       const aliases = [
-        { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
-        { value:'Independencia', keys:['independencia'] },
-        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado','lima'] },
-        { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
-        { value:'Jesús María', keys:['jesus maria'] },
-        { value:'Los Olivos', keys:['los olivos'] },
-        { value:'San Isidro', keys:['san isidro'] },
-        { value:'San Miguel', keys:['san miguel'] },
-        { value:'San Borja', keys:['san borja'] },
-        { value:'Pueblo Libre', keys:['pueblo libre'] },
-        { value:'La Molina', keys:['la molina'] },
-        { value:'Magdalena', keys:['magdalena'] },
-        { value:'Miraflores', keys:['miraflores'] },
+        { value:'Ancón', keys:['ancon'] },
+        { value:'Ate', keys:['ate','ate vitarte'] },
         { value:'Barranco', keys:['barranco'] },
+        { value:'Bellavista', keys:['bellavista'] },
+        { value:'Breña', keys:['brena'] },
         { value:'Callao', keys:['callao'] },
-        { value:'Lince', keys:['lince'] }
+        { value:'Carabayllo', keys:['carabayllo'] },
+        { value:'Carmen de la Legua-Reynoso', keys:['carmen de la legua','carmen de la legua reynoso'] },
+        { value:'Cercado de Lima', keys:['cercado de lima','lima cercado'] },
+        { value:'Chaclacayo', keys:['chaclacayo'] },
+        { value:'Chorrillos', keys:['chorrillos'] },
+        { value:'Cieneguilla', keys:['cieneguilla'] },
+        { value:'Comas', keys:['comas'] },
+        { value:'El Agustino', keys:['el agustino'] },
+        { value:'Independencia', keys:['independencia','megaplaza','mega plaza','plaza norte'] },
+        { value:'Jesús María', keys:['jesus maria'] },
+        { value:'La Molina', keys:['la molina'] },
+        { value:'La Perla', keys:['la perla'] },
+        { value:'La Punta', keys:['la punta'] },
+        { value:'La Victoria', keys:['la victoria'] },
+        { value:'Lince', keys:['lince'] },
+        { value:'Los Olivos', keys:['los olivos','conzac'] },
+        { value:'Lurigancho-Chosica', keys:['lurigancho','chosica','lurigancho chosica'] },
+        { value:'Lurín', keys:['lurin'] },
+        { value:'Magdalena del Mar', keys:['magdalena del mar','magdalena'] },
+        { value:'Mi Perú', keys:['mi peru'] },
+        { value:'Miraflores', keys:['miraflores'] },
+        { value:'Pachacámac', keys:['pachacamac'] },
+        { value:'Pucusana', keys:['pucusana'] },
+        { value:'Pueblo Libre', keys:['pueblo libre'] },
+        { value:'Puente Piedra', keys:['puente piedra'] },
+        { value:'Punta Hermosa', keys:['punta hermosa'] },
+        { value:'Punta Negra', keys:['punta negra'] },
+        { value:'Rímac', keys:['rimac'] },
+        { value:'San Bartolo', keys:['san bartolo'] },
+        { value:'San Borja', keys:['san borja'] },
+        { value:'San Isidro', keys:['san isidro'] },
+        { value:'San Juan de Lurigancho', keys:['san juan de lurigancho','sjl'] },
+        { value:'San Martín de Porres', keys:['san martin de porres','smp'] },
+        { value:'San Miguel', keys:['san miguel'] },
+        { value:'Santa Anita', keys:['santa anita'] },
+        { value:'Santa María del Mar', keys:['santa maria del mar'] },
+        { value:'Santa Rosa', keys:['santa rosa'] },
+        { value:'Santiago de Surco', keys:['santiago de surco','surco'] },
+        { value:'Surquillo', keys:['surquillo'] },
+        { value:'Ventanilla', keys:['ventanilla'] },
+        { value:'Villa El Salvador', keys:['villa el salvador','ves'] },
+        { value:'Villa María del Triunfo', keys:['villa maria del triunfo','vmt'] }
       ];
 
+      // Evita falsos positivos: busca palabras completas o frases exactas normalizadas.
       for (const item of aliases){
-        if (item.keys.some(k => text.includes(k))) return item.value;
+        for (const k of item.keys){
+          const nk = normalizeText(k);
+          const escaped = nk.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
+          if (pattern.test(text)) return item.value;
+        }
       }
 
       return '';
+    }
+
+    function districtFromStructuredAddress(place={}){
+      // MODO EXPERTO TOTAL:
+      // 1) Prioriza campos estructurados del reverse geocode.
+      // 2) Nunca convierte la palabra genérica "Lima" en Cercado.
+      // 3) Evita que una dirección tipo "Megaplaza Lima Norte" se vuelva Cercado de Lima.
+      const candidates = [];
+
+      function add(v){
+        if (typeof v === 'string' && v.trim()) candidates.push(v.trim());
+      }
+
+      if (place && typeof place === 'object') {
+        ['city_district','suburb','municipality','district','borough','town','village','neighbourhood'].forEach(k => add(place[k]));
+
+        if (place.raw && typeof place.raw === 'object') {
+          ['city_district','suburb','municipality','district','borough','town','village','neighbourhood'].forEach(k => add(place.raw[k]));
+        }
+
+        if (place.address && typeof place.address === 'object') {
+          ['city_district','suburb','municipality','district','borough','town','village','neighbourhood'].forEach(k => add(place.address[k]));
+        }
+      }
+
+      for (const candidate of candidates){
+        const detected = detectDistrictFromPlace({ district:candidate }, '');
+        if (detected) return detected;
+      }
+
+      return '';
+    }
+
+    function distanceMeters(lat1, lon1, lat2, lon2){
+      const R = 6371000;
+      const toRad = deg => Number(deg) * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function districtFromKnownCoordinateAnchors(lat, lon){
+      // Respaldo por coordenadas para puntos conocidos o zonas donde OSM puede devolver textos ambiguos.
+      // Solo se usa si el reverse geocode no entrega distrito confiable.
+      const anchors = [
+        { district:'Independencia', lat:-11.99330, lon:-77.06190, radius:1700, name:'Megaplaza / Plaza Norte' },
+        { district:'Los Olivos', lat:-11.96990, lon:-77.07490, radius:1900, name:'Conzac / Los Olivos' },
+        { district:'Callao', lat:-12.03022, lon:-77.11843, radius:2600, name:'Aeropuerto Jorge Chávez' },
+        { district:'Callao', lat:-12.02190, lon:-77.11430, radius:2200, name:'Costa del Sol Airport' },
+        { district:'San Isidro', lat:-12.09060, lon:-77.05590, radius:1500, name:'Meliá / San Isidro Oeste' },
+        { district:'San Isidro', lat:-12.09750, lon:-77.03650, radius:1500, name:'Swissôtel / San Isidro' },
+        { district:'San Isidro', lat:-12.09670, lon:-77.02130, radius:1500, name:'Westin / San Isidro' },
+        { district:'Miraflores', lat:-12.12050, lon:-77.02940, radius:1700, name:'INNSiDE / Miraflores' },
+        { district:'Santiago de Surco', lat:-12.12810, lon:-76.98580, radius:5200, name:'Surco central' },
+        { district:'La Molina', lat:-12.08750, lon:-76.93500, radius:5200, name:'La Molina central' },
+        { district:'San Borja', lat:-12.09680, lon:-76.99590, radius:3000, name:'San Borja central' },
+        { district:'Barranco', lat:-12.14400, lon:-77.02170, radius:2400, name:'Barranco central' },
+        { district:'San Miguel', lat:-12.07720, lon:-77.09280, radius:2800, name:'San Miguel central' }
+      ];
+
+      let best = null;
+      for (const a of anchors){
+        const d = distanceMeters(lat, lon, a.lat, a.lon);
+        if (d <= a.radius && (!best || d < best.distance)) best = {...a, distance:d};
+      }
+
+      return best ? best.district : '';
+    }
+
+    async function detectDistrictByCoordinates(lat, lon, existingPlace=null){
+      // Detecta distrito usando las coordenadas finales del pin.
+      // Orden experto: reverse geocode estructurado -> anclas por coordenadas -> datos existentes como último respaldo.
+      const nLat = Number(lat);
+      const nLon = Number(lon);
+      if (!Number.isFinite(nLat) || !Number.isFinite(nLon)) return '';
+
+      let reversePlace = null;
+
+      try{
+        const data = await apiGet(`/reverse?lat=${encodeURIComponent(nLat)}&lon=${encodeURIComponent(nLon)}`);
+        reversePlace = data.result || null;
+
+        const structuredDistrict = districtFromStructuredAddress(reversePlace || {});
+        if (structuredDistrict) return structuredDistrict;
+
+        const reverseTextDistrict = detectDistrictFromPlace(reversePlace || {}, '');
+        if (reverseTextDistrict) return reverseTextDistrict;
+      }catch(err){
+        console.warn('No se pudo detectar distrito por coordenadas:', err);
+      }
+
+      const coordinateFallback = districtFromKnownCoordinateAnchors(nLat, nLon);
+      if (coordinateFallback) return coordinateFallback;
+
+      const existingStructured = districtFromStructuredAddress(existingPlace || {});
+      if (existingStructured) return existingStructured;
+
+      const existingText = detectDistrictFromPlace(existingPlace || {}, '');
+      if (existingText) return existingText;
+
+      return '';
+    }
+
+    function setHiddenDistrict(type, district){
+      if (type === 'origin') setSelectValueIfPossible('distritoRecojo', district);
+      if (type === 'destination') setSelectValueIfPossible('distritoDestino', district);
+    }
+
+    function hideDistrictManualControls(){
+      ['distritoRecojo','distritoDestino'].forEach(id=>{
+        const el = $(id);
+        if (!el) return;
+        const box = el.parentElement;
+        if (box) box.classList.add('distrito-auto-hidden');
+      });
     }
 
     function setSelectValueIfPossible(selectId, value){
@@ -1643,27 +1809,43 @@ body{
     }
 
     populateDistrictSelects();
+    hideDistrictManualControls();
 
-    function fillOriginFieldsFromPoint(point={}, label=''){
-      const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
-      const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
-      const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
-
-      if ($('origen')) $('origen').value = direccion;
-      if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = direccion;
-      setSelectValueIfPossible('distritoRecojo', distrito);
+    function coordsTextFromPoint(point={}){
+      if (point && point.lat && point.lon) return `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}`;
+      return '';
     }
 
-    function fillDestinationFieldsFromPoint(point={}, label=''){
-      const finalLabel = cleanAddressLabel(point, label) || String(label || point.label || '').trim();
-      const coordsTexto = (point.lat && point.lon) ? `${Number(point.lat).toFixed(6)}, ${Number(point.lon).toFixed(6)}` : '';
-      const direccion = finalLabel || (coordsTexto ? `Pin exacto: ${coordsTexto}` : '');
-      const distrito = point.district || point.distrito || detectDistrictFromPlace(point, direccion);
+    async function fillOriginFieldsFromPoint(point={}, label='', options={}){
+      const coordsTexto = coordsTextFromPoint(point);
+      const mostrarEnLupa = coordsTexto || cleanAddressLabel(point, label) || String(label || point.label || '').trim();
 
-      if ($('destino')) $('destino').value = direccion;
-      if ($('direccionExactaDestino')) $('direccionExactaDestino').value = direccion;
-      setSelectValueIfPossible('distritoDestino', distrito);
+      // Manual / búsqueda / pin: solo coordenadas en la lupa. Dirección exacta queda obligatoria y manual.
+      if ($('origen')) $('origen').value = mostrarEnLupa;
+
+      if (options.autoFillAddress && $('direccionExactaRecojo')) {
+        $('direccionExactaRecojo').value = point.address || label || point.label || '';
+      }
+
+      const distrito = point.district || point.distrito || await detectDistrictByCoordinates(point.lat, point.lon, point);
+      setHiddenDistrict('origin', distrito);
+      return distrito;
+    }
+
+    async function fillDestinationFieldsFromPoint(point={}, label='', options={}){
+      const coordsTexto = coordsTextFromPoint(point);
+      const mostrarEnLupa = coordsTexto || cleanAddressLabel(point, label) || String(label || point.label || '').trim();
+
+      // Manual / búsqueda / pin: solo coordenadas en la lupa. Dirección exacta queda obligatoria y manual.
+      if ($('destino')) $('destino').value = mostrarEnLupa;
+
+      if (options.autoFillAddress && $('direccionExactaDestino')) {
+        $('direccionExactaDestino').value = point.address || label || point.label || '';
+      }
+
+      const distrito = point.district || point.distrito || await detectDistrictByCoordinates(point.lat, point.lon, point);
+      setHiddenDistrict('destination', distrito);
+      return distrito;
     }
 
     async function apiGet(path){
@@ -1806,7 +1988,7 @@ body{
       };
 
       if (type === 'origin'){
-        $('origen').value = place.label;
+        $('origen').value = `${Number(place.lat).toFixed(6)}, ${Number(place.lon).toFixed(6)}`;
 
         if ($('distritoRecojo')) {
           $('distritoRecojo').value = place.district;
@@ -1832,7 +2014,7 @@ body{
       }
 
       if (type === 'destination'){
-        $('destino').value = place.label;
+        $('destino').value = `${Number(place.lat).toFixed(6)}, ${Number(place.lon).toFixed(6)}`;
 
         if ($('distritoDestino')) {
           $('distritoDestino').value = place.district;
@@ -1874,26 +2056,39 @@ body{
       try{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
 
-        renderSuggestions('originSuggestions', data.results || [], (item)=>{
-          $('origen').value = item.label;
+        renderSuggestions('originSuggestions', data.results || [], async (item)=>{
+          const point = {...item, type:'manual'};
+          const coordsTexto = `${Number(item.lat).toFixed(6)}, ${Number(item.lon).toFixed(6)}`;
+
+          // Al buscar manualmente solo se muestra coordenada en la lupa.
+          // Dirección exacta queda vacía para que el cliente la escriba obligatoriamente.
+          $('origen').value = coordsTexto;
           map.setView([item.lat, item.lon], 17);
 
+          const distritoDetectado = await detectDistrictByCoordinates(item.lat, item.lon, item);
+          point.district = distritoDetectado;
+          point.label = coordsTexto;
+          point.address = coordsTexto;
+          point.coords = coordsTexto;
+
           if (selectingPoint === 'origin') {
+            originSelection = point;
+            setHiddenDistrict('origin', distritoDetectado);
             $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
             showPinSelection(true);
-            showOk('Mapa acercado. Ahora ajusta el pin al punto exacto y toca OK pin.');
+            showOk('Mapa acercado. La lupa queda con coordenadas. Ajusta el pin y toca OK pin. Luego escribe la dirección exacta obligatoria.');
             return;
           }
 
-          originSelection = {...item, type:'manual'};
-          fillOriginFieldsFromPoint(originSelection, item.label);
-          setOriginValue(item.label);
+          originSelection = point;
+          setHiddenDistrict('origin', distritoDetectado);
+          setOriginValue(`Pin aproximado: ${coordsTexto}`);
           drawMarker('origin', originSelection);
           selectingPoint = null;
           showPinSelection(false);
 
-          $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
-          showOk('Dirección de recojo cargada. Puedes continuar con destino.');
+          $('mapModeLabel').textContent = 'Recojo ubicado por coordenadas';
+          showOk('Recojo ubicado por coordenadas. Escribe la dirección exacta obligatoria antes de continuar.');
         });
       }catch(err){
         console.error(err);
@@ -1915,26 +2110,39 @@ body{
       try{
         const data = await apiGet('/autocomplete?text=' + encodeURIComponent(text));
 
-        renderSuggestions('destinationSuggestions', data.results || [], (item)=>{
-          $('destino').value = item.label;
+        renderSuggestions('destinationSuggestions', data.results || [], async (item)=>{
+          const point = {...item, type:'manual'};
+          const coordsTexto = `${Number(item.lat).toFixed(6)}, ${Number(item.lon).toFixed(6)}`;
+
+          // Al buscar manualmente solo se muestra coordenada en la lupa.
+          // Dirección exacta queda vacía para que el cliente la escriba obligatoriamente.
+          $('destino').value = coordsTexto;
           map.setView([item.lat, item.lon], 17);
 
+          const distritoDetectado = await detectDistrictByCoordinates(item.lat, item.lon, item);
+          point.district = distritoDetectado;
+          point.label = coordsTexto;
+          point.address = coordsTexto;
+          point.coords = coordsTexto;
+
           if (selectingPoint === 'destination') {
+            destinationSelection = point;
+            setHiddenDistrict('destination', distritoDetectado);
             $('mapModeLabel').textContent = 'Ajusta el pin de destino';
             showPinSelection(true);
-            showOk('Mapa acercado. Ahora ajusta el pin al punto exacto y toca OK pin.');
+            showOk('Mapa acercado. La lupa queda con coordenadas. Ajusta el pin y toca OK pin. Luego escribe la dirección exacta obligatoria.');
             return;
           }
 
-          destinationSelection = {...item, type:'manual'};
-          fillDestinationFieldsFromPoint(destinationSelection, item.label);
-          setDestinationValue(item.label);
+          destinationSelection = point;
+          setHiddenDistrict('destination', distritoDetectado);
+          setDestinationValue(`Pin aproximado: ${coordsTexto}`);
           drawMarker('destination', destinationSelection);
           selectingPoint = null;
           showPinSelection(false);
 
-          $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
-          showOk('Dirección de destino cargada. Puedes continuar.');
+          $('mapModeLabel').textContent = 'Destino ubicado por coordenadas';
+          showOk('Destino ubicado por coordenadas. Escribe la dirección exacta obligatoria antes de continuar.');
         });
       }catch(err){
         console.error(err);
@@ -1944,57 +2152,8 @@ body{
 
 
     const previewCenterAddress = debounce(async ()=>{
-      if (!selectingPoint) return;
-
-      try{
-        const c = map.getCenter();
-        const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
-        const place = data.result;
-
-        if (!place) return;
-        const cleanLabel = cleanAddressLabel(place);
-
-        const point = {
-          ...place,
-          lat: place.lat || c.lat,
-          lon: place.lon || c.lng,
-          type: 'manual'
-        };
-
-        if (selectingPoint === 'origin'){
-          originSelection = point;
-          if (cleanLabel) {
-            $('origen').value = cleanLabel;
-            if ($('direccionExactaRecojo')) {
-              $('direccionExactaRecojo').value = cleanLabel;
-            }
-            setOriginValue(cleanLabel);
-          } else {
-            $('origen').value = '';
-            setOriginValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
-          }
-          drawMarker('origin', point);
-          $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
-        }
-
-        if (selectingPoint === 'destination'){
-          destinationSelection = point;
-          if (cleanLabel) {
-            $('destino').value = cleanLabel;
-            if ($('direccionExactaDestino')) {
-              $('direccionExactaDestino').value = cleanLabel;
-            }
-            setDestinationValue(cleanLabel);
-          } else {
-            $('destino').value = '';
-            setDestinationValue('Pin ubicado. Escribe una dirección o palabra clave para precisar.');
-          }
-          drawMarker('destination', point);
-          $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
-        }
-      }catch(err){
-        console.warn('No se pudo previsualizar la dirección del pin:', err);
-      }
+      // No autollenar dirección ni distrito visible mientras se mueve el mapa.
+      // El punto final se toma recién al tocar OK pin.
     }, 500);
 
     map.on('moveend', ()=>{
@@ -2020,70 +2179,63 @@ body{
         clearMessages();
 
         // OK PIN guarda exactamente el centro del mapa.
-        // IMPORTANTE: en modo PIN NO se autollenan Distrito ni Dirección exacta.
-        // Solo se actualiza la lupa con una dirección aproximada y se guardan coordenadas exactas.
+        // Manualmente NO llena dirección exacta. La lupa muestra coordenadas.
+        // El distrito se detecta internamente por coordenadas para calcular tarifa.
         const c = map.getCenter();
         const coordsTexto = `${Number(c.lat).toFixed(6)}, ${Number(c.lng).toFixed(6)}`;
 
         let place = null;
-        let cleanLabel = '';
-
         try{
           const data = await apiGet(`/reverse?lat=${encodeURIComponent(c.lat)}&lon=${encodeURIComponent(c.lng)}`);
           place = data.result || null;
-          cleanLabel = cleanAddressLabel(place);
         }catch(reverseErr){
           console.warn('No se pudo obtener dirección aproximada del pin:', reverseErr);
         }
 
-        if (type === 'origin'){
-          const textoLupa = $('origen') ? $('origen').value.trim() : '';
-          const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
+        const distritoDetectado = await detectDistrictByCoordinates(c.lat, c.lng, place);
 
+        if (type === 'origin'){
           const point = {
             ...(place || {}),
             lat: c.lat,
             lon: c.lng,
-            label: label,
-            address: label,
+            label: coordsTexto,
+            address: coordsTexto,
             coords: coordsTexto,
+            district: distritoDetectado,
             type:'manual',
             pinConfirmed:true
           };
 
           originSelection = point;
-
-          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
-          if ($('origen')) $('origen').value = label;
+          if ($('origen')) $('origen').value = coordsTexto;
+          setHiddenDistrict('origin', distritoDetectado);
 
           drawMarker('origin', point);
-          setOriginValue(`${label} | Pin: ${coordsTexto}`);
-          $('mapModeLabel').textContent = 'Recojo confirmado con pin exacto';
-          showOk('Recojo confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
+          setOriginValue(`Pin exacto: ${coordsTexto}`);
+          $('mapModeLabel').textContent = 'Recojo confirmado por coordenadas';
+          showOk('Recojo confirmado con coordenadas exactas. Ahora escribe la DIRECCIÓN EXACTA obligatoria.');
         } else {
-          const textoLupa = $('destino') ? $('destino').value.trim() : '';
-          const label = cleanLabel || textoLupa || `Pin exacto: ${coordsTexto}`;
-
           const point = {
             ...(place || {}),
             lat: c.lat,
             lon: c.lng,
-            label: label,
-            address: label,
+            label: coordsTexto,
+            address: coordsTexto,
             coords: coordsTexto,
+            district: distritoDetectado,
             type:'manual',
             pinConfirmed:true
           };
 
           destinationSelection = point;
-
-          // Solo llenar la lupa. NO tocar distrito ni dirección exacta.
-          if ($('destino')) $('destino').value = label;
+          if ($('destino')) $('destino').value = coordsTexto;
+          setHiddenDistrict('destination', distritoDetectado);
 
           drawMarker('destination', point);
-          setDestinationValue(`${label} | Pin: ${coordsTexto}`);
-          $('mapModeLabel').textContent = 'Destino confirmado con pin exacto';
-          showOk('Destino confirmado con el pin exacto. Escribe manualmente distrito y dirección exacta si corresponde.');
+          setDestinationValue(`Pin exacto: ${coordsTexto}`);
+          $('mapModeLabel').textContent = 'Destino confirmado por coordenadas';
+          showOk('Destino confirmado con coordenadas exactas. Ahora escribe la DIRECCIÓN EXACTA obligatoria.');
         }
 
         hidePinMode();
@@ -2115,35 +2267,40 @@ body{
           try{
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+            const coordsTexto = `${Number(lat).toFixed(6)}, ${Number(lon).toFixed(6)}`;
 
             map.setView([lat, lon], 17);
 
-            const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
-            const place = data.result;
+            let place = null;
+            try{
+              const data = await apiGet(`/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`);
+              place = data.result || null;
+            }catch(reverseErr){
+              console.warn('No se pudo leer dirección aproximada de ubicación actual:', reverseErr);
+            }
 
-            const label = cleanAddressLabel(place) || 'Ubicación actual aproximada';
-            originSelection = {...(place || {}), lat, lon, label, address:label, type:'manual'};
+            const distritoDetectado = await detectDistrictByCoordinates(lat, lon, place);
+            originSelection = {...(place || {}), lat, lon, label:coordsTexto, address:coordsTexto, coords:coordsTexto, district:distritoDetectado, type:'manual'};
 
-            // Mi ubicación solo llena la lupa. NO autollenar distrito ni dirección exacta.
-            if ($('origen')) $('origen').value = label;
+            // Mi ubicación solo llena la lupa con coordenadas. NO autollenar dirección exacta visible.
+            if ($('origen')) $('origen').value = coordsTexto;
+            setHiddenDistrict('origin', distritoDetectado);
 
-            // En ubicación actual activamos el modo PIN para que el cliente pueda ajustar.
-            // No dejamos la gota fija como punto final hasta que presione OK pin.
             if (markerOrigen) {
               map.removeLayer(markerOrigen);
               markerOrigen = null;
             }
             selectingPoint = 'origin';
             showPinSelection(true);
-            setOriginValue(label);
+            setOriginValue(`Ubicación aproximada: ${coordsTexto}`);
 
             $('sheetTitle').textContent = 'Confirma tu punto de recojo';
             $('sheetSub').textContent = 'Usa tu ubicación actual y ajusta el pin si es necesario. Luego confirma el punto exacto.';
             $('mapModeLabel').textContent = 'Ajusta el pin de recojo';
-            showOk('Ubicación actual cargada en la lupa. Si no está exacta, mueve el mapa hasta tu puerta y toca OK pin. Distrito y dirección exacta se escriben manualmente.');
+            showOk('Ubicación cargada en coordenadas. Si no está exacta, mueve el mapa hasta tu puerta y toca OK pin. Luego escribe la dirección exacta obligatoria.');
           }catch(err){
             console.error(err);
-            showWarn('Se detectó tu ubicación, pero no se pudo convertir a dirección.');
+            showWarn('Se detectó tu ubicación, pero no se pudo preparar el punto.');
           }finally{
             $('btnUseCurrentLocation').disabled = false;
             $('btnUseCurrentLocation').textContent = '📍 Mi ubicación';
@@ -2174,17 +2331,22 @@ body{
 
       try{
         const data = await apiGet('/search?text=' + encodeURIComponent(text));
+        const r = data.result;
+        const coordsTexto = `${Number(r.lat).toFixed(6)}, ${Number(r.lon).toFixed(6)}`;
+        const distritoDetectado = await detectDistrictByCoordinates(r.lat, r.lon, r);
 
-        destinationSelection = {...data.result, type:'manual'};
-        fillDestinationFieldsFromPoint(destinationSelection, data.result.label);
-        setDestinationValue(data.result.label);
-        map.setView([data.result.lat, data.result.lon], 17);
+        destinationSelection = {...r, label:coordsTexto, address:coordsTexto, coords:coordsTexto, district:distritoDetectado, type:'manual'};
+        if ($('destino')) $('destino').value = coordsTexto;
+        setHiddenDistrict('destination', distritoDetectado);
+        setDestinationValue(`Pin aproximado: ${coordsTexto}`);
+        map.setView([r.lat, r.lon], 17);
+        drawMarker('destination', destinationSelection);
 
         selectingPoint = null;
         showPinSelection(false);
 
-        $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
-        showOk('Se ubicó el destino en el mapa. Ajusta si quieres y confirma.');
+        $('mapModeLabel').textContent = 'Destino ubicado por coordenadas';
+        showOk('Destino ubicado por coordenadas. Escribe la dirección exacta obligatoria antes de continuar.');
       }catch(err){
         console.error(err);
         showWarn('No se pudo ubicar ese destino.');
