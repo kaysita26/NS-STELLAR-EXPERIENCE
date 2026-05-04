@@ -1660,6 +1660,90 @@ body{
 
     hideManualDistrictFields();
 
+
+
+    /* ===== DETECCIÓN INTERNA POR COORDENADAS (FALLBACK LOCAL LIMA/CALLAO) =====
+       Mantiene el mismo flujo y tarifas del código. Solo evita que el cliente elija distrito manualmente.
+       Si el reverse geocoding no devuelve distrito, se calcula por cercanía de coordenadas. */
+    const DISTRICT_COORDINATE_CENTERS = [
+      { name:'Ancón', lat:-11.7739, lon:-77.1763 },
+      { name:'Santa Rosa', lat:-11.7993, lon:-77.1745 },
+      { name:'Puente Piedra', lat:-11.8651, lon:-77.0747 },
+      { name:'Carabayllo', lat:-11.8617, lon:-77.0366 },
+      { name:'Comas', lat:-11.9443, lon:-77.0621 },
+      { name:'Los Olivos', lat:-11.9763, lon:-77.0750 },
+      { name:'Independencia', lat:-11.9930, lon:-77.0540 },
+      { name:'San Martín de Porres', lat:-12.0204, lon:-77.0857 },
+      { name:'Rímac', lat:-12.0294, lon:-77.0428 },
+      { name:'Cercado de Lima', lat:-12.0464, lon:-77.0428 },
+      { name:'Breña', lat:-12.0576, lon:-77.0523 },
+      { name:'Pueblo Libre', lat:-12.0768, lon:-77.0672 },
+      { name:'Jesús María', lat:-12.0753, lon:-77.0448 },
+      { name:'Lince', lat:-12.0845, lon:-77.0368 },
+      { name:'La Victoria', lat:-12.0719, lon:-77.0167 },
+      { name:'San Isidro', lat:-12.0976, lon:-77.0365 },
+      { name:'Miraflores', lat:-12.1211, lon:-77.0305 },
+      { name:'Barranco', lat:-12.1493, lon:-77.0219 },
+      { name:'Surquillo', lat:-12.1119, lon:-77.0217 },
+      { name:'San Borja', lat:-12.1083, lon:-76.9961 },
+      { name:'Santiago de Surco', lat:-12.1399, lon:-76.9915 },
+      { name:'La Molina', lat:-12.0875, lon:-76.9297 },
+      { name:'Ate', lat:-12.0464, lon:-76.9007 },
+      { name:'Santa Anita', lat:-12.0446, lon:-76.9714 },
+      { name:'El Agustino', lat:-12.0447, lon:-76.9984 },
+      { name:'San Juan de Lurigancho', lat:-11.9849, lon:-76.9997 },
+      { name:'Lurigancho-Chosica', lat:-11.9357, lon:-76.6972 },
+      { name:'Chaclacayo', lat:-11.9828, lon:-76.7665 },
+      { name:'Cieneguilla', lat:-12.1204, lon:-76.8144 },
+      { name:'Chorrillos', lat:-12.1727, lon:-77.0153 },
+      { name:'Villa El Salvador', lat:-12.2140, lon:-76.9432 },
+      { name:'Villa María del Triunfo', lat:-12.1622, lon:-76.9436 },
+      { name:'Lurín', lat:-12.2749, lon:-76.8728 },
+      { name:'Pachacámac', lat:-12.2285, lon:-76.8591 },
+      { name:'Punta Hermosa', lat:-12.3337, lon:-76.8246 },
+      { name:'Punta Negra', lat:-12.3657, lon:-76.7958 },
+      { name:'San Bartolo', lat:-12.3890, lon:-76.7797 },
+      { name:'Santa María del Mar', lat:-12.4095, lon:-76.7743 },
+      { name:'Pucusana', lat:-12.4816, lon:-76.7973 },
+      { name:'San Miguel', lat:-12.0770, lon:-77.0920 },
+      { name:'Magdalena del Mar', lat:-12.0917, lon:-77.0672 },
+      { name:'Callao', lat:-12.0500, lon:-77.1180 },
+      { name:'Bellavista', lat:-12.0625, lon:-77.1295 },
+      { name:'Carmen de la Legua-Reynoso', lat:-12.0394, lon:-77.0952 },
+      { name:'La Perla', lat:-12.0701, lon:-77.1218 },
+      { name:'La Punta', lat:-12.0729, lon:-77.1636 },
+      { name:'Ventanilla', lat:-11.8756, lon:-77.1270 },
+      { name:'Mi Perú', lat:-11.8550, lon:-77.1232 }
+    ];
+
+    function distanceKmBetweenCoords(lat1, lon1, lat2, lon2){
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function detectDistrictByCoordinates(lat, lon){
+      lat = Number(lat);
+      lon = Number(lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return '';
+
+      // Filtro general para no asignar distrito fuera de Lima/Callao por error.
+      if (lat > -11.70 || lat < -12.55 || lon > -76.60 || lon < -77.25) return '';
+
+      let best = null;
+      for (const d of DISTRICT_COORDINATE_CENTERS){
+        const km = distanceKmBetweenCoords(lat, lon, d.lat, d.lon);
+        if (!best || km < best.km) best = { ...d, km };
+      }
+
+      // Lima tiene distritos grandes y otros pequeños; 30 km cubre zonas amplias como Ancón, Lurín, Chosica.
+      return best && best.km <= 30 ? best.name : '';
+    }
+
     function coordsTextFromPoint(point={}){
       const lat = Number(point.lat);
       const lon = Number(point.lon ?? point.lng);
@@ -1668,7 +1752,18 @@ body{
     }
 
     function getDistrictFromCoordinateData(place={}, fallback=''){
-      return place?.district || place?.distrito || detectDistrictFromPlace(place, fallback) || '';
+      const lat = Number(place?.lat);
+      const lon = Number(place?.lon ?? place?.lng);
+
+      // 1) Primero por coordenadas: evita errores tipo "Lima" = Cercado.
+      const byCoords = detectDistrictByCoordinates(lat, lon);
+      if (byCoords) return byCoords;
+
+      // 2) Luego usa datos del reverse/autocomplete si los trae.
+      const byData = place?.district || place?.distrito || detectDistrictFromPlace(place, fallback) || '';
+      if (byData) return byData;
+
+      return '';
     }
 
     function setDetectedDistrict(type, district){
