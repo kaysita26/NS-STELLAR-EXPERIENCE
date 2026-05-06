@@ -972,11 +972,24 @@ body{
             </optgroup>
             <optgroup label="🏨 Hoteles en Miraflores">
               <option value="innside">INNSiDE Lima Miraflores</option>
+              <option value="marriottMiraflores">Lima Marriott Hotel - Miraflores</option>
+              <option value="parkPlaza">Park Plaza Lima Hotel - Miraflores</option>
+              <option value="pullmanMiraflores">Pullman Lima Miraflores</option>
+              <option value="estelarMiraflores">Hotel Estelar Miraflores</option>
+              <option value="hiltonGardenMiraflores">Hilton Garden Inn Lima Miraflores</option>
+              <option value="hiltonLimaMiraflores">Hilton Lima Miraflores</option>
+              <option value="ibisLarco">ibis Lima Larco Miraflores</option>
+              <option value="ibisReducto">ibis Lima Reducto Miraflores</option>
+              <option value="ibisBudgetMiraflores">ibis Budget Lima Miraflores</option>
             </optgroup>
             <optgroup label="🏨 Hoteles en San Isidro">
               <option value="melia">Hotel Meliá Lima</option>
+              <option value="delfines">Hotel Los Delfines</option>
+              <option value="hyattCentric">Hyatt Centric San Isidro Lima</option>
+              <option value="pullmanSanIsidro">Pullman Lima San Isidro</option>
+              <option value="westin">The Westin Lima Hotel</option>
               <option value="swissotel">Swissôtel Lima</option>
-              <option value="westin">The Westin Lima</option>
+              <option value="ibisStylesSanIsidro">ibis Styles Lima San Isidro</option>
             </optgroup>
           </select>
           <div class="help-required">Si eliges un lugar frecuente, se llena la dirección y el mapa se acerca.</div>
@@ -1060,11 +1073,24 @@ body{
             </optgroup>
             <optgroup label="🏨 Hoteles en Miraflores">
               <option value="innside">INNSiDE Lima Miraflores</option>
+              <option value="marriottMiraflores">Lima Marriott Hotel - Miraflores</option>
+              <option value="parkPlaza">Park Plaza Lima Hotel - Miraflores</option>
+              <option value="pullmanMiraflores">Pullman Lima Miraflores</option>
+              <option value="estelarMiraflores">Hotel Estelar Miraflores</option>
+              <option value="hiltonGardenMiraflores">Hilton Garden Inn Lima Miraflores</option>
+              <option value="hiltonLimaMiraflores">Hilton Lima Miraflores</option>
+              <option value="ibisLarco">ibis Lima Larco Miraflores</option>
+              <option value="ibisReducto">ibis Lima Reducto Miraflores</option>
+              <option value="ibisBudgetMiraflores">ibis Budget Lima Miraflores</option>
             </optgroup>
             <optgroup label="🏨 Hoteles en San Isidro">
               <option value="melia">Hotel Meliá Lima</option>
+              <option value="delfines">Hotel Los Delfines</option>
+              <option value="hyattCentric">Hyatt Centric San Isidro Lima</option>
+              <option value="pullmanSanIsidro">Pullman Lima San Isidro</option>
+              <option value="westin">The Westin Lima Hotel</option>
               <option value="swissotel">Swissôtel Lima</option>
-              <option value="westin">The Westin Lima</option>
+              <option value="ibisStylesSanIsidro">ibis Styles Lima San Isidro</option>
             </optgroup>
           </select>
           <div class="help-required">Si eliges un lugar frecuente, se llena la dirección de destino y el mapa se acerca.</div>
@@ -1332,69 +1358,192 @@ body{
         type:'aeropuerto',
         label:'Nuevo Aeropuerto Internacional Jorge Chávez, Callao',
         district:'Callao',
-        lat:-12.0302158,
-        lon:-77.1184253,
-        address:'Av. Morales Duárez s/n, Callao 07031'
+        lat:-12.030216,
+        lon:-77.118425,
+        address:'Nuevo Aeropuerto Internacional Jorge Chávez, Av. Morales Duárez s/n, Callao'
+      },
+      costaAirport: {
+        type:'aeropuerto',
+        label:'Costa del Sol Wyndham Lima Airport, Callao',
+        district:'Callao',
+        lat:-12.021900,
+        lon:-77.114300,
+        address:'Costa del Sol Wyndham Lima Airport, Aeropuerto Internacional Jorge Chávez, Callao'
       },
       plazaNorte: {
         type:'zona_fija',
         fareKey:'plazaNorte',
         label:'Plaza Norte, Independencia',
         district:'Independencia',
-        lat:-11.9933,
-        lon:-77.0619,
-        address:'Centro Comercial Plaza Norte, Independencia'
+        lat:-11.993300,
+        lon:-77.061900,
+        address:'Centro Comercial Plaza Norte, Av. Alfredo Mendiola, Independencia'
       },
       conzac: {
         type:'zona_fija',
         fareKey:'conzac',
         label:'Conzac, Los Olivos',
         district:'Los Olivos',
-        lat:-11.9699,
-        lon:-77.0749,
-        address:'Zona Conzac, Los Olivos'
+        lat:-11.969900,
+        lon:-77.074900,
+        address:'Zona Comercial Conzac, Los Olivos'
       },
-      melia: {
-        type:'hotel',
-        fareKey:'melia',
-        label:'Hotel Meliá Lima, San Isidro',
-        district:'San Isidro',
-        lat:-12.0906,
-        lon:-77.0559,
-        address:'Av. Salaverry 2599, San Isidro'
-      },
+
+      // HOTELES MIRAFLORES
       innside: {
         type:'hotel',
         fareKey:'innside',
         label:'INNSiDE Lima Miraflores',
         district:'Miraflores',
-        lat:-12.1205,
-        lon:-77.0294,
-        address:'Calle Diez Canseco 344, Miraflores'
+        lat:-12.120500,
+        lon:-77.029400,
+        address:'INNSiDE Lima Miraflores, Calle Diez Canseco 344, Miraflores'
+      },
+      marriottMiraflores: {
+        type:'hotel',
+        fareKey:'marriottMiraflores',
+        label:'Lima Marriott Hotel, Miraflores',
+        district:'Miraflores',
+        lat:-12.132520,
+        lon:-77.030880,
+        address:'Lima Marriott Hotel, Malecón de la Reserva 615, Miraflores'
+      },
+      parkPlaza: {
+        type:'hotel',
+        fareKey:'parkPlaza',
+        label:'Park Plaza Lima Hotel, Miraflores',
+        district:'Miraflores',
+        lat:-12.119700,
+        lon:-77.030900,
+        address:'Park Plaza Lima Hotel, Miraflores, Lima'
+      },
+      pullmanMiraflores: {
+        type:'hotel',
+        fareKey:'pullmanMiraflores',
+        label:'Pullman Lima Miraflores',
+        district:'Miraflores',
+        lat:-12.129900,
+        lon:-77.028900,
+        address:'Pullman Lima Miraflores, Av. Larco 1250, Miraflores'
+      },
+      estelarMiraflores: {
+        type:'hotel',
+        fareKey:'estelarMiraflores',
+        label:'Hotel Estelar Miraflores',
+        district:'Miraflores',
+        lat:-12.122900,
+        lon:-77.030900,
+        address:'Hotel Estelar Miraflores, Av. Alfredo Benavides 415, Miraflores'
+      },
+      hiltonGardenMiraflores: {
+        type:'hotel',
+        fareKey:'hiltonGardenMiraflores',
+        label:'Hilton Garden Inn Lima Miraflores',
+        district:'Miraflores',
+        lat:-12.120400,
+        lon:-77.028300,
+        address:'Hilton Garden Inn Lima Miraflores, Malecón Balta 770, Miraflores'
+      },
+      hiltonLimaMiraflores: {
+        type:'hotel',
+        fareKey:'hiltonLimaMiraflores',
+        label:'Hilton Lima Miraflores',
+        district:'Miraflores',
+        lat:-12.127800,
+        lon:-77.027600,
+        address:'Hilton Lima Miraflores, Av. La Paz 1099, Miraflores'
+      },
+      ibisLarco: {
+        type:'hotel',
+        fareKey:'ibisLarco',
+        label:'ibis Lima Larco Miraflores',
+        district:'Miraflores',
+        lat:-12.128900,
+        lon:-77.029900,
+        address:'ibis Lima Larco Miraflores, Av. Larco 1140, Miraflores'
+      },
+      ibisReducto: {
+        type:'hotel',
+        fareKey:'ibisReducto',
+        label:'ibis Lima Reducto Miraflores',
+        district:'Miraflores',
+        lat:-12.129300,
+        lon:-77.022300,
+        address:'ibis Lima Reducto Miraflores, Av. Reducto 1057, Miraflores'
+      },
+      ibisBudgetMiraflores: {
+        type:'hotel',
+        fareKey:'ibisBudgetMiraflores',
+        label:'ibis Budget Lima Miraflores',
+        district:'Miraflores',
+        lat:-12.124900,
+        lon:-77.028700,
+        address:'ibis Budget Lima Miraflores, Miraflores, Lima'
+      },
+
+      // HOTELES SAN ISIDRO
+      melia: {
+        type:'hotel',
+        fareKey:'melia',
+        label:'Hotel Meliá Lima, San Isidro',
+        district:'San Isidro',
+        lat:-12.090600,
+        lon:-77.055900,
+        address:'Hotel Meliá Lima, Av. Salaverry 2599, San Isidro'
+      },
+      delfines: {
+        type:'hotel',
+        fareKey:'delfines',
+        label:'Hotel Los Delfines, San Isidro',
+        district:'San Isidro',
+        lat:-12.095300,
+        lon:-77.051900,
+        address:'Hotel Los Delfines, Calle Los Eucaliptos 555, San Isidro'
+      },
+      hyattCentric: {
+        type:'hotel',
+        fareKey:'hyattCentric',
+        label:'Hyatt Centric San Isidro Lima',
+        district:'San Isidro',
+        lat:-12.093800,
+        lon:-77.037900,
+        address:'Hyatt Centric San Isidro Lima, Av. Jorge Basadre 367, San Isidro'
+      },
+      pullmanSanIsidro: {
+        type:'hotel',
+        fareKey:'pullmanSanIsidro',
+        label:'Pullman Lima San Isidro',
+        district:'San Isidro',
+        lat:-12.096900,
+        lon:-77.036200,
+        address:'Pullman Lima San Isidro, Av. Jorge Basadre 595, San Isidro'
       },
       westin: {
         type:'hotel',
-        label:'The Westin Lima Hotel & Convention Center',
+        fareKey:'westin',
+        label:'The Westin Lima Hotel & Convention Center, San Isidro',
         district:'San Isidro',
-        lat:-12.0967,
-        lon:-77.0213,
-        address:'Calle Las Begonias 450, San Isidro'
+        lat:-12.096700,
+        lon:-77.021300,
+        address:'The Westin Lima Hotel & Convention Center, Calle Las Begonias 450, San Isidro'
       },
       swissotel: {
         type:'hotel',
+        fareKey:'swissotel',
         label:'Swissôtel Lima, San Isidro',
         district:'San Isidro',
-        lat:-12.0975,
-        lon:-77.0365,
-        address:'Av. Santo Toribio 173, San Isidro'
+        lat:-12.097500,
+        lon:-77.036500,
+        address:'Swissôtel Lima, Av. Santo Toribio 173, San Isidro'
       },
-      costaAirport: {
-        type:'aeropuerto',
-        label:'Costa del Sol Wyndham Lima Airport',
-        district:'Callao',
-        lat:-12.0219,
-        lon:-77.1143,
-        address:'Aeropuerto Internacional Jorge Chávez, Callao'
+      ibisStylesSanIsidro: {
+        type:'hotel',
+        fareKey:'ibisStylesSanIsidro',
+        label:'ibis Styles Lima San Isidro',
+        district:'San Isidro',
+        lat:-12.098800,
+        lon:-77.023700,
+        address:'ibis Styles Lima San Isidro, Av. Jorge Basadre / San Isidro, Lima'
       }
     };
 
@@ -2021,70 +2170,66 @@ body{
     function applyFrequentPlace(type, key){
       if (!key || !FREQUENT_PLACES[key]) return;
 
+      clearMessages();
       const place = FREQUENT_PLACES[key];
+      const coordsTexto = `${Number(place.lat).toFixed(6)}, ${Number(place.lon).toFixed(6)}`;
+
       const point = {
+        ...place,
         label: place.label,
-        lat: place.lat,
-        lon: place.lon,
-        type: place.type,
+        lat: Number(place.lat),
+        lon: Number(place.lon),
+        lng: Number(place.lon),
+        coords: coordsTexto,
+        type: place.type || 'frecuente',
         key: key,
         district: place.district,
+        distrito: place.district,
         address: place.address,
-        fareKey: place.fareKey || key
+        fareKey: place.fareKey || key,
+        frequentPlace:true
       };
 
       if (type === 'origin'){
-        const coordsTexto = coordsTextFromPoint(point);
-        $('origen').value = coordsTexto || place.label;
-
-        if ($('distritoRecojo')) {
-          $('distritoRecojo').value = place.district;
-        }
-
-        if ($('direccionExactaRecojo')) {
-          $('direccionExactaRecojo').value = place.address;
-        }
-
         originSelection = point;
         selectingPoint = null;
 
-        drawMarker('origin', point);
-        setOriginValue(place.address + ' — ' + place.label);
+        // En LUGARES FRECUENTES: la lupa muestra COORDENADAS y la dirección exacta SÍ se autollena.
+        if ($('origen')) $('origen').value = coordsTexto;
+        if ($('distritoRecojo')) $('distritoRecojo').value = place.district || '';
+        if ($('direccionExactaRecojo')) $('direccionExactaRecojo').value = place.address || place.label;
+        if ($('frecuenteOrigen')) $('frecuenteOrigen').value = key;
 
-        map.setView([place.lat, place.lon], 17);
+        drawMarker('origin', point);
+        setOriginValue(`${coordsTexto} — ${place.address || place.label}`);
+        map.setView([point.lat, point.lon], 17);
         showPinSelection(false);
 
         $('sheetTitle').textContent = 'Confirma tu punto de recojo';
-        $('sheetSub').textContent = 'Usa tu ubicación actual o el pin. También puedes abrir opciones frecuentes. Luego confirma el punto exacto.';
-        $('mapModeLabel').textContent = 'Recojo ubicado en el mapa';
-        showOk('Lugar frecuente de recojo cargado. La dirección ya quedó lista; puedes continuar con destino.');
+        $('sheetSub').textContent = 'Lugar frecuente cargado con coordenadas y dirección exacta.';
+        $('mapModeLabel').textContent = 'Recojo frecuente cargado';
+        showOk('Recojo frecuente cargado: coordenadas en la lupa y dirección exacta autollenada.');
       }
 
       if (type === 'destination'){
-        const coordsTexto = coordsTextFromPoint(point);
-        $('destino').value = coordsTexto || place.label;
-
-        if ($('distritoDestino')) {
-          $('distritoDestino').value = place.district;
-        }
-
-        if ($('direccionExactaDestino')) {
-          $('direccionExactaDestino').value = place.address;
-        }
-
         destinationSelection = point;
         selectingPoint = null;
 
-        drawMarker('destination', point);
-        setDestinationValue(place.address + ' — ' + place.label);
+        // En LUGARES FRECUENTES: la lupa muestra COORDENADAS y la dirección exacta SÍ se autollena.
+        if ($('destino')) $('destino').value = coordsTexto;
+        if ($('distritoDestino')) $('distritoDestino').value = place.district || '';
+        if ($('direccionExactaDestino')) $('direccionExactaDestino').value = place.address || place.label;
+        if ($('frecuenteDestino')) $('frecuenteDestino').value = key;
 
-        map.setView([place.lat, place.lon], 17);
+        drawMarker('destination', point);
+        setDestinationValue(`${coordsTexto} — ${place.address || place.label}`);
+        map.setView([point.lat, point.lon], 17);
         showPinSelection(false);
 
         $('sheetTitle').textContent = '🏁 Confirma tu punto de destino';
-        $('sheetSub').textContent = 'Usa el pin, busca en el mapa o abre lugares frecuentes. Luego confirma el punto exacto.';
-        $('mapModeLabel').textContent = 'Destino ubicado en el mapa';
-        showOk('Lugar frecuente de destino cargado. La dirección ya quedó lista; puedes continuar.');
+        $('sheetSub').textContent = 'Lugar frecuente cargado con coordenadas y dirección exacta.';
+        $('mapModeLabel').textContent = 'Destino frecuente cargado';
+        showOk('Destino frecuente cargado: coordenadas en la lupa y dirección exacta autollenada.');
       }
 
       resetRouteData();
