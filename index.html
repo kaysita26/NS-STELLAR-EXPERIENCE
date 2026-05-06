@@ -1726,6 +1726,83 @@ body{
       return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
+    /* ===== BLINDAJE TOTAL DE DISTRITOS POR COORDENADAS =====
+       Primero usa zonas priorizadas para evitar errores de frontera.
+       Luego recién usa centro más cercano como respaldo.
+       Esto evita casos como La Molina → Ate, Surco → San Borja, Los Olivos → SMP, Callao → Cercado. */
+    const DISTRICT_PRIORITY_ZONES = [
+      // Lima Este / Moderna: orden importante por fronteras y tarifas con peaje.
+      { name:'La Molina', minLat:-12.1450, maxLat:-12.0450, minLon:-76.9850, maxLon:-76.8750 },
+      { name:'Ate', minLat:-12.1050, maxLat:-11.9850, minLon:-76.9700, maxLon:-76.7600 },
+      { name:'Santa Anita', minLat:-12.0750, maxLat:-12.0150, minLon:-77.0050, maxLon:-76.9400 },
+      { name:'El Agustino', minLat:-12.0750, maxLat:-12.0150, minLon:-77.0350, maxLon:-76.9850 },
+      { name:'San Juan de Lurigancho', minLat:-12.0350, maxLat:-11.9000, minLon:-77.0300, maxLon:-76.9100 },
+      { name:'Lurigancho-Chosica', minLat:-12.0600, maxLat:-11.8500, minLon:-76.8500, maxLon:-76.6000 },
+      { name:'Chaclacayo', minLat:-12.0400, maxLat:-11.9400, minLon:-76.8500, maxLon:-76.7200 },
+      { name:'Cieneguilla', minLat:-12.2100, maxLat:-12.0200, minLon:-76.9000, maxLon:-76.7200 },
+
+      // Lima Moderna / Surco y alrededores.
+      { name:'Santiago de Surco', minLat:-12.1800, maxLat:-12.0850, minLon:-77.0300, maxLon:-76.9350 },
+      { name:'San Borja', minLat:-12.1250, maxLat:-12.0800, minLon:-77.0200, maxLon:-76.9750 },
+      { name:'Surquillo', minLat:-12.1250, maxLat:-12.0950, minLon:-77.0400, maxLon:-77.0100 },
+      { name:'Barranco', minLat:-12.1650, maxLat:-12.1300, minLon:-77.0400, maxLon:-77.0050 },
+      { name:'Miraflores', minLat:-12.1350, maxLat:-12.0950, minLon:-77.0550, maxLon:-77.0100 },
+      { name:'San Isidro', minLat:-12.1150, maxLat:-12.0750, minLon:-77.0650, maxLon:-77.0100 },
+      { name:'Lince', minLat:-12.0950, maxLat:-12.0650, minLon:-77.0500, maxLon:-77.0200 },
+      { name:'Jesús María', minLat:-12.0900, maxLat:-12.0550, minLon:-77.0600, maxLon:-77.0350 },
+      { name:'Pueblo Libre', minLat:-12.0950, maxLat:-12.0600, minLon:-77.0850, maxLon:-77.0450 },
+      { name:'Magdalena del Mar', minLat:-12.1050, maxLat:-12.0750, minLon:-77.0900, maxLon:-77.0550 },
+      { name:'San Miguel', minLat:-12.0950, maxLat:-12.0550, minLon:-77.1150, maxLon:-77.0750 },
+      { name:'La Victoria', minLat:-12.0900, maxLat:-12.0450, minLon:-77.0350, maxLon:-76.9950 },
+      { name:'Breña', minLat:-12.0700, maxLat:-12.0400, minLon:-77.0650, maxLon:-77.0400 },
+      { name:'Rímac', minLat:-12.0550, maxLat:-12.0000, minLon:-77.0600, maxLon:-77.0150 },
+      { name:'Cercado de Lima', minLat:-12.0750, maxLat:-12.0200, minLon:-77.0800, maxLon:-77.0000 },
+
+      // Lima Norte.
+      { name:'Los Olivos', minLat:-12.0200, maxLat:-11.9400, minLon:-77.1100, maxLon:-77.0450 },
+      { name:'Independencia', minLat:-12.0200, maxLat:-11.9700, minLon:-77.0700, maxLon:-77.0250 },
+      { name:'San Martín de Porres', minLat:-12.0600, maxLat:-11.9600, minLon:-77.1250, maxLon:-77.0500 },
+      { name:'Comas', minLat:-11.9900, maxLat:-11.8900, minLon:-77.0900, maxLon:-77.0100 },
+      { name:'Carabayllo', minLat:-11.9300, maxLat:-11.7600, minLon:-77.0900, maxLon:-76.9500 },
+      { name:'Puente Piedra', minLat:-11.9200, maxLat:-11.8000, minLon:-77.1200, maxLon:-77.0300 },
+      { name:'Ancón', minLat:-11.8500, maxLat:-11.7000, minLon:-77.2400, maxLon:-77.0700 },
+      { name:'Santa Rosa', minLat:-11.8500, maxLat:-11.7500, minLon:-77.2000, maxLon:-77.1200 },
+
+      // Callao.
+      { name:'Callao', minLat:-12.0800, maxLat:-11.9900, minLon:-77.1550, maxLon:-77.0850 },
+      { name:'Bellavista', minLat:-12.0750, maxLat:-12.0450, minLon:-77.1400, maxLon:-77.1100 },
+      { name:'Carmen de la Legua-Reynoso', minLat:-12.0550, maxLat:-12.0250, minLon:-77.1100, maxLon:-77.0800 },
+      { name:'La Perla', minLat:-12.0850, maxLat:-12.0550, minLon:-77.1350, maxLon:-77.1050 },
+      { name:'La Punta', minLat:-12.0850, maxLat:-12.0600, minLon:-77.1750, maxLon:-77.1450 },
+      { name:'Ventanilla', minLat:-11.9500, maxLat:-11.7800, minLon:-77.1800, maxLon:-77.0800 },
+      { name:'Mi Perú', minLat:-11.8900, maxLat:-11.8200, minLon:-77.1600, maxLon:-77.0900 },
+
+      // Lima Sur.
+      { name:'Chorrillos', minLat:-12.2100, maxLat:-12.1300, minLon:-77.0450, maxLon:-76.9700 },
+      { name:'Villa El Salvador', minLat:-12.2500, maxLat:-12.1700, minLon:-76.9900, maxLon:-76.9000 },
+      { name:'Villa María del Triunfo', minLat:-12.2100, maxLat:-12.1100, minLon:-76.9900, maxLon:-76.9000 },
+      { name:'Lurín', minLat:-12.3300, maxLat:-12.2100, minLon:-76.9600, maxLon:-76.8000 },
+      { name:'Pachacámac', minLat:-12.3000, maxLat:-12.1300, minLon:-76.9300, maxLon:-76.7600 },
+      { name:'Punta Hermosa', minLat:-12.3600, maxLat:-12.3000, minLon:-76.8500, maxLon:-76.7800 },
+      { name:'Punta Negra', minLat:-12.3900, maxLat:-12.3400, minLon:-76.8300, maxLon:-76.7700 },
+      { name:'San Bartolo', minLat:-12.4200, maxLat:-12.3600, minLon:-76.8100, maxLon:-76.7500 },
+      { name:'Santa María del Mar', minLat:-12.4400, maxLat:-12.3900, minLon:-76.8000, maxLon:-76.7400 },
+      { name:'Pucusana', minLat:-12.5200, maxLat:-12.4300, minLon:-76.8500, maxLon:-76.7400 }
+    ];
+
+    function detectDistrictByPriorityZone(lat, lon){
+      lat = Number(lat);
+      lon = Number(lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return '';
+
+      for (const z of DISTRICT_PRIORITY_ZONES){
+        if (lat >= z.minLat && lat <= z.maxLat && lon >= z.minLon && lon <= z.maxLon) {
+          return z.name;
+        }
+      }
+      return '';
+    }
+
     function detectDistrictByCoordinates(lat, lon){
       lat = Number(lat);
       lon = Number(lon);
@@ -1734,13 +1811,17 @@ body{
       // Filtro general para no asignar distrito fuera de Lima/Callao por error.
       if (lat > -11.70 || lat < -12.55 || lon > -76.60 || lon < -77.25) return '';
 
+      // 1) Zonas priorizadas: más estable para tarifas por distrito.
+      const byPriority = detectDistrictByPriorityZone(lat, lon);
+      if (byPriority) return byPriority;
+
+      // 2) Respaldo: centro más cercano.
       let best = null;
       for (const d of DISTRICT_COORDINATE_CENTERS){
         const km = distanceKmBetweenCoords(lat, lon, d.lat, d.lon);
         if (!best || km < best.km) best = { ...d, km };
       }
 
-      // Lima tiene distritos grandes y otros pequeños; 30 km cubre zonas amplias como Ancón, Lurín, Chosica.
       return best && best.km <= 30 ? best.name : '';
     }
 
